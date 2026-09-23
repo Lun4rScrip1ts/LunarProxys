@@ -12,6 +12,7 @@ import config from "../config.js";
 import { mountAnalytics } from "./analytics.js";
 import { mountGhGames } from "./games.js";
 import { injectVersionInfo, resolveVersionInfo } from "./version.js";
+import communityRouter from "./community.js";
 
 console.log(chalk.yellow("🚀 Starting server..."));
 
@@ -60,6 +61,8 @@ mountGhGames(app);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api", generalLimiter, communityRouter);
 
 const jsStaticOptions = {
   setHeaders: (res, filePath) => {
@@ -112,6 +115,8 @@ const routes = [
   { path: "/games", file: "games.html" },
   { path: "/play.html", file: "games.html" },
   { path: "/settings", file: "settings.html" },
+  { path: "/chat", file: "chat.html" },
+  { path: "/account", file: "account.html" },
   { path: "/tabs", file: "tabs.html" },
   { path: "/", file: "index.html" },
 ];
