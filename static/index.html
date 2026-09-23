@@ -1,30 +1,51 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"><meta name="referrer" content="no-referrer"><meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="shortcut icon" id="tab-favicon" href="favicon.png">
-<title id="t">LunarProxy</title>
-<link rel="stylesheet" href="/assets/css/global.css"><link rel="stylesheet" href="/assets/css/home.css"><link rel="stylesheet" href="/assets/css/nav.css"><link rel="stylesheet" href="/assets/css/lunar.css">
-<script src="/assets/js/storage.js"></script><script src="/assets/js/main.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
+  <title id="t">Home</title>
+  <link rel="stylesheet" href="/assets/css/global.css" />
+  <link rel="stylesheet" href="/assets/css/home.css" />
+  <link rel="stylesheet" href="/assets/css/nav.css" />
+  <script src="/assets/js/storage.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body class="center">
-<div class="nav-bar"></div>
-<main class="main lunar-home">
-  <div class="lunar-badge"><span></span>LUNAR PROXY</div>
-  <h1 class="title">Explore without the clutter.</h1>
-  <p id="splash">A cleaner, faster-looking gateway for your web.</p>
-  <div class="search-container">
-    <form id="fv" method="POST"><input id="input" class="truncate" placeholder="Search or enter a URL" type="text" autocomplete="off"></form>
+
+<body class="center" onload="SplashT">
+  <div class="nav-bar"></div>
+  <div class="main">
+    <h1 class="title">&#73;&#110;&#116;&#101;&#114;&#115;&#116;&#101;&#108;&#108;&#97;&#114;</h1>
+    <p id="splash"></p>
+    <div class="search-container">
+      <form id="fv" method="POST">
+        <input id="input" class="truncate" placeholder="Search or enter a URL" type="text" />
+      </form>
+    </div>
   </div>
-  <div class="lunar-quick">
-    <a href="/apps"><i class="fa-solid fa-grid-2"></i><span>Apps</span></a>
-    <a href="/games"><i class="fa-solid fa-gamepad"></i><span>Games</span></a>
-    <a href="/settings"><i class="fa-solid fa-sliders"></i><span>Settings</span></a>
-  </div>
-</main>
-<script src="/assets/js/vendor.js"></script><script src="/assets/js/search.js"></script><script src="/assets/js/home.js"></script>
-<script src="./assets/ultraviolet/uv.bundle.js"></script><script src="./assets/ultraviolet/uv.config.js"></script>
-<script src="/assets/scramjet/scramjet.all.js"></script><script src="/assets/scramjet/scramjet.config.js"></script>
-<script src="/assets/js/lunar.js"></script>
-</body></html>
+  <script src="/assets/js/vendor.js"></script>
+  <script src="assets/js/search.js"></script>
+  <script src="/assets/js/home.js"></script>
+  <script src="./assets/ultraviolet/uv.bundle.js"></script>
+  <script src="./assets/ultraviolet/uv.config.js"></script>
+  <script src="/assets/scramjet/scramjet.all.js"></script>
+  <script src="/assets/scramjet/scramjet.config.js"></script>
+  <!-- DO NOT REMOVE-->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WKJQ5QHQTJ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || []
+    function gtag() {
+      dataLayer.push(arguments)
+    }
+    gtag("js", new Date())
+
+    gtag("config", "G-WKJQ5QHQTJ")
+  </script>
+  <!-- DO NOT REMOVE-->
+</body>
+
+</html>
