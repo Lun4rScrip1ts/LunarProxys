@@ -81,3 +81,23 @@ button:active,.key-button:active,.browser-button:active{transform:translateY(0) 
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
 .lunar-home{min-height:100vh;position:relative!important;inset:auto!important;padding:120px 16px 80px;box-sizing:border-box}.lunar-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--lunar-border);border-radius:999px;background:rgba(255,255,255,.045);font-size:11px;font-weight:700;letter-spacing:.16em;color:#cbd0db}.lunar-badge span{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 12px #fff}.lunar-home .title{font-size:clamp(42px,7vw,82px);line-height:.98;max-width:850px;text-align:center;margin:22px 0 14px}.lunar-home #splash{color:#9299a8;font-size:16px;margin:0 0 28px}.lunar-home .search-container{width:min(720px,100%)}.lunar-home #input{height:58px;font-size:16px;padding:0 18px;background:transparent!important;border:0!important;box-shadow:none!important}.lunar-quick{display:flex;gap:10px;margin-top:18px}.lunar-quick a{display:flex;align-items:center;gap:8px;padding:11px 15px;border:1px solid var(--lunar-border);border-radius:12px;background:rgba(255,255,255,.035);color:#cdd2dc;text-decoration:none;font-size:13px;transition:.18s ease}.lunar-quick a:hover{transform:translateY(-2px);background:rgba(255,255,255,.08);border-color:var(--lunar-border-hover)}.lunar-quick i{font-size:12px}@media(max-width:600px){.lunar-home{padding-top:90px}.lunar-quick{flex-wrap:wrap;justify-content:center}}
+/* Lunar settings controls */
+.lunar-settings-card{overflow:hidden!important}
+.lunar-card-heading{display:flex;align-items:center;justify-content:space-between}
+.lunar-card-heading>i{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--lunar-border);border-radius:12px;background:rgba(255,255,255,.045);color:var(--lunar-accent,#fff)}
+.lunar-eyebrow{display:block;font-size:10px;letter-spacing:.18em;color:var(--lunar-muted);font-weight:800;margin-bottom:5px}
+.lunar-setting-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 0;border-top:1px solid var(--lunar-border)}
+.lunar-setting-row strong,.lunar-slider-row strong{display:block;font-size:14px}
+.lunar-setting-row small{display:block;color:var(--lunar-muted);margin-top:4px;font-size:12px}
+.lunar-setting-row .switch{flex:none}
+.lunar-slider-row{padding:14px 0;border-top:1px solid var(--lunar-border)}
+.lunar-slider-row>div{display:flex;justify-content:space-between;margin-bottom:10px}
+.lunar-slider-row output{font-size:12px;color:var(--lunar-muted)}
+.lunar-slider-row input[type=range]{width:100%;height:5px;padding:0!important;appearance:none;background:rgba(255,255,255,.1)!important;border:0!important;border-radius:999px!important}
+.lunar-slider-row input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+body.lunar-glass-off .settings-card,body.lunar-glass-off .input-c,body.lunar-glass-off .search-container{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--lunar-panel-strong,#151820)!important}
+body.lunar-no-motion *,body.lunar-no-motion *::before,body.lunar-no-motion *::after{animation:none!important;transition:none!important}
+body.lunar-compact .settings-card{padding:16px!important}
+body.lunar-compact .settings-container{gap:10px!important}
+body.lunar-compact .lunar-setting-row,body.lunar-compact .lunar-slider-row{padding:10px 0}
+body.lunar-scale-90{zoom:.9}body.lunar-scale-91{zoom:.91}body.lunar-scale-92{zoom:.92}body.lunar-scale-93{zoom:.93}body.lunar-scale-94{zoom:.94}body.lunar-scale-95{zoom:.95}body.lunar-scale-96{zoom:.96}body.lunar-scale-97{zoom:.97}body.lunar-scale-98{zoom:.98}body.lunar-scale-99{zoom:.99}body.lunar-scale-101{zoom:1.01}body.lunar-scale-102{zoom:1.02}body.lunar-scale-103{zoom:1.03}body.lunar-scale-104{zoom:1.04}body.lunar-scale-105{zoom:1.05}body.lunar-scale-106{zoom:1.06}body.lunar-scale-107{zoom:1.07}body.lunar-scale-108{zoom:1.08}body.lunar-scale-109{zoom:1.09}body.lunar-scale-110{zoom:1.1}
