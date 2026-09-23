@@ -1,5 +1,5 @@
 {
-  "name": "interstellar",
+  "name": "lunar-proxy",
   "version": "6.0.0",
   "type": "module",
   "engines": {
@@ -13,7 +13,7 @@
     "precommit": "pnpm run format && pnpm biome check --write .",
     "lint": "biome lint --write ."
   },
-  "author": "InterstellarNetwork",
+  "author": "Lunar Proxy",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@mercuryworkshop/bare-mux": "^2.1.9",
