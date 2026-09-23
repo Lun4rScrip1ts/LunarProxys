@@ -9,12 +9,21 @@
   --lunar-accent:#ffffff;
   --lunar-radius:18px;
 }
-html,body{min-height:100%;background:var(--lunar-bg)!important;color:var(--lunar-text)!important}
+html,body{min-height:100%;background-color:var(--lunar-bg)!important;color:var(--lunar-text)!important}
 body{
+  background-color:var(--lunar-bg)!important;
+  background-image:var(--background-image)!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  background-attachment:fixed!important;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(900px 500px at 50% -10%,rgba(255,255,255,.10),transparent 65%),
     radial-gradient(600px 400px at 85% 100%,rgba(100,120,160,.07),transparent 70%),
-    linear-gradient(145deg,#06080c,#0b0e14 55%,#06080c)!important;
+    linear-gradient(145deg,rgba(6,8,12,.52),rgba(11,14,20,.60) 55%,rgba(6,8,12,.68));
 }
 body:before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
