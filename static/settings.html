@@ -15,7 +15,6 @@
   <script src="/assets/js/storage.js"></script>
   <script src="/assets/js/main.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="/assets/css/lunar.css">
 </head>
 
 <body>
@@ -171,13 +170,6 @@
             <option value="solarizedLight">Solarized Light</option>
             <option value="synthwave">Synthwave '84</option>
             </optgroup>
-            <optgroup label="Lunar Collection">
-              <option value="lunarMidnight">Lunar Midnight</option>
-              <option value="lunarAurora">Lunar Aurora</option>
-              <option value="lunarRose">Lunar Rose</option>
-              <option value="lunarSlate">Lunar Slate</option>
-              <option value="lunarSolar">Lunar Solar</option>
-          </optgroup>
           <optgroup label="Catppuccin Themes">
             <option value="catppuccinMocha">Mocha</option>
             <option value="catppuccinMacchiato">Macchiato</option>
@@ -213,36 +205,34 @@
           <option value="blue-orbs">Blue Orbs</option>
           <option value="the-sims">The Sims</option>
           <option value="curly-cursor">Curly Cursor</option>
-          <option value="lunar-dot">Lunar Dot</option>
         </select>
       </div>
 
-      <div class="settings-card lunar-settings-card">
-        <div class="lunar-card-heading">
-          <div><span class="lunar-eyebrow">INTERFACE</span><h3>Interface & Effects</h3></div>
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-        </div>
-        <p>Fine-tune the Lunar interface without changing how the proxy works.</p>
-        <div class="lunar-setting-row">
-          <div><strong>Glass UI</strong><small>Use translucent glass panels and backdrop blur.</small></div>
-          <label class="switch"><input type="checkbox" id="lunar-glass-switch" checked><span class="slider-round"></span></label>
-        </div>
-        <div class="lunar-setting-row">
-          <div><strong>UI Animations</strong><small>Enable subtle hover and transition effects.</small></div>
-          <label class="switch"><input type="checkbox" id="lunar-motion-switch" checked><span class="slider-round"></span></label>
-        </div>
-        <div class="lunar-setting-row">
-          <div><strong>Compact Layout</strong><small>Reduce spacing on cards and controls.</small></div>
-          <label class="switch"><input type="checkbox" id="lunar-compact-switch"><span class="slider-round"></span></label>
-        </div>
-        <div class="lunar-slider-row">
-          <div><strong>Glass intensity</strong><output id="lunar-glass-value">72%</output></div>
-          <input id="lunar-glass-range" type="range" min="20" max="95" value="72">
-        </div>
-        <div class="lunar-slider-row">
-          <div><strong>UI scale</strong><output id="lunar-scale-value">100%</output></div>
-          <input id="lunar-scale-range" type="range" min="90" max="110" value="100">
-        </div>
+      <div class="settings-card interface-settings-card">
+        <h3>Interface Appearance</h3>
+        <p>Customize the settings interface without changing the rest of Interstellar.</p>
+
+        <label>Glass Effect</label>
+        <select id="glass-effect-dropdown">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+        </select>
+
+        <label>Glass Strength</label>
+        <input id="glass-strength-range" type="range" min="0" max="100" value="65" class="interface-range" />
+        <span class="interface-range-value" id="glass-strength-value">65%</span>
+
+        <label>UI Scale</label>
+        <input id="ui-scale-range" type="range" min="90" max="110" value="100" class="interface-range" />
+        <span class="interface-range-value" id="ui-scale-value">100%</span>
+
+        <label>Animations</label>
+        <select id="animations-dropdown">
+          <option value="on">On</option>
+          <option value="reduced">Reduced</option>
+        </select>
+
+        <button class="key-button" id="interface-reset-btn" type="button">Reset Interface Settings</button>
       </div>
       <div class="settings-card">
         <h3>Search Engine</h3>
@@ -319,7 +309,6 @@
     gtag("config", "G-WKJQ5QHQTJ");
   </script>
   <!-- DO NOT REMOVE-->
-<script src="/assets/js/lunar.js"></script>
 </body>
 
 </html>
