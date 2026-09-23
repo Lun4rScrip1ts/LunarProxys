@@ -159,6 +159,68 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("engine-save-btn").addEventListener("click", saveCustomEngine);
 
+  const glassEffect = document.getElementById("glass-effect-dropdown");
+  const glassStrength = document.getElementById("glass-strength-range");
+  const glassStrengthValue = document.getElementById("glass-strength-value");
+  const uiScale = document.getElementById("ui-scale-range");
+  const uiScaleValue = document.getElementById("ui-scale-value");
+  const animations = document.getElementById("animations-dropdown");
+  const interfaceReset = document.getElementById("interface-reset-btn");
+
+  if (glassEffect) {
+    glassEffect.value = store.get("interfaceGlass") || "off";
+    glassEffect.addEventListener("change", () => {
+      store.set("interfaceGlass", glassEffect.value);
+      document.body.classList.toggle("interface-glass", glassEffect.value === "on");
+    });
+    document.body.classList.toggle("interface-glass", glassEffect.value === "on");
+  }
+
+  if (glassStrength) {
+    const saved = Number(store.get("interfaceGlassStrength") || 65);
+    glassStrength.value = String(saved);
+    if (glassStrengthValue) glassStrengthValue.textContent = saved + "%";
+    glassStrength.addEventListener("input", () => {
+      store.set("interfaceGlassStrength", glassStrength.value);
+      if (glassStrengthValue) glassStrengthValue.textContent = glassStrength.value + "%";
+      document.documentElement.style.setProperty("--interface-glass-alpha", String(0.25 + Number(glassStrength.value) / 200));
+      document.documentElement.style.setProperty("--interface-glass-blur", Math.round(4 + Number(glassStrength.value) / 5) + "px");
+    });
+    document.documentElement.style.setProperty("--interface-glass-alpha", String(0.25 + saved / 200));
+    document.documentElement.style.setProperty("--interface-glass-blur", Math.round(4 + saved / 5) + "px");
+  }
+
+  if (uiScale) {
+    const saved = Number(store.get("interfaceScale") || 100);
+    uiScale.value = String(saved);
+    if (uiScaleValue) uiScaleValue.textContent = saved + "%";
+    document.documentElement.style.setProperty("--interface-ui-scale", String(saved / 100));
+    uiScale.addEventListener("input", () => {
+      store.set("interfaceScale", uiScale.value);
+      if (uiScaleValue) uiScaleValue.textContent = uiScale.value + "%";
+      document.documentElement.style.setProperty("--interface-ui-scale", String(Number(uiScale.value) / 100));
+    });
+  }
+
+  if (animations) {
+    animations.value = store.get("interfaceAnimations") || "on";
+    animations.addEventListener("change", () => {
+      store.set("interfaceAnimations", animations.value);
+      document.body.classList.toggle("reduce-interface-motion", animations.value === "reduced");
+    });
+    document.body.classList.toggle("reduce-interface-motion", animations.value === "reduced");
+  }
+
+  if (interfaceReset) {
+    interfaceReset.addEventListener("click", () => {
+      store.remove("interfaceGlass");
+      store.remove("interfaceGlassStrength");
+      store.remove("interfaceScale");
+      store.remove("interfaceAnimations");
+      window.location.reload();
+    });
+  }
+
   const savedEngineName = store.get("enginename");
   if (savedEngineName) document.getElementById("engine").value = savedEngineName;
 });
