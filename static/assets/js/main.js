@@ -119,6 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="navbar-link lunar-account-nav" href="/./account"><i class="fa-solid fa-user navbar-icon"></i><span>Account</span></a>
       </div>`;
     nav.innerHTML = html;
+    fetch("/api/auth/me", { credentials: "same-origin" })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        const accountLink = document.querySelector(".lunar-account-nav span");
+        if (accountLink && data?.user) accountLink.textContent = "Profile";
+      })
+      .catch(() => {});
   }
 
   // Favicon and Name Logic
