@@ -259,3 +259,44 @@ select:hover {
 #warning {
    color: var(--danger);
 }
+
+
+/* Interface appearance controls */
+.interface-settings-card {
+   overflow: hidden;
+}
+
+.interface-settings-card .interface-range {
+   display: block;
+   width: 100%;
+   height: 5px;
+   padding: 0;
+   margin: 8px 0 4px;
+   accent-color: var(--accent);
+   cursor: pointer;
+}
+
+.interface-range-value {
+   display: block;
+   color: var(--text-muted);
+   font-size: 13px;
+   margin-bottom: 8px;
+}
+
+body.interface-glass .interface-settings-card {
+   background-color: rgba(42, 42, 42, var(--interface-glass-alpha, 0.575));
+   -webkit-backdrop-filter: blur(var(--interface-glass-blur, 17px));
+   backdrop-filter: blur(var(--interface-glass-blur, 17px));
+}
+
+body.reduce-interface-motion .interface-settings-card,
+body.reduce-interface-motion .interface-settings-card * {
+   transition: none !important;
+   animation: none !important;
+}
+
+@media screen and (max-width: 768px) {
+   .interface-settings-card .interface-range {
+      width: 100%;
+   }
+}
