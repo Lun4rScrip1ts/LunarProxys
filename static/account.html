@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Lunar Account</title>
+  <link rel="stylesheet" href="/assets/css/global.css">
+  <link rel="stylesheet" href="/assets/css/nav.css">
+  <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar3">
+  <link rel="stylesheet" href="/assets/css/community.css?v=lunar1">
+  <script src="/assets/js/storage.js"></script>
+  <script src="/assets/js/main.js?v=lunar3"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="lunar-community-page">
+  <div class="nav-bar"></div>
+  <main class="account-shell">
+    <section class="account-card" id="auth-card">
+      <div class="community-kicker"><i class="fa-solid fa-moon"></i> LUNAR ACCOUNT</div>
+      <h1 id="auth-title">Welcome back</h1>
+      <p id="auth-subtitle">Log in to use Global Chat and save your profile.</p>
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-mode="login">Log In</button>
+        <button type="button" class="auth-tab" data-mode="register">Register</button>
+      </div>
+      <form id="auth-form" class="account-form">
+        <label>Username<input id="auth-username" autocomplete="username" maxlength="24" required></label>
+        <label id="display-name-row" hidden>Display name<input id="auth-display-name" maxlength="32" placeholder="What others will see"></label>
+        <label>Password<input id="auth-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
+        <label id="avatar-row" hidden>Profile picture URL<input id="auth-avatar" type="url" maxlength="1000" placeholder="https://..."></label>
+        <label id="bio-row" hidden>Bio<input id="auth-bio" maxlength="160" placeholder="Tell people a little about you"></label>
+        <label id="status-row" hidden>Status<input id="auth-status" maxlength="80" placeholder="What are you up to?"></label>
+        <button class="community-primary" type="submit" id="auth-submit">Log In</button>
+        <p class="form-error" id="auth-error" role="alert"></p>
+      </form>
+    </section>
+
+    <section class="account-card profile-card" id="profile-card" hidden>
+      <div class="profile-heading">
+        <div class="profile-avatar" id="profile-avatar"></div>
+        <div>
+          <div class="community-kicker">YOUR PROFILE</div>
+          <h1 id="profile-display"></h1>
+          <p id="profile-username"></p>
+        </div>
+      </div>
+      <form id="profile-form" class="account-form">
+        <label>Display name<input id="profile-name" maxlength="32" required></label>
+        <label>Profile picture URL<input id="profile-picture" type="url" maxlength="1000" placeholder="https://..."></label>
+        <label>Status<input id="profile-status" maxlength="80" placeholder="Your status"></label>
+        <label>Bio<input id="profile-bio" maxlength="160" placeholder="A short bio"></label>
+        <button class="community-primary" type="submit">Save Profile</button>
+        <p class="form-success" id="profile-success"></p>
+        <p class="form-error" id="profile-error" role="alert"></p>
+      </form>
+      <div class="account-actions">
+        <a class="community-secondary" href="/chat"><i class="fa-solid fa-comments"></i> Open Global Chat</a>
+        <button class="community-danger" id="logout-button" type="button">Log Out</button>
+      </div>
+    </section>
+  </main>
+  <script src="/assets/js/account.js?v=lunar1"></script>
+</body>
+</html>
