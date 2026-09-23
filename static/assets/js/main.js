@@ -93,8 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(script);
   }
 
-  // The AdSense account is tied to gointerstellar.app, so forks and mirrors must not serve
-  // it. The tabs page never carried the loader either.
+  // Only the original host needs its legacy ad loader.
   if (window.location.hostname === "gointerstellar.app" && !document.getElementById("frame-container")) {
     const ads = document.createElement("script");
     ads.async = true;
@@ -113,9 +112,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="icon lunar-nav-logo" href="/./" aria-label="Lunar Proxy">LUNAR PROXY</a>
       </div>
       <div class="nav-bar-right">
-        <a class="navbar-link" href="/./games"><i class="fa-solid fa-gamepad navbar-icon"></i><an>&#71;&#97;</an><an>&#109;&#101;&#115;</an></a>
-        <a class="navbar-link" href="/./apps"><i class="fa-solid fa-phone navbar-icon"></i><an>&#65;&#112;</an><an>&#112;&#115;</an></a>
-        <a class="navbar-link" href="/./settings"><i class="fa-solid fa-gear navbar-icon settings-icon"></i><an>&#83;&#101;&#116;</an><an>&#116;&#105;&#110;&#103;</an></a>
+        <a class="navbar-link" href="/./chat"><i class="fa-solid fa-comments navbar-icon"></i><span>Chat</span></a>
+        <a class="navbar-link" href="/./games"><i class="fa-solid fa-gamepad navbar-icon"></i><span>Games</span></a>
+        <a class="navbar-link" href="/./apps"><i class="fa-solid fa-grid-2 navbar-icon"></i><span>Apps</span></a>
+        <a class="navbar-link" href="/./settings"><i class="fa-solid fa-gear navbar-icon settings-icon"></i><span>Settings</span></a>
+        <a class="navbar-link lunar-account-nav" href="/./account"><i class="fa-solid fa-user navbar-icon"></i><span>Account</span></a>
       </div>`;
     nav.innerHTML = html;
   }
