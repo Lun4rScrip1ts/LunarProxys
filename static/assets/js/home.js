@@ -53,14 +53,12 @@ if (!inFrame && !navigator.userAgent.includes("Firefox") && store.get("ab") === 
 const SplashT = [
   "Over 8 Million Users since 2023",
   "Fastest growing proxy server",
-  "Made by xBubbo",
-  "Check out discord.gg/interstellar :)",
+  "Made by @lunar.undetected",
+  "Check out discord.gg/lunarslounge :)",
   "Thanks for using the site",
-  "Follow us on Tiktok (@useinterstellar)",
-  "Subscribe to us on YouTube (@unblocking)",
-  "Subscribe to my Youtube (@xbubbo)",
+  "Follow me on tiktok! @lunar.undetected",
   "Check out the settings page",
-  "Check out our Patreon (https://www.patreon.com/gointerstellar)",
+  "Join lunarslounge on discord for updates and recommendations for games and more! (.gg/lunarslounge)",
 ];
 
 let SplashI = Math.floor(Math.random() * SplashT.length);
