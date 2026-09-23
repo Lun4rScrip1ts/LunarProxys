@@ -1,0 +1,101 @@
+:root{
+  --lunar-bg:#07090d;
+  --lunar-panel:rgba(15,18,25,.78);
+  --lunar-panel-solid:#11151d;
+  --lunar-border:rgba(255,255,255,.09);
+  --lunar-border-hover:rgba(255,255,255,.18);
+  --lunar-text:#f6f7fb;
+  --lunar-muted:#9aa2b2;
+  --lunar-accent:#ffffff;
+  --lunar-radius:18px;
+}
+html,body{min-height:100%;background:var(--lunar-bg)!important;color:var(--lunar-text)!important}
+body{
+  background:
+    radial-gradient(900px 500px at 50% -10%,rgba(255,255,255,.10),transparent 65%),
+    radial-gradient(600px 400px at 85% 100%,rgba(100,120,160,.07),transparent 70%),
+    linear-gradient(145deg,#06080c,#0b0e14 55%,#06080c)!important;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:48px 48px;mask-image:linear-gradient(to bottom,black,transparent 75%);
+}
+.nav-bar{
+  background:rgba(10,13,18,.72)!important;
+  border:1px solid var(--lunar-border)!important;
+  border-radius:16px!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.28)!important;
+  backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;
+}
+.nav-bar .icon{font-size:28px!important;letter-spacing:-.04em!important}
+.nav-bar .navbar-link{font-size:16px!important;letter-spacing:.02em!important}
+.main{z-index:2!important}
+.lunar-home{min-height:100vh}
+.lunar-brand{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  color:var(--lunar-muted);font-size:11px;font-weight:800;letter-spacing:.22em;
+}
+.lunar-brand span{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.75)}
+.lunar-home .title{
+  margin:0 0 12px!important;font-size:clamp(48px,8vw,108px)!important;
+  line-height:.95!important;letter-spacing:-.07em!important;text-transform:none!important;
+  text-shadow:0 12px 45px rgba(0,0,0,.45)!important;
+}
+.lunar-home .title:hover{transform:none!important}
+.lunar-home #splash{margin:0 0 28px!important;color:var(--lunar-muted)!important;font-size:15px}
+.lunar-home .search-container{width:min(760px,92vw)!important}
+.lunar-home .truncate{
+  width:100%!important;height:58px!important;box-sizing:border-box;
+  padding:0 22px!important;text-align:left!important;font-size:16px!important;
+  border:1px solid var(--lunar-border)!important;border-radius:17px!important;
+  background:rgba(255,255,255,.055)!important;box-shadow:0 20px 60px rgba(0,0,0,.28)!important;
+  backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;
+}
+.lunar-home .truncate:focus{border-color:var(--lunar-border-hover)!important;box-shadow:0 0 0 4px rgba(255,255,255,.035),0 24px 70px rgba(0,0,0,.35)!important}
+.lunar-quick{display:flex;gap:10px;margin-top:18px}
+.lunar-quick a{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;color:var(--lunar-muted);
+  text-decoration:none;border:1px solid var(--lunar-border);border-radius:12px;
+  background:rgba(255,255,255,.035);transition:.2s ease;
+}
+.lunar-quick a:hover{color:#fff;background:rgba(255,255,255,.075);border-color:var(--lunar-border-hover);transform:translateY(-2px)}
+.settings-container,#apps-container{position:relative;z-index:2}
+.settings-container{padding-top:150px!important}
+.settings-card{
+  background:linear-gradient(145deg,rgba(20,24,32,.88),rgba(11,14,20,.78))!important;
+  border:1px solid var(--lunar-border)!important;border-radius:20px!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.25)!important;backdrop-filter:blur(16px)!important;
+}
+.settings-card:hover{border-color:var(--lunar-border-hover)!important;box-shadow:0 22px 65px rgba(0,0,0,.32)!important}
+.settings-card h3{letter-spacing:-.025em}
+.settings-card p{line-height:1.55}
+.settings-card input,.settings-card select,.key-form{
+  background:rgba(255,255,255,.045)!important;border-color:var(--lunar-border)!important;
+}
+.settings-card input:focus,.settings-card select:focus{border-color:var(--lunar-border-hover)!important}
+.interface-settings-card{overflow:hidden}
+.interface-settings-card .interface-range{display:block;width:100%;height:5px;padding:0;margin:8px 0;accent-color:#fff;cursor:pointer}
+.interface-range-value{display:block;color:var(--lunar-muted);font-size:12px;margin-bottom:8px}
+body.interface-glass .settings-card{backdrop-filter:blur(var(--interface-glass-blur,16px))!important;-webkit-backdrop-filter:blur(var(--interface-glass-blur,16px))!important;background:rgba(18,22,29,var(--interface-glass-alpha,.72))!important}
+body.reduce-interface-motion *,body.reduce-interface-motion *:before,body.reduce-interface-motion *:after{animation:none!important;transition:none!important}
+#apps-container{max-width:1200px!important;margin:0 auto!important;padding:145px 22px 40px!important}
+.column{background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025))!important;border:1px solid var(--lunar-border)!important;border-radius:18px!important;box-shadow:0 14px 40px rgba(0,0,0,.24)!important}
+.column:hover{border-color:var(--lunar-border-hover)!important;box-shadow:0 22px 55px rgba(0,0,0,.34)!important}
+.input-c{position:relative;z-index:2!important;margin-top:145px!important}
+.input-c input,.input-c select{background:rgba(255,255,255,.045)!important;border-color:var(--lunar-border)!important}
+body#no{background:var(--lunar-bg)!important}
+.browser{background:rgba(9,12,17,.92)!important;border-bottom:1px solid var(--lunar-border)!important;backdrop-filter:blur(20px)!important}
+.browser-bar{background:rgba(9,12,17,.9)!important;border-bottom:1px solid var(--lunar-border)!important;backdrop-filter:blur(18px)!important}
+.browser-post .bar{background:rgba(255,255,255,.045)!important;border:1px solid var(--lunar-border)!important;border-radius:12px!important}
+#tab-list li{background:rgba(255,255,255,.035)!important;border:1px solid transparent!important;border-radius:10px!important}
+#tab-list li.active{background:rgba(255,255,255,.09)!important;border-color:var(--lunar-border-hover)!important}
+@media(max-width:768px){
+ .nav-bar{margin:9px!important;padding:0 14px!important}
+ .lunar-home .title{font-size:15vw!important}
+ .lunar-home .search-container{width:92vw!important}
+ .lunar-quick{flex-wrap:wrap;justify-content:center}
+ .settings-container{padding:120px 12px 35px!important}
+ #apps-container{padding:120px 12px 30px!important}
+ .input-c{margin-top:120px!important}
+}
