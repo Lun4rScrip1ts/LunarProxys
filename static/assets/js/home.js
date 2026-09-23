@@ -51,8 +51,6 @@ if (!inFrame && !navigator.userAgent.includes("Firefox") && store.get("ab") === 
 
 // Splash texts
 const SplashT = [
-  "Over 8 Million Users since 2023",
-  "Fastest growing proxy server",
   "Made by @lunar.undetected",
   "Check out discord.gg/lunarslounge :)",
   "Thanks for using the site",
