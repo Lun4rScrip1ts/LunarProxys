@@ -108,3 +108,25 @@ body#no{background:var(--lunar-bg)!important}
  #apps-container{padding:120px 12px 30px!important}
  .input-c{margin-top:120px!important}
 }
+
+/* Lunar home layout fix: keep the hero inside the viewport instead of using the legacy absolute layout. */
+body.lunar-home{display:block!important;min-height:100vh!important;overflow-x:hidden!important}
+.lunar-home .main{position:relative!important;top:auto!important;left:auto!important;width:100%!important;min-height:100vh!important;box-sizing:border-box!important;padding:150px 20px 60px!important;display:flex!important;justify-content:flex-start!important}
+.lunar-home .lunar-brand{margin-top:4vh!important}
+.lunar-home .title{margin-top:0!important;margin-bottom:12px!important}
+.lunar-home #splash{margin-top:0!important}
+.lunar-home .nav-bar{z-index:1000!important}
+.nav-bar .lunar-nav-logo{display:flex!important;align-items:center!important;height:100%!important;color:#fff!important;text-decoration:none!important;font-size:18px!important;font-weight:900!important;letter-spacing:.12em!important;white-space:nowrap!important}
+.nav-bar .lunar-nav-logo::before{content:"";width:8px;height:8px;margin-right:9px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.75)}
+.nav-bar .nav-bar-right{display:flex!important;align-items:center!important;gap:4px!important}
+.nav-bar .navbar-link{display:inline-flex!important;align-items:center!important;gap:7px!important;white-space:nowrap!important}
+.nav-bar .navbar-link span{display:inline!important}
+@media(max-width:900px){
+  .nav-bar .navbar-link span{display:none!important}
+  .nav-bar .nav-bar-right{gap:8px!important}
+  .nav-bar .navbar-link{margin-left:2px!important;font-size:18px!important}
+}
+@media(max-width:768px){
+  .lunar-home .main{padding:125px 14px 45px!important}
+  .lunar-home .lunar-brand{margin-top:3vh!important}
+}
