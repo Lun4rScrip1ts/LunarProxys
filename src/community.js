@@ -7,7 +7,7 @@ import express from "express";
 const scrypt = promisify(scryptCallback);
 const router = express.Router();
 
-const DATA_DIR = process.env.LUNAR_DATA_DIR || path.join(process.cwd(), "data");
+const DATA_DIR = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "community.json");
 const SESSION_DAYS = 30;
 const MAX_MESSAGES = 500;
