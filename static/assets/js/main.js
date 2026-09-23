@@ -108,10 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (nav) {
     const themeId = store.get("theme");
     const lightThemes = ["Inverted", "light", "gruvboxLight", "solarizedLight"];
-    const LogoUrl = lightThemes.includes(themeId) ? "/assets/media/favicon/main-inverted.png" : "/assets/media/favicon/main.png";
     const html = `
       <div id="icon-container">
-        <a class="icon" href="/./"><img alt="nav" id="INImg" src="${LogoUrl}"/></a>
+        <a class="icon lunar-nav-logo" href="/./" aria-label="Lunar Proxy">LUNAR PROXY</a>
       </div>
       <div class="nav-bar-right">
         <a class="navbar-link" href="/./games"><i class="fa-solid fa-gamepad navbar-icon"></i><an>&#71;&#97;</an><an>&#109;&#101;&#115;</an></a>
