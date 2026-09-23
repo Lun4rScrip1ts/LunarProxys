@@ -19,11 +19,6 @@
     monokai: "/assets/css/themes/colors/monokai.css",
     oneDark: "/assets/css/themes/colors/one-dark.css",
     synthwave: "/assets/css/themes/colors/synthwave.css",
-    lunarMidnight: "/assets/css/themes/colors/lunar-midnight.css",
-    lunarAurora: "/assets/css/themes/colors/lunar-aurora.css",
-    lunarRose: "/assets/css/themes/colors/lunar-rose.css",
-    lunarSlate: "/assets/css/themes/colors/lunar-slate.css",
-    lunarSolar: "/assets/css/themes/colors/lunar-solar.css",
     solarized: "/assets/css/themes/colors/solarized.css",
     solarizedLight: "/assets/css/themes/colors/solarized-light.css",
   };
