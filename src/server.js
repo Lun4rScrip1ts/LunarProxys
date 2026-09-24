@@ -59,10 +59,13 @@ if (config.challenge !== false) {
 mountGhGames(app);
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: "12mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", generalLimiter, communityRouter);
+
+const communityDataDir = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(process.cwd(), "data");
+app.use("/uploads", express.static(path.join(communityDataDir, "uploads"), { maxAge: "7d", index: false }));
 
 const jsStaticOptions = {
   setHeaders: (res, filePath) => {
