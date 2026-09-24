@@ -47,3 +47,16 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
 .community-danger{background:rgba(255,75,95,.08);border:1px solid rgba(255,100,115,.2);color:#ff9aa4}
 [hidden]{display:none!important}
 @media(max-width:700px){.community-shell,.account-shell{width:calc(100% - 20px);padding-top:120px}.community-header{align-items:flex-start;flex-direction:column}.chat-messages{min-height:55vh;height:55vh}.chat-login-note{flex-wrap:wrap}.account-card{padding:22px}.nav-bar .nav-bar-right{max-width:70%}}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.account-form small{font-size:11px;color:#747d90;font-weight:500}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.upload-box{padding:14px;border:1px dashed var(--lunar-border);border-radius:14px;background:rgba(255,255,255,.025)}
+.upload-box span{display:block;color:#dfe2ea;margin-bottom:9px;font-weight:800}
+.upload-box input[type=file]{font-size:11px;padding:8px;background:transparent;border:0}
+.profile-card{position:relative;overflow:hidden}
+.profile-background{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.22;filter:blur(2px);transform:scale(1.03);pointer-events:none}
+.profile-card>*:not(.profile-background){position:relative;z-index:1}
+.profile-banner{height:150px;margin:-30px -30px 22px;background-size:cover;background-position:center;background-color:rgba(255,255,255,.035);border-bottom:1px solid var(--lunar-border)}
+.profile-avatar-large{width:84px;height:84px;flex-basis:84px;border:4px solid rgba(10,12,17,.9);box-shadow:0 10px 35px rgba(0,0,0,.35)}
+@media(max-width:760px){.form-grid,.upload-grid{grid-template-columns:1fr}.profile-banner{margin:-22px -22px 20px;height:120px}}
