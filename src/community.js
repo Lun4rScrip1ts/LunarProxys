@@ -1,6 +1,6 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
-import path from "node:fs";
+import path from "node:path";
 import { promisify } from "node:util";
 import express from "express";
 import { promises as fs } from "node:fs";
