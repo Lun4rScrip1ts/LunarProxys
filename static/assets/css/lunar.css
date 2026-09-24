@@ -18,14 +18,14 @@ body{
   background-size:cover!important;
   background-attachment:fixed!important;
 }
-body::after{
+body:not(#no)::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(900px 500px at 50% -10%,rgba(255,255,255,.10),transparent 65%),
     radial-gradient(600px 400px at 85% 100%,rgba(100,120,160,.07),transparent 70%),
     linear-gradient(145deg,rgba(6,8,12,.52),rgba(11,14,20,.60) 55%,rgba(6,8,12,.68));
 }
-body:before{
+body:not(#no):before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
   background-size:48px 48px;mask-image:linear-gradient(to bottom,black,transparent 75%);
@@ -130,3 +130,9 @@ body.lunar-home{display:block!important;min-height:100vh!important;overflow-x:hi
   .lunar-home .main{padding:125px 14px 45px!important}
   .lunar-home .lunar-brand{margin-top:3vh!important}
 }
+
+body#no{background:#080b10!important;background-image:none!important;color:var(--text)!important}
+body#no::before,body#no::after{display:none!important;content:none!important}
+body#no .frame-container{background:#fff!important}
+body#no .frame-container iframe{background:#fff!important;color-scheme:light}
+body#no .browser-bar,body#no .browser{background:rgba(9,12,17,.96)!important}
