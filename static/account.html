@@ -59,6 +59,8 @@
       </div>
 
       <form id="profile-form" class="account-form">
+        <label>Username<input id="profile-username-input" maxlength="20" minlength="4" pattern="[A-Za-z0-9_]{4,20}" required><small>4–20 characters.</small></label>
+        <label>Email<input id="profile-email" type="email" maxlength="254" required></label>
         <div class="form-grid">
           <label>Username
             <input id="profile-username-input" maxlength="20" minlength="4" pattern="[A-Za-z0-9_]{4,20}" required>
@@ -92,7 +94,9 @@
         </div>
 
         <div class="form-grid">
-          <label>Status<input id="profile-status" maxlength="80" placeholder="Your status"></label>
+          <label>Profile banner<input id="profile-banner-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><small>Optional profile banner.</small></label>
+        <label>Profile background<input id="profile-background-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><small>Optional profile background.</small></label>
+        <label>Status<input id="profile-status" maxlength="80" placeholder="Your status"></label>
           <label>Bio<input id="profile-bio" maxlength="160" placeholder="A short bio"></label>
         </div>
 
