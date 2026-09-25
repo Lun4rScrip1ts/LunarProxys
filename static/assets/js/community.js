@@ -216,10 +216,10 @@
       await sendMessage("", {
         url:uploaded.url,
         kind:uploaded.kind,
-        name:file.name.replace(/.[^.]+$/, "").slice(0,80)
+        name:file.name.replace(/\.[^.]+$/, "").slice(0,80)
       });
       if (kind === "sticker") {
-        await saveSticker(uploaded.url, file.name.replace(/.[^.]+$/, "").slice(0,50) || "Sticker");
+        await saveSticker(uploaded.url, file.name.replace(/\.[^.]+$/, "").slice(0,50) || "Sticker");
       }
     } catch (error) {
       showToast(error.message);
