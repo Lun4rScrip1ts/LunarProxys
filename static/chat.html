@@ -50,6 +50,14 @@
       </div>
 
       <form id="chat-form" class="chat-form">
+        <div id="attachment-draft" class="attachment-draft" hidden>
+          <div id="attachment-preview" aria-label="Attachment preview"></div>
+          <div class="attachment-draft-info">
+            <strong id="attachment-name">Attachment</strong>
+            <span id="attachment-kind">Ready to send</span>
+          </div>
+          <button type="button" id="cancel-attachment" title="Remove attachment" aria-label="Remove attachment"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         <input id="chat-input" maxlength="500" autocomplete="off" placeholder="Write a message..." aria-label="Message">
         <input id="chat-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
         <input id="chat-gif-file" type="file" accept="image/gif" hidden>
