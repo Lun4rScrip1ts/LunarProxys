@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <form id="profile-form" class="account-form">
+      <form id="profile-form" class="account-form" novalidate>
         <div class="form-grid">
           <label>Username
             <input id="profile-username-input" maxlength="20" minlength="4" pattern="[A-Za-z0-9_]{4,20}" required>
@@ -96,7 +96,7 @@
           <label>Bio<input id="profile-bio" maxlength="160" placeholder="A short bio"></label>
         </div>
 
-        <button class="community-primary" type="submit">Save Profile</button>
+        <button class="community-primary" id="save-profile-button" type="submit">Save Profile</button>
         <p class="form-success" id="profile-success"></p>
         <p class="form-error" id="profile-error" role="alert"></p>
       </form>
@@ -107,6 +107,6 @@
       </div>
     </section>
   </main>
-  <script src="/assets/js/account.js?v=lunar2"></script>
+  <script src="/assets/js/account.js?v=lunar3"></script>
 </body>
 </html>
