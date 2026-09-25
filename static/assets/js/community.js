@@ -308,6 +308,31 @@
     reactionPicker.hidden = false;
   }
 
+  reactionPicker.addEventListener("click", async event => {
+    const pickerButton = event.target.closest("[data-picker-message]");
+    if (!pickerButton) return;
+
+    const id = pickerButton.dataset.pickerMessage;
+    const emoji = pickerButton.dataset.pickerEmoji;
+    reactionPicker.hidden = true;
+
+    if (!currentUser) {
+      location.href = "/account";
+      return;
+    }
+
+    try {
+      await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({emoji})
+      });
+      await refresh();
+    } catch (error) {
+      showToast(error.message);
+    }
+  });
+
   function showReactionUsers(button, reaction) {
     closePopovers();
     const users = reaction?.users || [];
@@ -327,20 +352,6 @@
       const id = reactionButton.dataset.reactionMessage;
       const emoji = reactionButton.dataset.reactionEmoji;
       if (!currentUser) { location.href="/account"; return; }
-      try {
-        await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
-          method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({emoji})
-        });
-        await refresh();
-      } catch (error) { showToast(error.message); }
-      return;
-    }
-
-    const pickerButton = event.target.closest("[data-picker-message]");
-    if (pickerButton) {
-      const id = pickerButton.dataset.pickerMessage;
-      const emoji = pickerButton.dataset.pickerEmoji;
-      reactionPicker.hidden = true;
       try {
         await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
           method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({emoji})
