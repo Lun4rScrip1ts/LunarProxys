@@ -19,7 +19,6 @@
   const attachmentNameEl = document.getElementById("attachment-name");
   const attachmentKindEl = document.getElementById("attachment-kind");
   const cancelAttachmentButton = document.getElementById("cancel-attachment");
-  const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
   let currentUser = null;
   let messages = [];
   let replyTo = null;
@@ -298,13 +297,18 @@
   }
 
   function showReactionPicker(button, messageId) {
+    if (!currentUser) {
+      location.href = "/account";
+      return;
+    }
     closePopovers();
-    reactionPicker.innerHTML = ALLOWED_REACTIONS.map(emoji =>
-      `<button type="button" data-picker-message="${escapeAttr(messageId)}" data-picker-emoji="${escapeAttr(emoji)}">${emoji}</button>`
-    ).join("");
+    reactionPicker.dataset.messageId = messageId;
     const rect = button.getBoundingClientRect();
-    reactionPicker.style.left = Math.max(8, Math.min(window.innerWidth - 250, rect.left - 80)) + "px";
-    reactionPicker.style.top = Math.max(8, rect.top - 55) + "px";
+    const pickerWidth = Math.min(380, window.innerWidth - 16);
+    const left = Math.max(8, Math.min(window.innerWidth - pickerWidth - 8, rect.right - pickerWidth));
+    const top = Math.max(8, Math.min(window.innerHeight - 440, rect.bottom + 8));
+    reactionPicker.style.left = left + "px";
+    reactionPicker.style.top = top + "px";
     reactionPicker.hidden = false;
   }
 
@@ -327,20 +331,6 @@
       const id = reactionButton.dataset.reactionMessage;
       const emoji = reactionButton.dataset.reactionEmoji;
       if (!currentUser) { location.href="/account"; return; }
-      try {
-        await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
-          method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({emoji})
-        });
-        await refresh();
-      } catch (error) { showToast(error.message); }
-      return;
-    }
-
-    const pickerButton = event.target.closest("[data-picker-message]");
-    if (pickerButton) {
-      const id = pickerButton.dataset.pickerMessage;
-      const emoji = pickerButton.dataset.pickerEmoji;
-      reactionPicker.hidden = true;
       try {
         await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
           method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({emoji})
@@ -460,6 +450,25 @@
       await sendMessage("", {url:sticker.dataset.sendSticker, kind:"sticker", name:sticker.dataset.stickerName});
       closeStickerDrawer();
     } catch (error) { showToast(error.message); }
+  });
+
+  const emojiPicker = document.getElementById("emoji-picker");
+  emojiPicker.addEventListener("emoji-click", async event => {
+    const id = reactionPicker.dataset.messageId;
+    const emoji = event.detail?.unicode;
+    if (!id || !emoji || !currentUser) return;
+
+    try {
+      await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({emoji})
+      });
+      reactionPicker.hidden = true;
+      await refresh();
+    } catch (error) {
+      showToast(error.message);
+    }
   });
 
   document.addEventListener("click", event => {
