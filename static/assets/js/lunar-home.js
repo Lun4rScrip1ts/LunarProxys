@@ -3,6 +3,8 @@
     const title = document.querySelector(".title");
     const splash = document.getElementById("splash");
     const logo = document.querySelector(".lunar-nav-logo");
+    const brand = document.querySelector(".lunar-brand");
+    if (brand) brand.remove();
     if (logo) { logo.textContent = "LS"; logo.setAttribute("aria-label", "LS"); }
     document.body.classList.add("ls-ready");
     if (title) title.textContent = "Lunar Proxy";
