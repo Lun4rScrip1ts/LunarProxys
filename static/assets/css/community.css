@@ -230,3 +230,9 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
 .chat-form #chat-input{order:1}
 .chat-form .chat-compose-tools{order:2}
 .chat-form .chat-send{order:3}
+
+/* Full searchable emoji reaction picker. */
+.reaction-picker{width:min(380px,calc(100vw - 16px));height:min(430px,calc(100vh - 24px));padding:0;overflow:hidden}
+.reaction-picker emoji-picker{display:block;width:100%;height:100%;--background:rgba(14,17,23,.98);--border-color:rgba(255,255,255,.08);--button-hover-background:rgba(255,255,255,.08);--button-active-background:rgba(145,117,255,.16);--indicator-color:#9c7cff;--input-border-color:rgba(255,255,255,.1);--input-font-color:#eef0f5;--input-placeholder-color:#7f8797}
+.reaction-row:empty{display:none}
+@media(max-width:700px){.reaction-picker{width:calc(100vw - 16px);height:min(410px,calc(100vh - 20px))}}
