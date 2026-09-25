@@ -21,7 +21,16 @@ const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
 const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
 
-let state = { users: {}, sessions: {}, messages: [] };
+let state = {
+  users: {},
+  sessions: {},
+  messages: [],
+  friendRequests: [],
+  friendships: [],
+  dmThreads: {},
+  dmMessages: [],
+  reports: [],
+};
 let writeQueue = Promise.resolve();
 
 async function loadState() {
@@ -34,6 +43,11 @@ async function loadState() {
         users: parsed.users && typeof parsed.users === "object" ? parsed.users : {},
         sessions: parsed.sessions && typeof parsed.sessions === "object" ? parsed.sessions : {},
         messages: Array.isArray(parsed.messages) ? parsed.messages.slice(-MAX_MESSAGES) : [],
+        friendRequests: Array.isArray(parsed.friendRequests) ? parsed.friendRequests : [],
+        friendships: Array.isArray(parsed.friendships) ? parsed.friendships : [],
+        dmThreads: parsed.dmThreads && typeof parsed.dmThreads === "object" ? parsed.dmThreads : {},
+        dmMessages: Array.isArray(parsed.dmMessages) ? parsed.dmMessages.slice(-5000) : [],
+        reports: Array.isArray(parsed.reports) ? parsed.reports : [],
       };
       for (const user of Object.values(state.users)) {
         user.username = String(user.username || "").slice(0, USERNAME_MAX);
@@ -42,6 +56,8 @@ async function loadState() {
         user.bannerUrl = String(user.bannerUrl || "");
         user.backgroundUrl = String(user.backgroundUrl || "");
         user.stickers = Array.isArray(user.stickers) ? user.stickers.slice(0, MAX_STICKERS) : [];
+        user.gifFavorites = Array.isArray(user.gifFavorites) ? user.gifFavorites.slice(0, 200) : [];
+        user.blockedUsers = Array.isArray(user.blockedUsers) ? user.blockedUsers.slice(0, 500) : [];
       }
       for (const message of state.messages) {
         message.reactions = Array.isArray(message.reactions) ? message.reactions : [];
@@ -227,7 +243,7 @@ router.post("/auth/register", async (req, res) => {
   const user = {
     id: randomUUID(), username, email, displayName,
     avatarUrl: "", bannerUrl: "", backgroundUrl: "", bio: "", status: "",
-    stickers: [], salt: credentials.salt, hash: credentials.hash, createdAt: new Date().toISOString(),
+    stickers: [], gifFavorites: [], blockedUsers: [], salt: credentials.salt, hash: credentials.hash, createdAt: new Date().toISOString(),
   };
 
   state.users[user.id] = user;
@@ -249,6 +265,8 @@ router.post("/auth/login", async (req, res) => {
   }
 
   if (!Array.isArray(user.stickers)) user.stickers = [];
+  if (!Array.isArray(user.gifFavorites)) user.gifFavorites = [];
+  if (!Array.isArray(user.blockedUsers)) user.blockedUsers = [];
   setSession(res, user.id);
   await persist();
   res.json({ user: publicUser(user, true) });
@@ -409,6 +427,318 @@ router.delete("/stickers/:id", requireUser, async (req, res) => {
   req.user.stickers = req.user.stickers.filter(sticker => sticker.id !== req.params.id);
   await persist();
   res.json({ stickers: req.user.stickers });
+});
+
+
+// Friends / direct-message helpers
+function findUser(id) {
+  return state.users[id] || null;
+}
+
+function publicFriendUser(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName,
+    avatarUrl: user.avatarUrl || "",
+    status: user.status || "",
+  };
+}
+
+function friendshipKey(a, b) {
+  return [a, b].sort().join(":");
+}
+
+function areFriends(a, b) {
+  return state.friendships.includes(friendshipKey(a, b));
+}
+
+function isBlocked(a, b) {
+  const one = findUser(a);
+  const two = findUser(b);
+  return Boolean(one?.blockedUsers?.includes(b) || two?.blockedUsers?.includes(a));
+}
+
+function getDmThread(a, b, create = true) {
+  const key = friendshipKey(a, b);
+  if (!state.dmThreads[key] && create) {
+    state.dmThreads[key] = { id: key, userIds: [a, b] };
+  }
+  return state.dmThreads[key] || null;
+}
+
+function publicDmMessage(message, viewerId) {
+  const hidden = Array.isArray(message.deletedFor) && message.deletedFor.includes(viewerId);
+  if (hidden) return null;
+  return {
+    ...message,
+    reactions: (message.reactions || []).map(reaction => ({
+      emoji: reaction.emoji,
+      users: (reaction.users || []).map(user => ({ userId: user.userId, username: user.username })),
+    })),
+  };
+}
+
+function publicGifFavorite(gif) {
+  return {
+    id: cleanText(gif.id, 100),
+    title: cleanText(gif.title, 120),
+    url: cleanText(gif.url, 1000),
+    preview: cleanText(gif.preview || gif.url, 1000),
+  };
+}
+
+router.get("/friends/bootstrap", requireUser, (req, res) => {
+  const me = req.user;
+  const friends = state.friendships
+    .map(key => key.split(":"))
+    .filter(ids => ids.includes(me.id))
+    .map(ids => findUser(ids.find(id => id !== me.id)))
+    .filter(Boolean)
+    .filter(user => !me.blockedUsers?.includes(user.id))
+    .map(publicFriendUser);
+
+  const incoming = state.friendRequests
+    .filter(item => item.toUserId === me.id && item.status === "pending")
+    .map(item => ({ ...item, from: publicFriendUser(findUser(item.fromUserId)) }))
+    .filter(item => item.from);
+
+  const outgoing = state.friendRequests
+    .filter(item => item.fromUserId === me.id && item.status === "pending")
+    .map(item => ({ ...item, to: publicFriendUser(findUser(item.toUserId)) }))
+    .filter(item => item.to);
+
+  const threads = friends.map(friend => {
+    const thread = getDmThread(me.id, friend.id, false);
+    const last = thread ? state.dmMessages.slice().reverse().find(message =>
+      thread.userIds.includes(message.senderId) && thread.userIds.includes(message.recipientId) &&
+      !(message.deletedFor || []).includes(me.id)
+    ) : null;
+    return {
+      friend,
+      lastMessage: last ? publicDmMessage(last, me.id) : null,
+    };
+  });
+
+  res.json({
+    user: publicUser(me, true),
+    friends,
+    incoming,
+    outgoing,
+    threads,
+    gifFavorites: (me.gifFavorites || []).map(publicGifFavorite),
+  });
+});
+
+router.get("/friends/users", requireUser, (req, res) => {
+  const q = cleanText(req.query.q, 40).toLowerCase();
+  if (q.length < 2) return res.json({ users: [] });
+  const users = Object.values(state.users)
+    .filter(user => user.id !== req.user.id)
+    .filter(user => !req.user.blockedUsers?.includes(user.id))
+    .filter(user => user.username.toLowerCase().includes(q) || user.displayName.toLowerCase().includes(q))
+    .slice(0, 20)
+    .map(publicFriendUser);
+  res.json({ users });
+});
+
+router.post("/friends/requests", requireUser, async (req, res) => {
+  const username = cleanText(req.body?.username, USERNAME_MAX).toLowerCase();
+  const target = Object.values(state.users).find(user => user.username.toLowerCase() === username);
+  if (!target) return res.status(404).json({ error: "User not found." });
+  if (target.id === req.user.id) return res.status(400).json({ error: "You cannot add yourself." });
+  if (isBlocked(req.user.id, target.id)) return res.status(403).json({ error: "This user is blocked." });
+  if (areFriends(req.user.id, target.id)) return res.status(409).json({ error: "You are already friends." });
+
+  const existing = state.friendRequests.find(item =>
+    item.status === "pending" &&
+    ((item.fromUserId === req.user.id && item.toUserId === target.id) ||
+     (item.fromUserId === target.id && item.toUserId === req.user.id))
+  );
+  if (existing) return res.status(409).json({ error: "A friend request is already pending." });
+
+  const request = {
+    id: randomUUID(),
+    fromUserId: req.user.id,
+    toUserId: target.id,
+    status: "pending",
+    createdAt: new Date().toISOString(),
+  };
+  state.friendRequests.push(request);
+  await persist();
+  res.status(201).json({ request });
+});
+
+router.patch("/friends/requests/:id", requireUser, async (req, res) => {
+  const request = state.friendRequests.find(item => item.id === req.params.id && item.toUserId === req.user.id);
+  if (!request || request.status !== "pending") return res.status(404).json({ error: "Friend request not found." });
+  const action = cleanText(req.body?.action, 10);
+  if (!["accept","decline"].includes(action)) return res.status(400).json({ error: "Invalid request action." });
+
+  request.status = action === "accept" ? "accepted" : "declined";
+  request.respondedAt = new Date().toISOString();
+  if (action === "accept") state.friendships.push(friendshipKey(request.fromUserId, request.toUserId));
+  await persist();
+  res.json({ ok: true, status: request.status });
+});
+
+router.delete("/friends/:userId", requireUser, async (req, res) => {
+  const userId = req.params.userId;
+  state.friendships = state.friendships.filter(key => key !== friendshipKey(req.user.id, userId));
+  await persist();
+  res.json({ ok: true });
+});
+
+router.post("/friends/block/:userId", requireUser, async (req, res) => {
+  const target = findUser(req.params.userId);
+  if (!target || target.id === req.user.id) return res.status(404).json({ error: "User not found." });
+  if (!Array.isArray(req.user.blockedUsers)) req.user.blockedUsers = [];
+  if (!req.user.blockedUsers.includes(target.id)) req.user.blockedUsers.push(target.id);
+  state.friendships = state.friendships.filter(key => key !== friendshipKey(req.user.id, target.id));
+  await persist();
+  res.json({ ok: true });
+});
+
+router.post("/friends/report/:userId", requireUser, async (req, res) => {
+  const target = findUser(req.params.userId);
+  if (!target || target.id === req.user.id) return res.status(404).json({ error: "User not found." });
+  state.reports.push({
+    id: randomUUID(),
+    reporterId: req.user.id,
+    reportedUserId: target.id,
+    reason: cleanText(req.body?.reason, 300) || "Reported as spam",
+    createdAt: new Date().toISOString(),
+  });
+  await persist();
+  res.json({ ok: true });
+});
+
+router.get("/friends/dms/:friendId/messages", requireUser, (req, res) => {
+  const friend = findUser(req.params.friendId);
+  if (!friend || friend.id === req.user.id) return res.status(404).json({ error: "User not found." });
+  if (!areFriends(req.user.id, friend.id)) return res.status(403).json({ error: "You are not friends with this user." });
+  const thread = getDmThread(req.user.id, friend.id, false);
+  const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 100, 1), 100);
+  const messages = thread
+    ? state.dmMessages.filter(message => thread.userIds.includes(message.senderId) && thread.userIds.includes(message.recipientId))
+        .slice(-limit).map(message => publicDmMessage(message, req.user.id)).filter(Boolean)
+    : [];
+  res.json({ messages });
+});
+
+router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => {
+  const friend = findUser(req.params.friendId);
+  if (!friend || friend.id === req.user.id) return res.status(404).json({ error: "User not found." });
+  if (!areFriends(req.user.id, friend.id)) return res.status(403).json({ error: "You are not friends with this user." });
+  if (isBlocked(req.user.id, friend.id)) return res.status(403).json({ error: "Messaging is blocked." });
+
+  const text = cleanText(req.body?.message, MAX_MESSAGE_LENGTH);
+  const attachment = req.body?.attachment && typeof req.body.attachment === "object" ? req.body.attachment : null;
+  if (!text && !attachment) return res.status(400).json({ error: "Message cannot be empty." });
+  if (attachment && (attachment.kind !== "gif" || typeof attachment.url !== "string" || !/^https:\/\//i.test(attachment.url))) {
+    return res.status(400).json({ error: "Invalid GIF attachment." });
+  }
+
+  const thread = getDmThread(req.user.id, friend.id, true);
+  const replyId = cleanText(req.body?.replyTo, 80);
+  const replied = replyId ? state.dmMessages.find(message => message.id === replyId && thread.userIds.includes(message.senderId) && thread.userIds.includes(message.recipientId)) : null;
+  const message = {
+    id: randomUUID(),
+    threadId: thread.id,
+    senderId: req.user.id,
+    recipientId: friend.id,
+    sender: publicFriendUser(req.user),
+    message: text,
+    attachment: attachment ? { kind: "gif", url: cleanText(attachment.url, 1000), title: cleanText(attachment.title, 120) } : null,
+    replyTo: replied ? { id: replied.id, sender: publicFriendUser(findUser(replied.senderId)), message: replied.message || "[GIF]" } : null,
+    reactions: [],
+    deletedFor: [],
+    createdAt: new Date().toISOString(),
+    editedAt: "",
+  };
+  state.dmMessages.push(message);
+  if (state.dmMessages.length > 5000) state.dmMessages = state.dmMessages.slice(-5000);
+  await persist();
+  res.status(201).json({ message: publicDmMessage(message, req.user.id) });
+});
+
+router.patch("/friends/dms/messages/:id", requireUser, async (req, res) => {
+  const message = state.dmMessages.find(item => item.id === req.params.id);
+  if (!message || message.senderId !== req.user.id) return res.status(404).json({ error: "Message not found." });
+  const text = cleanText(req.body?.message, MAX_MESSAGE_LENGTH);
+  if (!text && !message.attachment) return res.status(400).json({ error: "Message cannot be empty." });
+  message.message = text;
+  message.editedAt = new Date().toISOString();
+  await persist();
+  res.json({ message: publicDmMessage(message, req.user.id) });
+});
+
+router.delete("/friends/dms/messages/:id", requireUser, async (req, res) => {
+  const message = state.dmMessages.find(item => item.id === req.params.id);
+  if (!message || ![message.senderId, message.recipientId].includes(req.user.id)) return res.status(404).json({ error: "Message not found." });
+  if (!Array.isArray(message.deletedFor)) message.deletedFor = [];
+  if (!message.deletedFor.includes(req.user.id)) message.deletedFor.push(req.user.id);
+  await persist();
+  res.json({ ok: true });
+});
+
+router.patch("/friends/dms/messages/:id/reactions", requireUser, async (req, res) => {
+  const message = state.dmMessages.find(item => item.id === req.params.id);
+  const emoji = cleanText(req.body?.emoji, 8);
+  if (!message || ![message.senderId, message.recipientId].includes(req.user.id)) return res.status(404).json({ error: "Message not found." });
+  if (!ALLOWED_REACTIONS.includes(emoji)) return res.status(400).json({ error: "Reaction is not available." });
+  if (!Array.isArray(message.reactions)) message.reactions = [];
+  let reaction = message.reactions.find(item => item.emoji === emoji);
+  if (!reaction) {
+    reaction = { emoji, users: [] };
+    message.reactions.push(reaction);
+  }
+  const index = reaction.users.findIndex(user => user.userId === req.user.id);
+  if (index >= 0) reaction.users.splice(index, 1);
+  else reaction.users.push({ userId: req.user.id, username: req.user.username });
+  if (!reaction.users.length) message.reactions = message.reactions.filter(item => item.emoji !== emoji);
+  await persist();
+  res.json({ reactions: message.reactions });
+});
+
+router.post("/friends/dms/messages/:id/forward", requireUser, async (req, res) => {
+  const source = state.dmMessages.find(item => item.id === req.params.id);
+  const target = findUser(cleanText(req.body?.recipientId, 80));
+  if (!source || !target || source.senderId === target.id && target.id === req.user.id) return res.status(404).json({ error: "Message not found." });
+  if (![source.senderId, source.recipientId].includes(req.user.id)) return res.status(403).json({ error: "You cannot forward this message." });
+  if (target.id === req.user.id || !areFriends(req.user.id, target.id) || isBlocked(req.user.id, target.id)) return res.status(403).json({ error: "You can only forward to a friend." });
+
+  const thread = getDmThread(req.user.id, target.id, true);
+  const message = {
+    id: randomUUID(), threadId: thread.id, senderId: req.user.id, recipientId: target.id,
+    sender: publicFriendUser(req.user), message: source.message, attachment: source.attachment ? {...source.attachment} : null,
+    replyTo: null, reactions: [], deletedFor: [], forwarded: true, createdAt: new Date().toISOString(), editedAt: "",
+  };
+  state.dmMessages.push(message);
+  await persist();
+  res.status(201).json({ message: publicDmMessage(message, req.user.id) });
+});
+
+router.post("/friends/gifs/favorites", requireUser, async (req, res) => {
+  const favorite = publicGifFavorite(req.body?.gif || {});
+  if (!favorite.id || !favorite.url) return res.status(400).json({ error: "Invalid GIF." });
+  if (!Array.isArray(req.user.gifFavorites)) req.user.gifFavorites = [];
+  if (!req.user.gifFavorites.some(item => item.id === favorite.id)) req.user.gifFavorites.unshift(favorite);
+  req.user.gifFavorites = req.user.gifFavorites.slice(0, 200);
+  await persist();
+  res.json({ favorites: req.user.gifFavorites.map(publicGifFavorite) });
+});
+
+router.delete("/friends/gifs/favorites/:id", requireUser, async (req, res) => {
+  if (!Array.isArray(req.user.gifFavorites)) req.user.gifFavorites = [];
+  req.user.gifFavorites = req.user.gifFavorites.filter(item => item.id !== req.params.id);
+  await persist();
+  res.json({ favorites: req.user.gifFavorites.map(publicGifFavorite) });
+});
+
+router.get("/friends/gifs/config", requireUser, (_req, res) => {
+  if (!process.env.GIPHY_API_KEY) return res.status(503).json({ error: "GIF search is not configured. Add GIPHY_API_KEY to Railway variables." });
+  res.json({ apiKey: process.env.GIPHY_API_KEY });
 });
 
 await loadState();
