@@ -19,7 +19,7 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MAX_STICKERS = 100;
 const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
-const MAX_REACTION_LENGTH = 32;
+const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
 
 let state = { users: {}, sessions: {}, messages: [] };
 let writeQueue = Promise.resolve();
@@ -370,9 +370,9 @@ router.patch("/chat/messages/:id", requireUser, async (req, res) => {
 
 router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
   const message = findMessage(req.params.id);
-  const emoji = typeof req.body?.emoji === "string" ? req.body.emoji.trim() : "";
+  const emoji = cleanText(req.body?.emoji, 8);
   if (!message) return res.status(404).json({ error: "Message not found." });
-  if (!emoji || [...emoji].length > MAX_REACTION_LENGTH) return res.status(400).json({ error: "Invalid reaction." });
+  if (!ALLOWED_REACTIONS.includes(emoji)) return res.status(400).json({ error: "Reaction is not available." });
   if (!Array.isArray(message.reactions)) message.reactions = [];
 
   let reaction = message.reactions.find(item => item.emoji === emoji);
