@@ -1,6 +1,7 @@
 (() => {
   const authCard=document.getElementById("auth-card"), profileCard=document.getElementById("profile-card");
   const authForm=document.getElementById("auth-form"), errorEl=document.getElementById("auth-error");
+  const profileForm=document.getElementById("profile-form"), profileSaveButton=document.getElementById("save-profile-button");
   const tabs=[...document.querySelectorAll(".auth-tab")]; let mode="login", user=null;
   const api=async(url,options)=>{const res=await fetch(url,{credentials:"same-origin",...options});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||"Something went wrong.");return data;};
   const setMode=m=>{mode=m;const reg=m==="register";tabs.forEach(t=>t.classList.toggle("active",t.dataset.mode===m));
@@ -39,14 +40,22 @@
       if (mode === "login") localStorage.setItem("ls_login_identifier", document.getElementById("auth-identifier").value.trim());
       user=data.user;setProfile();}
     catch(err){errorEl.textContent=err.message;}finally{b.disabled=false;}});
-  document.getElementById("profile-form").addEventListener("submit",async e=>{e.preventDefault();const ok=document.getElementById("profile-success"),err=document.getElementById("profile-error");ok.textContent="";err.textContent="";
+  profileForm.addEventListener("submit",async e=>{e.preventDefault();const ok=document.getElementById("profile-success"),err=document.getElementById("profile-error");ok.textContent="";err.textContent="";
+    const username=document.getElementById("profile-username-input").value.trim();
+    const email=document.getElementById("profile-email").value.trim();
+    const displayName=document.getElementById("profile-name").value.trim();
+    if(!/^[A-Za-z0-9_]{4,20}$/.test(username)){err.textContent="Username must be 4–20 characters using letters, numbers, or underscores.";return;}
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email)){err.textContent="Please enter a valid email address.";return;}
+    if(!displayName){err.textContent="Display name cannot be empty.";return;}
+    profileSaveButton.disabled=true;
+    profileSaveButton.textContent="Saving...";
     try{const [avatarData,bannerData,backgroundData]=await Promise.all([fileData("profile-avatar-file"),fileData("profile-banner-file"),fileData("profile-background-file")]);
       const data=await api("/api/profile",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-        username:document.getElementById("profile-username-input").value,email:document.getElementById("profile-email").value,
-        displayName:document.getElementById("profile-name").value,status:document.getElementById("profile-status").value,
-        bio:document.getElementById("profile-bio").value,avatarData,bannerData,backgroundData})});
+        username,email,
+        displayName,status:document.getElementById("profile-status").value.trim(),
+        bio:document.getElementById("profile-bio").value.trim(),avatarData,bannerData,backgroundData})});
       user=data.user;setProfile();["profile-avatar-file","profile-banner-file","profile-background-file"].forEach(id=>document.getElementById(id).value="");ok.textContent="Profile saved.";
-    }catch(e2){err.textContent=e2.message;}});
+    }catch(e2){err.textContent=e2.message;}finally{profileSaveButton.disabled=false;profileSaveButton.textContent="Save Profile";}});
   document.getElementById("logout-button").addEventListener("click",async()=>{try{await api("/api/auth/logout",{method:"POST"});}catch{}user=null;authCard.hidden=false;profileCard.hidden=true;setMode("login");});
   api("/api/auth/me").then(d=>{user=d.user;if(user)setProfile();else setMode("login");}).catch(()=>setMode("login"));
 })();
