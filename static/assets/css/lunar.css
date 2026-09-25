@@ -116,7 +116,7 @@ body.lunar-home{display:block!important;min-height:100vh!important;overflow-x:hi
 .lunar-home .title{margin-top:0!important;margin-bottom:12px!important}
 .lunar-home #splash{margin-top:0!important}
 .lunar-home .nav-bar{z-index:1000!important}
-.nav-bar .lunar-nav-logo{display:flex!important;align-items:center!important;height:100%!important;color:#fff!important;text-decoration:none!important;font-size:18px!important;font-weight:900!important;letter-spacing:.12em!important;white-space:nowrap!important}
+.nav-bar .lunar-nav-logo{display:flex!important;align-items:center!important;height:100%!important;color:#fff!important;text-decoration:none!important;font-size:24px!important;font-weight:900!important;letter-spacing:.14em!important;white-space:nowrap!important}
 .nav-bar .lunar-nav-logo::before{content:"";width:8px;height:8px;margin-right:9px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.75)}
 .nav-bar .nav-bar-right{display:flex!important;align-items:center!important;gap:4px!important}
 .nav-bar .navbar-link{display:inline-flex!important;align-items:center!important;gap:7px!important;white-space:nowrap!important}
