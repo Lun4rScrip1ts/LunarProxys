@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/assets/css/global.css">
   <link rel="stylesheet" href="/assets/css/nav.css">
   <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar5">
-  <link rel="stylesheet" href="/assets/css/community.css?v=lunar3">
+  <link rel="stylesheet" href="/assets/css/community.css?v=lunar4">
   <script src="/assets/js/storage.js"></script>
   <script src="/assets/js/main.js?v=lunar5"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -20,27 +20,63 @@
       <div>
         <span class="community-kicker"><i class="fa-solid fa-moon"></i> LS COMMUNITY</span>
         <h1>Global Chat</h1>
-        <p>Talk with other LS users. Messages are saved with their date and time.</p>
+        <p>Talk with other LS users. Reply, react, share media, and save stickers.</p>
       </div>
       <a class="community-account-link" href="/account"><i class="fa-solid fa-user"></i><span id="community-account-label">Log in</span></a>
     </section>
+
     <section class="chat-card">
       <div class="chat-toolbar">
         <span><i class="fa-solid fa-comments"></i> Global Chat</span>
         <span id="chat-status">Connecting...</span>
       </div>
+
       <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+
       <div id="chat-login-note" class="chat-login-note" hidden>
         <i class="fa-solid fa-lock"></i>
         <span>You need an account to send messages.</span>
         <a href="/account">Log in or register</a>
       </div>
+
+      <div id="sticker-panel" class="chat-popover sticker-panel" hidden>
+        <div class="popover-head">
+          <div><strong>My Stickers</strong><span id="sticker-count">0 saved</span></div>
+          <button type="button" class="popover-close" data-close-stickers aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="sticker-grid" class="sticker-grid"></div>
+        <div id="sticker-empty" class="sticker-empty">Save stickers from chat and they'll appear here.</div>
+      </div>
+
       <form id="chat-form" class="chat-form">
-        <input id="chat-input" maxlength="500" autocomplete="off" placeholder="Write a message..." aria-label="Message">
-        <button type="submit" title="Send message"><i class="fa-solid fa-paper-plane"></i></button>
+        <div id="reply-bar" class="chat-reply-bar" hidden>
+          <i class="fa-solid fa-reply"></i>
+          <div><span>Replying to <strong id="reply-name"></strong></span><span id="reply-preview"></span></div>
+          <button type="button" id="cancel-reply" aria-label="Cancel reply"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div id="attachment-draft" class="attachment-draft" hidden>
+          <div id="attachment-preview"></div>
+          <div class="attachment-draft-info">
+            <strong id="attachment-name"></strong>
+            <span id="attachment-kind-label">Image</span>
+          </div>
+          <label class="sticker-toggle"><input id="send-as-sticker" type="checkbox"> Send as sticker</label>
+          <button type="button" id="cancel-attachment" aria-label="Remove attachment"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="chat-compose-row">
+          <div class="chat-compose-tools">
+            <button type="button" id="media-button" class="compose-tool" title="Upload picture or GIF" aria-label="Upload picture or GIF"><i class="fa-solid fa-image"></i></button>
+            <button type="button" id="sticker-button" class="compose-tool" title="Open sticker catalog" aria-label="Open sticker catalog"><i class="fa-solid fa-note-sticky"></i></button>
+          </div>
+          <input id="chat-input" maxlength="500" autocomplete="off" placeholder="Write a message..." aria-label="Message">
+          <button class="chat-send" type="submit" title="Send message" aria-label="Send message"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+        <input id="media-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
       </form>
     </section>
   </main>
-  <script src="/assets/js/community.js?v=lunar3"></script>
+  <script src="/assets/js/community.js?v=lunar4"></script>
 </body>
 </html>
