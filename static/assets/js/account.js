@@ -23,6 +23,14 @@
     document.getElementById("profile-bio").value=user.bio||"";
     document.getElementById("profile-banner").style.backgroundImage=user.bannerUrl?'url("'+user.bannerUrl+'")':"";
     document.getElementById("profile-background").style.backgroundImage=user.backgroundUrl?'url("'+user.backgroundUrl+'")':"";
+    renderStickerCatalog(user.stickers || []);
+  };
+  const renderStickerCatalog=stickers=>{
+    const grid=document.getElementById("account-sticker-grid"),empty=document.getElementById("account-sticker-empty"),count=document.getElementById("account-sticker-count");
+    if(!grid)return;
+    grid.innerHTML=(stickers||[]).map(s=>'<div class="profile-public-sticker" title="'+String(s.name||"Sticker").replace(/"/g,"&quot;")+'"><img src="'+String(s.url||"").replace(/"/g,"&quot;")+'" alt="'+String(s.name||"Sticker").replace(/"/g,"&quot;")+'" loading="lazy"></div>').join("");
+    empty.hidden=Boolean(stickers?.length);
+    count.textContent=stickers?.length?" · "+stickers.length:"";
   };
   const fileData=async id=>{const f=document.getElementById(id).files?.[0];if(!f)return "";
     if(!["image/png","image/jpeg","image/webp","image/gif"].includes(f.type))throw new Error("Use PNG, JPG, WEBP, or GIF images.");
