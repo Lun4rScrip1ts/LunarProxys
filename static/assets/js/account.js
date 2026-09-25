@@ -27,12 +27,17 @@
     if(!["image/png","image/jpeg","image/webp","image/gif"].includes(f.type))throw new Error("Use PNG, JPG, WEBP, or GIF images.");
     if(f.size>8*1024*1024)throw new Error("Each image must be smaller than 8 MB.");
     return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("Could not read image."));r.readAsDataURL(f);});};
+  const savedLogin = localStorage.getItem("ls_login_identifier") || "";
+  const identifierInput = document.getElementById("auth-identifier");
+  if (identifierInput) identifierInput.value = savedLogin;
   tabs.forEach(t=>t.addEventListener("click",()=>setMode(t.dataset.mode)));
   authForm.addEventListener("submit",async e=>{e.preventDefault();errorEl.textContent="";const b=document.getElementById("auth-submit");b.disabled=true;
     try{const data=await api(mode==="register"?"/api/auth/register":"/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(mode==="register"?{
       username:document.getElementById("auth-username").value,email:document.getElementById("auth-email").value,
       displayName:document.getElementById("auth-display-name").value,password:document.getElementById("auth-password").value}:{
-      identifier:document.getElementById("auth-identifier").value,password:document.getElementById("auth-password").value})});user=data.user;setProfile();}
+      identifier:document.getElementById("auth-identifier").value,password:document.getElementById("auth-password").value})});
+      if (mode === "login") localStorage.setItem("ls_login_identifier", document.getElementById("auth-identifier").value.trim());
+      user=data.user;setProfile();}
     catch(err){errorEl.textContent=err.message;}finally{b.disabled=false;}});
   document.getElementById("profile-form").addEventListener("submit",async e=>{e.preventDefault();const ok=document.getElementById("profile-success"),err=document.getElementById("profile-error");ok.textContent="";err.textContent="";
     try{const [avatarData,bannerData,backgroundData]=await Promise.all([fileData("profile-avatar-file"),fileData("profile-banner-file"),fileData("profile-background-file")]);
