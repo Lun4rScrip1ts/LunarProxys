@@ -14,6 +14,11 @@
   const toast = document.getElementById("chat-toast");
   const reactionPicker = document.getElementById("reaction-picker");
   const reactionUsers = document.getElementById("reaction-users");
+  const attachmentDraftEl = document.getElementById("attachment-draft");
+  const attachmentPreviewEl = document.getElementById("attachment-preview");
+  const attachmentNameEl = document.getElementById("attachment-name");
+  const attachmentKindEl = document.getElementById("attachment-kind");
+  const cancelAttachmentButton = document.getElementById("cancel-attachment");
   const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
   let currentUser = null;
   let messages = [];
@@ -22,6 +27,7 @@
   let lastSignature = "";
   let refreshBusy = false;
   let toastTimer = null;
+  let attachmentDraft = null;
 
   const escape = value => {
     const div = document.createElement("div");
@@ -181,7 +187,15 @@
     }
   }
 
-  async function uploadFile(file, kind) {
+  function clearAttachmentDraft() {
+    attachmentDraft = null;
+    attachmentDraftEl.hidden = true;
+    attachmentPreviewEl.innerHTML = "";
+    attachmentNameEl.textContent = "Attachment";
+    attachmentKindEl.textContent = "Ready to send";
+  }
+
+  async function setAttachmentDraft(file, kind) {
     if (!currentUser) {
       location.href = "/account";
       return;
@@ -201,29 +215,54 @@
     }
 
     try {
-      showToast(kind === "sticker" ? "Creating sticker..." : "Uploading...");
       const dataUrl = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
         reader.onerror = () => reject(new Error("Could not read the image."));
         reader.readAsDataURL(file);
       });
-      const uploaded = await api("/api/chat/uploads", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({kind, data:dataUrl})
-      });
-      await sendMessage("", {
-        url:uploaded.url,
-        kind:uploaded.kind,
-        name:file.name.replace(/\.[^.]+$/, "").slice(0,80)
-      });
-      if (kind === "sticker") {
-        await saveSticker(uploaded.url, file.name.replace(/\.[^.]+$/, "").slice(0,50) || "Sticker");
-      }
+
+      attachmentDraft = {
+        file,
+        kind,
+        dataUrl,
+        name: file.name.replace(/\.[^.]+$/, "").slice(0, 80) || (kind === "sticker" ? "Sticker" : "Image")
+      };
+
+      attachmentNameEl.textContent = attachmentDraft.name;
+      attachmentKindEl.textContent = kind === "sticker"
+        ? "Sticker preview"
+        : kind === "gif"
+          ? "GIF preview"
+          : "Image preview";
+
+      attachmentPreviewEl.innerHTML = "";
+      const preview = document.createElement("img");
+      preview.src = dataUrl;
+      preview.alt = attachmentDraft.name;
+      attachmentPreviewEl.appendChild(preview);
+      attachmentDraftEl.hidden = false;
     } catch (error) {
+      clearAttachmentDraft();
       showToast(error.message);
     }
+  }
+
+  async function uploadDraft() {
+    if (!attachmentDraft) return null;
+
+    const draft = attachmentDraft;
+    const uploaded = await api("/api/chat/uploads", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({kind:draft.kind, data:draft.dataUrl})
+    });
+
+    return {
+      url: uploaded.url,
+      kind: uploaded.kind,
+      name: draft.name
+    };
   }
 
   async function saveSticker(url, name) {
@@ -252,6 +291,7 @@
     replyTo = null;
     replyBar.hidden = true;
     input.value = "";
+    clearAttachmentDraft();
     await refresh();
     input.focus();
     return data;
@@ -374,10 +414,14 @@
       } catch (error) { showToast(error.message); }
       return;
     }
-    if (!text) return;
+    if (!text && !attachmentDraft) return;
     input.disabled = true;
     try {
-      await sendMessage(text);
+      const attachment = await uploadDraft();
+      await sendMessage(text, attachment);
+      if (attachment?.kind === "sticker") {
+        await saveSticker(attachment.url, attachment.name);
+      }
     } catch (error) {
       showToast(error.message);
     } finally {
@@ -391,9 +435,10 @@
   document.getElementById("chat-image-button").addEventListener("click", () => document.getElementById("chat-image-file").click());
   document.getElementById("chat-gif-button").addEventListener("click", () => document.getElementById("chat-gif-file").click());
   document.getElementById("chat-sticker-button").addEventListener("click", () => document.getElementById("chat-sticker-file").click());
-  document.getElementById("chat-image-file").addEventListener("change", event => uploadFile(event.target.files?.[0], "image").finally(() => event.target.value=""));
-  document.getElementById("chat-gif-file").addEventListener("change", event => uploadFile(event.target.files?.[0], "gif").finally(() => event.target.value=""));
-  document.getElementById("chat-sticker-file").addEventListener("change", event => uploadFile(event.target.files?.[0], "sticker").finally(() => event.target.value=""));
+  document.getElementById("chat-image-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "image").finally(() => event.target.value=""));
+  document.getElementById("chat-gif-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "gif").finally(() => event.target.value=""));
+  document.getElementById("chat-sticker-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "sticker").finally(() => event.target.value=""));
+  cancelAttachmentButton.addEventListener("click", clearAttachmentDraft);
 
   function openStickerDrawer() {
     if (!currentUser) { location.href="/account"; return; }
