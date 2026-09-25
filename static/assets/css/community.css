@@ -223,3 +223,10 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
   .chat-form{gap:4px}
   .chat-tool,.chat-send{width:35px;height:35px}
 }
+
+/* Keep attachment previews above the composer controls. */
+.chat-form{flex-wrap:wrap}
+.chat-form .attachment-draft{flex:0 0 100%;width:100%;box-sizing:border-box;order:0}
+.chat-form #chat-input{order:1}
+.chat-form .chat-compose-tools{order:2}
+.chat-form .chat-send{order:3}
