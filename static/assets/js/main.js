@@ -113,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="nav-bar-right">
         <a class="navbar-link" href="/./chat"><i class="fa-solid fa-comments navbar-icon"></i><span>Chat</span></a>
+        <a class="navbar-link" href="/./friends"><i class="fa-solid fa-user-group navbar-icon"></i><span>Friends</span></a>
         <a class="navbar-link" href="/./games"><i class="fa-solid fa-gamepad navbar-icon"></i><span>Games</span></a>
         <a class="navbar-link" href="/./apps"><i class="fa-solid fa-table-cells navbar-icon"></i><span>Apps</span></a>
         <a class="navbar-link" href="/./settings"><i class="fa-solid fa-gear navbar-icon settings-icon"></i><span>Settings</span></a>
