@@ -2,7 +2,7 @@
   const applyLunarHome = () => {
     const title = document.querySelector(".title");
     const splash = document.getElementById("splash");
-    if (title) title.textContent = "Lunar Proxy";
+    if (title) title.textContent = "Lunars Proxys";
     if (splash) splash.textContent = "A cleaner way to explore the web.";
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyLunarHome);
