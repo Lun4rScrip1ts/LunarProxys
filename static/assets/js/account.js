@@ -3,6 +3,9 @@
   const authForm=document.getElementById("auth-form"), errorEl=document.getElementById("auth-error");
   const profileForm=document.getElementById("profile-form"), profileSaveButton=document.getElementById("save-profile-button");
   const tabs=[...document.querySelectorAll(".auth-tab")]; let mode="login", user=null;
+  const switcher=document.getElementById("account-switcher");
+  const savedAccountsList=document.getElementById("saved-accounts-list");
+  const switchError=document.getElementById("account-switch-error");
   const api=async(url,options)=>{const res=await fetch(url,{credentials:"same-origin",...options});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||"Something went wrong.");return data;};
   const setMode=m=>{mode=m;const reg=m==="register";tabs.forEach(t=>t.classList.toggle("active",t.dataset.mode===m));
     document.getElementById("auth-title").textContent=reg?"Create your Lunar account":"Welcome back";
@@ -24,7 +27,33 @@
     document.getElementById("profile-banner").style.backgroundImage=user.bannerUrl?'url("'+user.bannerUrl+'")':"";
     document.getElementById("profile-background").style.backgroundImage=user.backgroundUrl?'url("'+user.backgroundUrl+'")':"";
     renderStickerCatalog(user.stickers || []);
+    loadSavedAccounts();
   };
+  const accountInitials=n=>(n||"?").trim().slice(0,2).toUpperCase();
+  async function loadSavedAccounts(){
+    if(!savedAccountsList)return;
+    try{
+      const data=await api("/api/auth/saved-accounts");
+      const accounts=data.accounts||[];
+      savedAccountsList.innerHTML=accounts.map(a=>'<div class="saved-account '+(user&&a.id===user.id?"current":"")+'"><span class="saved-account-avatar">'+(a.avatarUrl?'<img src="'+a.avatarUrl+'" alt="">':accountInitials(a.displayName||a.username))+'</span><span class="saved-account-copy"><strong>'+String(a.displayName||a.username).replace(/[<>&"]/g,"")+'</strong><span>@'+String(a.username||"").replace(/[<>&"]/g,"")+'</span></span><button type="button" class="saved-account-action" data-switch-user="'+String(a.id).replace(/[^A-Za-z0-9_-]/g,"")+'" '+(user&&a.id===user.id?"disabled":"")+'>'+((user&&a.id===user.id)?"Current":"Switch")+'</button></div>').join("");
+      if(!accounts.length)savedAccountsList.innerHTML='<div class="saved-account-copy"><strong>No accounts added yet.</strong><span>Add an account below to save it on this browser.</span></div>';
+    }catch(e){savedAccountsList.innerHTML='<div class="saved-account-copy"><span>Could not load saved accounts.</span></div>';}
+  }
+  async function openAccountSwitcher(){
+    if(!switcher)return;
+    switchError.textContent="";
+    switcher.hidden=false;
+    await loadSavedAccounts();
+  }
+  function showAuthForAdding(){
+    switcher.hidden=true;
+    authCard.hidden=false;
+    profileCard.hidden=true;
+    setMode("login");
+    document.getElementById("auth-identifier").value="";
+    document.getElementById("auth-password").value="";
+    document.getElementById("auth-identifier").focus();
+  }
   const renderStickerCatalog=stickers=>{
     const grid=document.getElementById("account-sticker-grid"),empty=document.getElementById("account-sticker-empty"),count=document.getElementById("account-sticker-count");
     if(!grid)return;
@@ -46,7 +75,9 @@
       displayName:document.getElementById("auth-display-name").value,password:document.getElementById("auth-password").value}:{
       identifier:document.getElementById("auth-identifier").value,password:document.getElementById("auth-password").value})});
       if (mode === "login") localStorage.setItem("ls_login_identifier", document.getElementById("auth-identifier").value.trim());
-      user=data.user;setProfile();}
+      user=data.user;
+      if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();
+      setProfile();}
     catch(err){errorEl.textContent=err.message;}finally{b.disabled=false;}});
   profileForm.addEventListener("submit",async e=>{e.preventDefault();const ok=document.getElementById("profile-success"),err=document.getElementById("profile-error");ok.textContent="";err.textContent="";
     const username=document.getElementById("profile-username-input").value.trim();
@@ -64,6 +95,24 @@
         bio:document.getElementById("profile-bio").value.trim(),avatarData,bannerData,backgroundData})});
       user=data.user;setProfile();["profile-avatar-file","profile-banner-file","profile-background-file"].forEach(id=>document.getElementById(id).value="");ok.textContent="Profile saved.";
     }catch(e2){err.textContent=e2.message;}finally{profileSaveButton.disabled=false;profileSaveButton.textContent="Save Profile";}});
+  document.getElementById("switch-accounts-button")?.addEventListener("click",openAccountSwitcher);
+  document.getElementById("close-account-switcher")?.addEventListener("click",()=>{switcher.hidden=true;});
+  document.getElementById("add-account-button")?.addEventListener("click",showAuthForAdding);
+  savedAccountsList?.addEventListener("click",async e=>{
+    const button=e.target.closest("[data-switch-user]");
+    if(!button)return;
+    switchError.textContent="";
+    button.disabled=true;
+    try{
+      const data=await api("/api/auth/switch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:button.dataset.switchUser})});
+      user=data.user;
+      if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();
+      location.reload();
+    }catch(err){
+      switchError.textContent=err.message;
+      button.disabled=false;
+    }
+  });
   document.getElementById("logout-button").addEventListener("click",async()=>{try{await api("/api/auth/logout",{method:"POST"});}catch{}user=null;authCard.hidden=false;profileCard.hidden=true;setMode("login");});
-  api("/api/auth/me").then(d=>{user=d.user;if(user)setProfile();else setMode("login");}).catch(()=>setMode("login"));
+  api("/api/auth/me").then(async d=>{user=d.user;if(user){if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();setProfile();}else setMode("login");}).catch(()=>setMode("login"));
 })();
