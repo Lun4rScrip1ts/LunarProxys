@@ -42,7 +42,7 @@ $("dm-form").onsubmit=async e=>{e.preventDefault();if(!active)return;const text=
 
 $("friends-profile-close").onclick=closeUserProfile;
 $("friends-profile-modal").addEventListener("click",e=>{if(e.target.id==="friends-profile-modal")closeUserProfile()});
-$("dm-top-name").onclick=()=>{if(active)openUserProfile(active.username)};
+document.querySelector(".dm-top-name").onclick=()=>{if(active)openUserProfile(active.username)};
 $("friends-server-button").onclick=()=>{document.querySelector(".friends-app").classList.remove("global-open");$("global-chat-view").hidden=true;document.querySelector(".dm-panel").hidden=false;document.querySelectorAll(".server-icon").forEach(x=>x.classList.remove("active"));$("friends-server-button").classList.add("active")};
 $("global-server-button").onclick=()=>{document.querySelector(".friends-app").classList.add("global-open");$("global-chat-view").hidden=false;document.querySelector(".dm-panel").hidden=true;document.querySelectorAll(".server-icon").forEach(x=>x.classList.remove("active"));$("global-server-button").classList.add("active")};
 
