@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="icon lunar-nav-logo" href="/./" aria-label="Lunar Proxy">LUNAR PROXY</a>
       </div>
       <div class="nav-bar-right">
-        <a class="navbar-link" href="/./chat"><i class="fa-solid fa-comments navbar-icon"></i><span>Chat</span></a>
+        
         <a class="navbar-link" href="/./friends"><i class="fa-solid fa-user-group navbar-icon"></i><span>Friends</span></a>
         <a class="navbar-link" href="/./games"><i class="fa-solid fa-gamepad navbar-icon"></i><span>Games</span></a>
         <a class="navbar-link" href="/./apps"><i class="fa-solid fa-table-cells navbar-icon"></i><span>Apps</span></a>
