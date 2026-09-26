@@ -223,3 +223,22 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
   .chat-form{gap:4px}
   .chat-tool,.chat-send{width:35px;height:35px}
 }
+
+.account-switcher{margin-top:18px;padding:18px;border:1px solid var(--lunar-border);border-radius:16px;background:rgba(255,255,255,.025)}
+.account-switcher-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.account-switcher-head h2{margin:0;font-size:17px}
+.account-switcher-head p{margin:5px 0 0;color:#858c9a;font-size:11px;line-height:1.5}
+.account-switcher-close{width:32px;height:32px;border:0;border-radius:9px;background:rgba(255,255,255,.05);color:#aab1bf;cursor:pointer}
+.account-switcher-close:hover{background:rgba(255,255,255,.09);color:#fff}
+.saved-accounts-list{display:flex;flex-direction:column;gap:7px;margin-top:14px}
+.saved-account{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid transparent;border-radius:11px;background:rgba(255,255,255,.035);color:#fff;text-align:left}
+.saved-account.current{border-color:rgba(150,130,255,.35);background:rgba(150,130,255,.08)}
+.saved-account-avatar{width:38px;height:38px;flex:none;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#292d36;color:#e8eaf0;font-size:11px;font-weight:900}
+.saved-account-avatar img{width:100%;height:100%;object-fit:cover}
+.saved-account-copy{min-width:0;flex:1}
+.saved-account-copy strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-account-copy span{display:block;margin-top:2px;color:#7f8796;font-size:10px}
+.saved-account-action{border:0;border-radius:8px;padding:7px 9px;background:#5865f2;color:#fff;font-weight:800;cursor:pointer}
+.saved-account-action:disabled{opacity:.5;cursor:default}
+.saved-account-add{width:100%;margin-top:9px;padding:10px;border:1px dashed #3b404a;border-radius:10px;background:transparent;color:#aeb5c1;font-weight:800;cursor:pointer}
+.saved-account-add:hover{background:rgba(255,255,255,.04);color:#fff}
