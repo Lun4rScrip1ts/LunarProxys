@@ -58,6 +58,7 @@ async function loadState() {
         user.stickers = Array.isArray(user.stickers) ? user.stickers.slice(0, MAX_STICKERS) : [];
         user.gifFavorites = Array.isArray(user.gifFavorites) ? user.gifFavorites.slice(0, 200) : [];
         user.blockedUsers = Array.isArray(user.blockedUsers) ? user.blockedUsers.slice(0, 500) : [];
+        user.settings = user.settings && typeof user.settings === "object" ? user.settings : {};
       }
       for (const message of state.messages) {
         message.reactions = Array.isArray(message.reactions) ? message.reactions : [];
@@ -149,6 +150,25 @@ function setSession(res, userId) {
     maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
     path: "/",
   });
+  res.cookie("lunar_account_" + userId, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
+    path: "/",
+  });
+}
+function getRememberedAccounts(req) {
+  const result = [];
+  for (const [name, token] of Object.entries(req.cookies || {})) {
+    if (!name.startsWith("lunar_account_")) continue;
+    const userId = name.slice("lunar_account_".length);
+    const session = state.sessions[token];
+    const user = state.users[userId];
+    if (!session || !user || session.userId !== userId || Date.now() > session.expiresAt) continue;
+    result.push({ id: user.id, username: user.username, displayName: user.displayName, avatarUrl: user.avatarUrl || "" });
+  }
+  return result;
 }
 
 function imageDataToFile(value) {
@@ -278,6 +298,42 @@ router.post("/auth/logout", async (req, res) => {
   res.clearCookie("lunar_session", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/" });
   await persist();
   res.json({ ok: true });
+});
+
+router.get("/auth/saved-accounts", (req, res) => {
+  res.json({ accounts: getRememberedAccounts(req) });
+});
+
+router.post("/auth/switch", (req, res) => {
+  const userId = cleanText(req.body?.userId, 80);
+  if (!userId) return res.status(400).json({ error: "Choose an account." });
+  const token = req.cookies?.["lunar_account_" + userId];
+  const session = state.sessions[token];
+  const user = state.users[userId];
+  if (!token || !session || !user || session.userId !== userId || Date.now() > session.expiresAt) {
+    return res.status(401).json({ error: "That saved account needs you to log in again." });
+  }
+  setSession(res, userId);
+  res.json({ user: publicUser(user, true) });
+});
+
+router.get("/profile/settings", requireUser, (req, res) => {
+  res.json({ settings: req.user.settings || {} });
+});
+
+router.patch("/profile/settings", requireUser, async (req, res) => {
+  const incoming = req.body?.settings;
+  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+    return res.status(400).json({ error: "Invalid settings." });
+  }
+  const safe = {};
+  for (const [key, value] of Object.entries(incoming).slice(0, 200)) {
+    if (!/^[A-Za-z0-9_.:-]{1,80}$/.test(key)) continue;
+    if (typeof value === "string") safe[key] = value.slice(0, 20000);
+  }
+  req.user.settings = { ...(req.user.settings || {}), ...safe };
+  await persist();
+  res.json({ settings: req.user.settings });
 });
 
 router.patch("/profile", requireUser, async (req, res) => {
