@@ -121,6 +121,7 @@ const routes = [
   { path: "/chat", file: "chat.html" },
   { path: "/friends", file: "friends.html" },
   { path: "/account", file: "account.html" },
+  { path: "/donate", file: "donate.html" },
   { path: "/tabs", file: "tabs.html" },
   { path: "/", file: "index.html" },
 ];
