@@ -35,3 +35,15 @@
 .friends-sidebar.global-chat-hidden{width:0!important;flex-basis:0!important;min-width:0!important;opacity:0;transform:translateX(-18px);border-right:0}
 .global-chat-view{animation:globalChatIn .3s ease both}
 @keyframes globalChatIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+
+/* Embedded Global Chat uses the full Friends content area without clipping its composer. */
+.global-chat-view .embedded-global-chat{display:flex;flex-direction:column;min-width:0;min-height:0}
+.global-chat-view .embedded-global-chat .community-header{flex:none}
+.global-chat-view .embedded-global-chat .chat-card{flex:1 1 auto;height:auto;min-height:0;overflow:hidden}
+.global-chat-view .embedded-global-chat .chat-messages{min-height:0;height:auto;flex:1 1 auto;overflow:auto}
+.global-chat-view .embedded-global-chat .chat-form{flex:none;min-height:64px;position:relative;z-index:5}
+.global-chat-view .embedded-global-chat .chat-form input#chat-input{display:block;visibility:visible;opacity:1}
+@media(max-width:800px){
+  .global-chat-view .embedded-global-chat .community-header{padding:14px 14px 8px}
+  .global-chat-view .embedded-global-chat .community-header p{display:none}
+}
