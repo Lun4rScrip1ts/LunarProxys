@@ -39,6 +39,9 @@
   // Unreadable data is copied to cfg.x on the next write rather than overwritten, so a value
   // written by a newer build survives a rollback.
   let preserve = false;
+  let syncTimer = null;
+  let syncInFlight = false;
+  let syncingFromAccount = false;
 
   function decode(raw) {
     if (raw == null || raw === "") return {};
@@ -84,6 +87,7 @@
       }
       localStorage.setItem(KEY, WRITE_CODEC + CODECS[WRITE_CODEC].encode(JSON.stringify({ v: SCHEMA, d: data })));
       fields = data;
+      scheduleAccountSync();
     } catch {}
   }
 
@@ -112,6 +116,48 @@
   window.addEventListener("storage", event => {
     if (event.key === KEY || event.key === null) reload();
   });
+
+  async function syncAccountSettings() {
+    if (syncingFromAccount) return;
+    try {
+      const response = await fetch("/api/profile/settings", {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings: fields }),
+      });
+      if (!response.ok) return;
+    } catch {}
+    finally {
+      syncInFlight = false;
+    }
+  }
+
+  function scheduleAccountSync() {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      if (syncInFlight) return;
+      syncInFlight = true;
+      syncAccountSettings();
+    }, 250);
+  }
+
+  async function loadAccountSettings() {
+    try {
+      const response = await fetch("/api/profile/settings", { credentials: "same-origin" });
+      if (!response.ok) return false;
+      const data = await response.json();
+      if (!data || !data.settings || typeof data.settings !== "object") return false;
+      syncingFromAccount = true;
+      fields = { ...data.settings };
+      write(fields);
+      syncingFromAccount = false;
+      return true;
+    } catch {
+      syncingFromAccount = false;
+      return false;
+    }
+  }
 
   window.store = {
     get(field) {
@@ -148,5 +194,12 @@
       return { ...fields };
     },
     reload,
+    replaceAll(data) {
+      syncingFromAccount = true;
+      fields = data && typeof data === "object" ? { ...data } : {};
+      write(fields);
+      syncingFromAccount = false;
+    },
+    loadAccountSettings,
   };
 })();
