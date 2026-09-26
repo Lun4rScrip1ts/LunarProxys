@@ -110,8 +110,22 @@
 
       <div class="account-actions">
         <a class="community-secondary" href="/chat"><i class="fa-solid fa-comments"></i> Open Global Chat</a>
+        <button class="community-secondary" id="switch-accounts-button" type="button"><i class="fa-solid fa-users"></i> Switch Accounts</button>
         <button class="community-danger" id="logout-button" type="button">Log Out</button>
       </div>
+
+      <section class="account-switcher" id="account-switcher" hidden>
+        <div class="account-switcher-head">
+          <div>
+            <h2>Switch Accounts</h2>
+            <p>Accounts saved on this browser can be switched without logging out first.</p>
+          </div>
+          <button type="button" id="close-account-switcher" class="account-switcher-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="saved-accounts-list" class="saved-accounts-list"></div>
+        <button type="button" id="add-account-button" class="saved-account-add"><i class="fa-solid fa-plus"></i> Add account</button>
+        <p id="account-switch-error" class="form-error"></p>
+      </section>
     </section>
   </main>
   <script src="/assets/js/account.js?v=lunar4"></script>
