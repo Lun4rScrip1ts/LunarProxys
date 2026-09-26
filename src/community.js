@@ -1,4 +1,4 @@
-import { randomBytes, scrypt as scryptCallback, timingSafeEqual, randomUUID } from "node:crypto";
+import { randomBytes, scrypt as scryptCallback, timingSafeEqual, randomUUID, createHmac } from "node:crypto";
 import path from "node:path";
 import { promisify } from "node:util";
 import express from "express";
