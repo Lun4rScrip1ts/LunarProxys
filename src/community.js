@@ -139,24 +139,19 @@ function requireUser(req, res, next) {
 
 function setSession(res, userId) {
   const token = randomBytes(32).toString("hex");
-  state.sessions[token] = {
-    userId,
-    expiresAt: Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000,
+  const rememberedToken = randomBytes(32).toString("hex");
+  const expiresAt = Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000;
+  state.sessions[token] = { userId, expiresAt, kind: "active" };
+  state.sessions[rememberedToken] = { userId, expiresAt, kind: "remembered" };
+  const cookieOptions = {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
+    path: "/",
   };
-  res.cookie("lunar_session", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
-    path: "/",
-  });
-  res.cookie("lunar_account_" + userId, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
-    path: "/",
-  });
+  res.cookie("lunar_session", token, cookieOptions);
+  res.cookie("lunar_account_" + userId, rememberedToken, cookieOptions);
 }
 function getRememberedAccounts(req) {
   const result = [];
@@ -165,7 +160,7 @@ function getRememberedAccounts(req) {
     const userId = name.slice("lunar_account_".length);
     const session = state.sessions[token];
     const user = state.users[userId];
-    if (!session || !user || session.userId !== userId || Date.now() > session.expiresAt) continue;
+    if (!session || session.kind !== "remembered" || !user || session.userId !== userId || Date.now() > session.expiresAt) continue;
     result.push({ id: user.id, username: user.username, displayName: user.displayName, avatarUrl: user.avatarUrl || "" });
   }
   return result;
