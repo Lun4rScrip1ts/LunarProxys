@@ -7,24 +7,306 @@
   <link rel="stylesheet" href="/assets/css/global.css">
   <link rel="stylesheet" href="/assets/css/index.css">
   <style>
-    .donate-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:110px 20px 40px;box-sizing:border-box}
-    .donate-card{width:min(680px,100%);padding:42px;border-radius:24px;background:var(--background-secondary);border:1px solid var(--border-color);box-shadow:0 18px 60px rgba(0,0,0,.18);text-align:center}
-    .donate-icon{width:72px;height:72px;margin:0 auto 20px;border-radius:20px;display:grid;place-items:center;background:var(--primary);color:#fff;font-size:30px}
-    .donate-card h1{margin:0 0 12px;font-size:34px}
-    .donate-card p{margin:0 auto 12px;max-width:560px;color:var(--text-primary);line-height:1.65}
-    .donate-note{margin-top:24px;padding:16px;border-radius:14px;background:var(--background-primary);color:var(--text-primary);font-size:14px}
+    .donate-page{
+      min-height:100vh;
+      padding:118px 20px 60px;
+      box-sizing:border-box;
+      display:flex;
+      justify-content:center;
+    }
+
+    .donate-wrap{
+      width:min(980px,100%);
+    }
+
+    .donate-hero{
+      position:relative;
+      overflow:hidden;
+      padding:52px 44px 46px;
+      border:1px solid var(--border-color);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 85% 10%, rgba(88,101,242,.18), transparent 34%),
+        radial-gradient(circle at 10% 100%, rgba(88,101,242,.10), transparent 35%),
+        var(--background-secondary);
+      box-shadow:0 24px 80px rgba(0,0,0,.20);
+      text-align:center;
+    }
+
+    .donate-hero::before{
+      content:"";
+      position:absolute;
+      width:240px;
+      height:240px;
+      right:-100px;
+      top:-120px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.08);
+      pointer-events:none;
+    }
+
+    .donate-icon{
+      width:78px;
+      height:78px;
+      margin:0 auto 22px;
+      border-radius:23px;
+      display:grid;
+      place-items:center;
+      background:var(--primary);
+      color:#fff;
+      font-size:31px;
+      box-shadow:0 12px 32px rgba(88,101,242,.28);
+    }
+
+    .donate-kicker{
+      margin:0 0 10px;
+      color:var(--primary);
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+    }
+
+    .donate-hero h1{
+      margin:0;
+      font-size:clamp(34px,5vw,52px);
+      line-height:1.08;
+      letter-spacing:-.035em;
+    }
+
+    .donate-hero > p{
+      max-width:690px;
+      margin:18px auto 0;
+      color:var(--text-primary);
+      opacity:.86;
+      line-height:1.75;
+      font-size:16px;
+    }
+
+    .donate-main-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .donate-panel{
+      padding:28px;
+      border:1px solid var(--border-color);
+      border-radius:22px;
+      background:var(--background-secondary);
+      box-shadow:0 14px 45px rgba(0,0,0,.12);
+    }
+
+    .donate-panel h2{
+      margin:0 0 8px;
+      font-size:22px;
+    }
+
+    .donate-panel-intro{
+      margin:0 0 20px;
+      color:var(--text-primary);
+      opacity:.78;
+      line-height:1.6;
+      font-size:14px;
+    }
+
+    .support-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .support-item{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      padding:15px;
+      border-radius:16px;
+      background:var(--background-primary);
+      border:1px solid var(--border-color);
+    }
+
+    .support-item-icon{
+      flex:0 0 40px;
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:rgba(88,101,242,.13);
+      color:var(--primary);
+      font-size:16px;
+    }
+
+    .support-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:15px;
+    }
+
+    .support-item span{
+      display:block;
+      color:var(--text-primary);
+      opacity:.72;
+      line-height:1.5;
+      font-size:13px;
+    }
+
+    .cashapp-panel{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      text-align:center;
+      background:
+        linear-gradient(145deg, rgba(88,101,242,.13), transparent 70%),
+        var(--background-secondary);
+    }
+
+    .cashapp-badge{
+      width:54px;
+      height:54px;
+      margin:0 auto 14px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:#16c784;
+      color:#fff;
+      font-size:24px;
+      font-weight:800;
+    }
+
+    .cashapp-panel h2{
+      margin-bottom:8px;
+    }
+
+    .cashapp-handle{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:54px;
+      margin:14px auto 12px;
+      padding:0 22px;
+      border-radius:15px;
+      background:var(--background-primary);
+      border:1px solid var(--border-color);
+      color:var(--text-primary);
+      font-size:21px;
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+
+    .cashapp-help{
+      margin:0;
+      color:var(--text-primary);
+      opacity:.68;
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .thank-you{
+      margin-top:18px;
+      padding:22px 24px;
+      border-radius:20px;
+      border:1px solid var(--border-color);
+      background:var(--background-secondary);
+      text-align:center;
+    }
+
+    .thank-you strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:17px;
+    }
+
+    .thank-you span{
+      color:var(--text-primary);
+      opacity:.72;
+      font-size:13px;
+    }
+
+    @media (max-width:760px){
+      .donate-page{padding:96px 14px 35px}
+      .donate-hero{padding:38px 22px 34px;border-radius:22px}
+      .donate-main-grid{grid-template-columns:1fr}
+      .donate-panel{padding:22px}
+    }
   </style>
 </head>
 <body>
   <div class="nav-bar"></div>
+
   <main class="donate-page">
-    <section class="donate-card">
-      <div class="donate-icon"><i class="fa-solid fa-heart"></i></div>
-      <h1>Support Lunar Proxy</h1>
-      <p>Thanks for wanting to support Lunar Proxy. Donations help with hosting, development, and keeping the project running.</p>
-      <div class="donate-note">If you would like to support Lunar Proxy, you can send a donation through Cash App.</div><div style="margin-top:20px;font-size:22px;font-weight:700;color:var(--text-primary)">Cash App: $Trafficone1</div>
-    </section>
+    <div class="donate-wrap">
+      <section class="donate-hero">
+        <div class="donate-icon"><i class="fa-solid fa-heart"></i></div>
+        <p class="donate-kicker">Support Lunar Proxy</p>
+        <h1>Help keep Lunar Proxy growing.</h1>
+        <p>
+          Lunar Proxy is built to provide a polished, useful browsing experience for the community.
+          If you enjoy using it and want to help keep the project moving forward, your support is appreciated.
+        </p>
+      </section>
+
+      <div class="donate-main-grid">
+        <section class="donate-panel">
+          <h2>What your support helps with</h2>
+          <p class="donate-panel-intro">
+            Donations can help make it possible to keep improving the project and cover the costs that come with running it.
+          </p>
+
+          <div class="support-list">
+            <div class="support-item">
+              <div class="support-item-icon"><i class="fa-solid fa-server"></i></div>
+              <div>
+                <strong>Hosting & infrastructure</strong>
+                <span>Helps with the servers and infrastructure needed to keep Lunar Proxy available.</span>
+              </div>
+            </div>
+
+            <div class="support-item">
+              <div class="support-item-icon"><i class="fa-solid fa-code"></i></div>
+              <div>
+                <strong>Development & updates</strong>
+                <span>Supports continued development, bug fixes, performance improvements, and new features.</span>
+              </div>
+            </div>
+
+            <div class="support-item">
+              <div class="support-item-icon"><i class="fa-solid fa-palette"></i></div>
+              <div>
+                <strong>UI & experience</strong>
+                <span>Helps improve the interface, animations, accessibility, and overall experience.</span>
+              </div>
+            </div>
+
+            <div class="support-item">
+              <div class="support-item-icon"><i class="fa-solid fa-users"></i></div>
+              <div>
+                <strong>Community features</strong>
+                <span>Helps support features such as chat, profiles, friends, and other community tools.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="donate-panel cashapp-panel">
+          <div class="cashapp-badge">$</div>
+          <h2>Support via Cash App</h2>
+          <p class="donate-panel-intro">
+            If you'd like to support Lunar Proxy, you can send a donation through Cash App.
+          </p>
+          <div class="cashapp-handle">$Trafficone1</div>
+          <p class="cashapp-help">Please double-check the handle before sending a donation.</p>
+        </section>
+      </div>
+
+      <div class="thank-you">
+        <strong>Every bit of support means a lot.</strong>
+        <span>Thank you for helping Lunar Proxy continue to grow and improve.</span>
+      </div>
+    </div>
   </main>
+
   <script src="/assets/js/main.js"></script>
 </body>
 </html>
