@@ -157,11 +157,18 @@
 
   async function openChatProfile(username) {
     try {
-      const data = await api("/api/profile/" + encodeURIComponent(username));
+      const data = await api("/api/users/" + encodeURIComponent(username));
       const user = data.user || data;
       let modal = document.getElementById("global-profile-modal");
       if (!modal) { modal = document.createElement("div"); modal.id = "global-profile-modal"; modal.className = "global-profile-modal"; document.body.appendChild(modal); }
-      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'<a class="global-profile-full" href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div></div>';
+      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><button class="global-profile-menu-button" type="button" aria-label="More profile options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="global-profile-menu" hidden><a href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'</div></div>';
+      const menuButton = modal.querySelector(".global-profile-menu-button");
+      const menu = modal.querySelector(".global-profile-menu");
+      menuButton.onclick = event => {
+        event.stopPropagation();
+        menu.hidden = !menu.hidden;
+        menuButton.setAttribute("aria-expanded", String(!menu.hidden));
+      };
       modal.querySelector(".global-profile-close").onclick=()=>modal.remove();
       modal.onclick=e=>{if(e.target===modal)modal.remove()};
     } catch(e) { showToast(e.message); }
