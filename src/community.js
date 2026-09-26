@@ -19,6 +19,8 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MAX_STICKERS = 100;
 const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
+const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1UJkEnLV8JqBJp2HLRf9GrQo";
+const STRIPE_WEBHOOK_TOLERANCE_SECONDS = 300;
 const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
 
 let state = {
@@ -113,6 +115,8 @@ function publicUser(user, includeEmail = true) {
     stickers: Array.isArray(user.stickers) ? user.stickers : [],
     isOwner: user.username.toLowerCase() === "lunar",
     roles: user.username.toLowerCase() === "lunar" ? ["Owner"] : [],
+    premium: Boolean(user.premium),
+    premiumStatus: user.premiumStatus || "inactive",
   };
   if (includeEmail) result.email = user.email || "";
   return result;
@@ -236,7 +240,98 @@ async function verifyPassword(password, record) {
   }
 }
 
-router.get("/auth/me", (req, res) => {
+
+function stripeSignatureValid(rawBody, signature, secret) {
+  if (!rawBody || !signature || !secret) return false;
+  const parts = Object.fromEntries(signature.split(",").map(part => {
+    const pieces = part.split("=");
+    return [pieces[0], pieces[1]];
+  }));
+  const timestamp = Number(parts.t);
+  const expected = parts.v1;
+  if (!Number.isFinite(timestamp) || !expected) return false;
+  if (Math.abs(Math.floor(Date.now() / 1000) - timestamp) > STRIPE_WEBHOOK_TOLERANCE_SECONDS) return false;
+  const payload = timestamp + "." + rawBody.toString("utf8");
+  const digest = createHmac("sha256", secret).update(payload).digest("hex");
+  const a = Buffer.from(digest, "utf8");
+  const b = Buffer.from(expected, "utf8");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+async function createStripeCheckoutSession(user, req) {
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret) throw new Error("Stripe is not configured. Add STRIPE_SECRET_KEY to Railway variables.");
+
+  const baseUrl = (process.env.PUBLIC_URL || (req.protocol + "://" + req.get("host"))).replace(/\/$/, "");
+  const body = new URLSearchParams();
+  body.set("mode", "subscription");
+  body.set("line_items[0][price]", STRIPE_PRICE_ID);
+  body.set("line_items[0][quantity]", "1");
+  body.set("client_reference_id", user.id);
+  body.set("customer_email", user.email);
+  body.set("subscription_data[metadata][lunar_user_id]", user.id);
+  body.set("subscription_data[metadata][lunar_username]", user.username);
+  body.set("success_url", baseUrl + "/premium?success=1");
+  body.set("cancel_url", baseUrl + "/premium?canceled=1");
+
+  const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + secret,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error?.message || "Stripe could not create checkout.");
+  return data;
+}
+
+function applyStripeSubscription(user, subscription) {
+  const status = String(subscription?.status || "").toLowerCase();
+  user.stripeCustomerId = String(subscription?.customer || user.stripeCustomerId || "");
+  user.stripeSubscriptionId = String(subscription?.id || user.stripeSubscriptionId || "");
+  user.premiumStatus = ["active", "trialing"].includes(status) ? "active" : status || "inactive";
+  user.premium = user.premiumStatus === "active";
+}
+
+async function handleStripeWebhook(rawBody, signature) {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) throw new Error("Stripe webhook is not configured. Add STRIPE_WEBHOOK_SECRET to Railway variables.");
+  if (!stripeSignatureValid(rawBody, signature, secret)) {
+    const error = new Error("Invalid Stripe webhook signature.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const event = JSON.parse(rawBody.toString("utf8"));
+  const object = event.data?.object;
+
+  if (event.type === "checkout.session.completed") {
+    const userId = object?.client_reference_id || "";
+    const user = state.users[userId] || null;
+    if (user) {
+      user.stripeCustomerId = String(object.customer || user.stripeCustomerId || "");
+      user.stripeSubscriptionId = String(object.subscription || user.stripeSubscriptionId || "");
+      if (object.mode === "subscription" && object.payment_status === "paid") {
+        user.premium = true;
+        user.premiumStatus = "active";
+      }
+      await persist();
+    }
+  } else if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+    const userId = object?.metadata?.lunar_user_id || "";
+    const user = state.users[userId] || Object.values(state.users).find(item => item.stripeSubscriptionId === object?.id);
+    if (user) {
+      applyStripeSubscription(user, object);
+      await persist();
+    }
+  }
+
+  return event.id;
+}
+
+router.post("/premium/checkout", requireUser, async (req, res) => {\n  if (req.user.premium) return res.status(409).json({ error: "You already have Lunar Premium." });\n  try {\n    const session = await createStripeCheckoutSession(req.user, req);\n    res.json({ url: session.url });\n  } catch (error) {\n    console.error("[Lunar Premium] Checkout error:", error.message);\n    res.status(500).json({ error: error.message || "Could not start checkout." });\n  }\n});\n\nrouter.post("/premium/webhook", express.raw({ type: "application/json" }), async (req, res) => {\n  try {\n    const eventId = await handleStripeWebhook(req.body, req.headers["stripe-signature"]);\n    res.json({ received: true, eventId });\n  } catch (error) {\n    console.error("[Lunar Premium] Webhook error:", error.message);\n    res.status(error.statusCode || 400).json({ error: error.message || "Webhook failed." });\n  }\n});\n\nrouter.get("/auth/me", (req, res) => {
   const user = getSessionUser(req);
   res.json({ user: user ? publicUser(user, true) : null });
 });
@@ -258,6 +353,7 @@ router.post("/auth/register", async (req, res) => {
   const user = {
     id: randomUUID(), username, email, displayName,
     avatarUrl: "", bannerUrl: "", backgroundUrl: "", bio: "", status: "",
+    premium: false, premiumStatus: "inactive", stripeCustomerId: "", stripeSubscriptionId: "",
     stickers: [], gifFavorites: [], blockedUsers: [], salt: credentials.salt, hash: credentials.hash, createdAt: new Date().toISOString(),
   };
 
