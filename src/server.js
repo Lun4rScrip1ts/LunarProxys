@@ -35,7 +35,7 @@ if (vendorMap) {
 
 const server = http.createServer();
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = Number(process.env.PORT) || 3000;
 
 wisp.options.allow_loopback_ips = true;
 wisp.options.allow_private_ips = true;
@@ -156,4 +156,4 @@ server.on("listening", () => {
   console.log(chalk.green(`🌍 Server is running on http://localhost:${PORT}`));
 });
 
-server.listen({ port: PORT });
+server.listen({ port: PORT, host: "0.0.0.0" });
