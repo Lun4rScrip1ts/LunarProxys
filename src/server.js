@@ -120,6 +120,7 @@ const routes = [
   { path: "/settings", file: "settings.html" },
   { path: "/chat", file: "chat.html" },
   { path: "/friends", file: "friends.html" },
+  { path: "/premium", file: "premium.html" },
   { path: "/account", file: "account.html" },
   { path: "/tabs", file: "tabs.html" },
   { path: "/", file: "index.html" },
