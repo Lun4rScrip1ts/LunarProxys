@@ -59,7 +59,7 @@ if (config.challenge !== false) {
 mountGhGames(app);
 
 app.use(cookieParser());
-app.use(express.json({ limit: "12mb", verify: (req, _res, buf) => { if (req.path === "/api/premium/webhook") req.rawBody = Buffer.from(buf); } }));
+app.use(express.json({ limit: "12mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", generalLimiter, communityRouter);
@@ -120,7 +120,7 @@ const routes = [
   { path: "/settings", file: "settings.html" },
   { path: "/chat", file: "chat.html" },
   { path: "/friends", file: "friends.html" },
-  { path: "/premium", file: "premium.html" },
+  { path: "/donate", file: "donate.html" },
   { path: "/account", file: "account.html" },
   { path: "/tabs", file: "tabs.html" },
   { path: "/", file: "index.html" },
