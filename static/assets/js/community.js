@@ -131,10 +131,10 @@
 
     messagesEl.innerHTML = messagesList.map(message => `
       <article class="chat-message" data-message-id="${message.id}">
-        <div class="chat-avatar"><a href="/profile/${encodeURIComponent(message.username)}">${avatar(message)}</a></div>
+        <div class="chat-avatar"><button type="button" class="chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${avatar(message)}</button></div>
         <div class="chat-message-body">
           <div class="chat-meta">
-            <a class="chat-name" href="/profile/${encodeURIComponent(message.username)}">${escape(message.displayName)}</a>
+            <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
             <span class="chat-username">@${escape(message.username)}</span>
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
           </div>
@@ -153,6 +153,18 @@
     `).join("");
 
     if (nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  async function openChatProfile(username) {
+    try {
+      const data = await api("/api/profile/" + encodeURIComponent(username));
+      const user = data.user || data;
+      let modal = document.getElementById("global-profile-modal");
+      if (!modal) { modal = document.createElement("div"); modal.id = "global-profile-modal"; modal.className = "global-profile-modal"; document.body.appendChild(modal); }
+      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'<a class="global-profile-full" href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div></div>';
+      modal.querySelector(".global-profile-close").onclick=()=>modal.remove();
+      modal.onclick=e=>{if(e.target===modal)modal.remove()};
+    } catch(e) { showToast(e.message); }
   }
 
   function renderStickers(stickers) {
@@ -353,6 +365,11 @@
     reactionUsers.style.top = Math.max(8, rect.top - Math.min(220, 70 + users.length * 34)) + "px";
     reactionUsers.hidden = false;
   }
+
+  messagesEl.addEventListener("click", event => {
+    const profile = event.target.closest("[data-profile-user]");
+    if (profile) { event.preventDefault(); openChatProfile(profile.dataset.profileUser); }
+  });
 
   messagesEl.addEventListener("click", async event => {
     const reactionButton = event.target.closest("[data-reaction-message]");
