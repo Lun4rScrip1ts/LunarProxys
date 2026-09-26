@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Lunar Premium</title>
+  <link rel="stylesheet" href="/assets/css/global.css">
+  <link rel="stylesheet" href="/assets/css/nav.css">
+  <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar5">
+  <link rel="stylesheet" href="/assets/css/premium.css?v=lunar1">
+  <script src="/assets/js/storage.js"></script>
+  <script src="/assets/js/main.js?v=lunar6"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="lunar-premium-page">
+  <div class="nav-bar"></div>
+
+  <main class="premium-shell">
+    <section class="premium-hero">
+      <div class="premium-hero-copy">
+        <div class="premium-kicker"><i class="fa-solid fa-crown"></i> LUNAR PREMIUM</div>
+        <h1>Make Lunar yours.</h1>
+        <p>Unlock extra profile customization, community perks, and more ways to personalize your Lunar experience.</p>
+        <div class="premium-hero-actions">
+          <button id="premium-hero-button" class="premium-primary" type="button">
+            <i class="fa-solid fa-crown"></i><span>Upgrade to Premium</span>
+          </button>
+          <a class="premium-secondary" href="/account"><i class="fa-solid fa-user"></i> View account</a>
+        </div>
+        <div id="premium-account-state" class="premium-account-state" hidden></div>
+      </div>
+
+      <div class="premium-orbit" aria-hidden="true">
+        <div class="premium-orbit-ring ring-one"></div>
+        <div class="premium-orbit-ring ring-two"></div>
+        <div class="premium-moon"><i class="fa-solid fa-moon"></i><span>LS</span></div>
+      </div>
+    </section>
+
+    <section class="premium-plan-section" aria-labelledby="premium-plan-title">
+      <div class="premium-section-heading">
+        <div>
+          <span class="premium-kicker">ONE SIMPLE PLAN</span>
+          <h2 id="premium-plan-title">Lunar Premium</h2>
+          <p>Keep the core Lunar experience free. Premium is for people who want more customization and community extras.</p>
+        </div>
+        <div class="premium-price">
+          <strong>$4.99</strong>
+          <span>/ month</span>
+        </div>
+      </div>
+
+      <div class="premium-plan-card">
+        <div class="premium-plan-main">
+          <div class="premium-plan-badge"><i class="fa-solid fa-crown"></i> PREMIUM</div>
+          <h3>Everything in one upgrade</h3>
+          <p>Designed to add polish without locking the basic Lunar experience behind a subscription.</p>
+        </div>
+        <div class="premium-plan-features">
+          <div><i class="fa-solid fa-circle-check"></i><span>Premium badge beside your profile</span></div>
+          <div><i class="fa-solid fa-circle-check"></i><span>More profile themes, colors, and decorations</span></div>
+          <div><i class="fa-solid fa-circle-check"></i><span>Premium profile backgrounds and banners</span></div>
+          <div><i class="fa-solid fa-circle-check"></i><span>Expanded sticker collection</span></div>
+          <div><i class="fa-solid fa-circle-check"></i><span>Premium chat name flair</span></div>
+          <div><i class="fa-solid fa-circle-check"></i><span>Early access to selected Lunar features</span></div>
+        </div>
+        <button id="premium-plan-button" class="premium-primary premium-plan-button" type="button">
+          <i class="fa-solid fa-lock"></i><span>Payment setup required</span>
+        </button>
+      </div>
+      <p class="premium-payment-note"><i class="fa-solid fa-shield-halved"></i> Checkout is not connected yet. This button will be wired to the payment provider once the merchant checkout is configured.</p>
+    </section>
+
+    <section class="premium-benefits-section">
+      <div class="premium-section-heading centered">
+        <span class="premium-kicker">PREMIUM PERKS</span>
+        <h2>Personalize your Lunar identity</h2>
+        <p>These are the Premium features the page is designed around.</p>
+      </div>
+
+      <div class="premium-benefit-grid">
+        <article class="premium-benefit-card">
+          <div class="premium-benefit-icon"><i class="fa-solid fa-crown"></i></div>
+          <h3>Premium badge</h3>
+          <p>A clean Premium indicator on your profile and community identity.</p>
+        </article>
+        <article class="premium-benefit-card">
+          <div class="premium-benefit-icon"><i class="fa-solid fa-palette"></i></div>
+          <h3>Profile themes</h3>
+          <p>More colors, backgrounds, accents, and profile decoration choices.</p>
+        </article>
+        <article class="premium-benefit-card">
+          <div class="premium-benefit-icon"><i class="fa-solid fa-image"></i></div>
+          <h3>Premium profiles</h3>
+          <p>Extra banner and background options to make your profile stand out.</p>
+        </article>
+        <article class="premium-benefit-card">
+          <div class="premium-benefit-icon"><i class="fa-solid fa-note-sticky"></i></div>
+          <h3>More stickers</h3>
+          <p>Expand the sticker collection you can save and use in Global Chat.</p>
+        </article>
+        <article class="premium-benefit-card">
+          <div class="premium-benefit-icon"><i class="fa-solid fa-comments"></i></div>
+          <h3>Chat flair</h3>
+          <p>Optional Premium styling for your name and community messages.</p>
+        </article>
+        <article class="premium-benefit-card">
+          <div class="premium-benefit-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h3>Early features</h3>
+          <p>Get access to selected new Lunar customization features first.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="premium-comparison">
+      <div class="premium-section-heading centered">
+        <span class="premium-kicker">WHAT CHANGES</span>
+        <h2>Free stays useful</h2>
+        <p>Premium adds extras rather than removing the core experience.</p>
+      </div>
+      <div class="premium-comparison-grid">
+        <div class="premium-comparison-card">
+          <div class="comparison-title"><span>Free</span><i class="fa-solid fa-user"></i></div>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Browse Lunar</li>
+            <li><i class="fa-solid fa-check"></i> Apps and Games</li>
+            <li><i class="fa-solid fa-check"></i> Global Chat</li>
+            <li><i class="fa-solid fa-check"></i> Friends and DMs</li>
+            <li><i class="fa-solid fa-check"></i> Basic profile customization</li>
+          </ul>
+        </div>
+        <div class="premium-comparison-card premium-comparison-highlight">
+          <div class="comparison-title"><span>Premium</span><i class="fa-solid fa-crown"></i></div>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Everything in Free</li>
+            <li><i class="fa-solid fa-check"></i> Premium profile badge</li>
+            <li><i class="fa-solid fa-check"></i> Extra profile customization</li>
+            <li><i class="fa-solid fa-check"></i> Expanded sticker collection</li>
+            <li><i class="fa-solid fa-check"></i> Premium chat flair</li>
+            <li><i class="fa-solid fa-check"></i> Selected early-access features</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="premium-faq">
+      <div>
+        <span class="premium-kicker">BEFORE CHECKOUT</span>
+        <h2>How Premium will work</h2>
+      </div>
+      <div class="premium-faq-items">
+        <details open>
+          <summary>How will payment work?</summary>
+          <p>The Premium button is ready for a secure hosted checkout. A payment provider will be connected later so the site never handles card details directly.</p>
+        </details>
+        <details>
+          <summary>How will Premium activate?</summary>
+          <p>After a successful payment, the provider will notify Lunar's server. The server will verify the payment and then mark the account as Premium.</p>
+        </details>
+        <details>
+          <summary>Can I cancel?</summary>
+          <p>The final checkout provider will control subscription cancellation and billing management. The account page can show the current Premium status.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <div id="premium-checkout-modal" class="premium-modal" hidden>
+    <div class="premium-modal-backdrop" data-close-premium-modal></div>
+    <section class="premium-modal-card" role="dialog" aria-modal="true" aria-labelledby="premium-modal-title">
+      <button class="premium-modal-close" type="button" data-close-premium-modal aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <div class="premium-modal-icon"><i class="fa-solid fa-crown"></i></div>
+      <span class="premium-kicker">LUNAR PREMIUM</span>
+      <h2 id="premium-modal-title">Checkout isn't connected yet</h2>
+      <p>The Premium page is ready, but the live payment provider still needs to be configured. No payment is taken by this button right now.</p>
+      <div class="premium-modal-status"><i class="fa-solid fa-circle-info"></i><span>Next step: connect a hosted card/Cash App checkout and a server-side payment webhook.</span></div>
+      <div class="premium-modal-actions">
+        <a href="/account" class="premium-secondary"><i class="fa-solid fa-user"></i> Open account</a>
+        <button type="button" class="premium-primary" data-close-premium-modal>Close</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="/assets/js/premium.js?v=lunar1"></script>
+</body>
+</html>
