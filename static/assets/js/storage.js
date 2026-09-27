@@ -154,6 +154,24 @@
     }, delay);
   }
 
+  async function flushAccountSettings() {
+    if (syncingFromAccount) return false;
+    clearTimeout(syncTimer);
+    syncTimer = null;
+
+    if (syncInFlight) {
+      syncPending = true;
+      while (syncInFlight) {
+        await new Promise(resolve => setTimeout(resolve, 25));
+      }
+    }
+
+    syncPending = false;
+    syncInFlight = true;
+    await syncAccountSettings();
+    return !syncPending;
+  }
+
   async function loadAccountSettings(options = {}) {
     try {
       const response = await fetch("/api/profile/settings", { credentials: "same-origin" });
@@ -233,5 +251,6 @@
       syncingFromAccount = false;
     },
     loadAccountSettings,
+    flushAccountSettings,
   };
 })();
