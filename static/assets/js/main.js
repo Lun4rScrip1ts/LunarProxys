@@ -184,25 +184,41 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.backgroundImage = `url('${savedBackgroundImage}')`;
   }
 
-  // Background Particles
-  if (store.get("particles") === "true") {
-    // CSS Parallax Pixel Stars (based on codepen.io/sarazond/pen/LYGbwj)
-    ["stars", "stars2", "stars3"].forEach(id => {
-      if (!document.getElementById(id)) {
-        const el = document.createElement("div");
-        el.id = id;
-        document.body.insertBefore(el, document.body.firstChild);
-      }
-    });
+  // Background effects
+  const backgroundEffect = store.get("particles") || "off";
+  const effectLayer = document.getElementById("lunar-background-effect");
+  if (effectLayer) effectLayer.remove();
+
+  if (backgroundEffect !== "off") {
+    const layer = document.createElement("div");
+    layer.id = "lunar-background-effect";
+    layer.className = `lunar-bg-effect lunar-bg-${backgroundEffect === "true" ? "stars" : backgroundEffect}`;
+    document.body.insertBefore(layer, document.body.firstChild);
+
+    if (backgroundEffect === "stars" || backgroundEffect === "true") {
+      ["stars", "stars2", "stars3"].forEach(id => {
+        if (!document.getElementById(id)) {
+          const el = document.createElement("div");
+          el.id = id;
+          layer.appendChild(el);
+        }
+      });
+    }
   }
 
-  // Pointer Effects — cursor.js is only loaded when an effect is active
-  const CURSOR_EFFECTS = ["rainbow-stars", "white-orbs", "rainbow-trail", "blue-orbs", "red-circle", "the-sims", "curly-cursor"];
+  // Pointer Effects — cursor.js is only loaded when visual effects are enabled.
+  const CURSOR_EFFECTS = [
+    "rainbow-stars", "white-orbs", "rainbow-trail", "blue-orbs", "red-circle",
+    "the-sims", "curly-cursor", "comet-cursor", "spark-cursor", "crosshair-cursor",
+    "soft-glow-cursor", "pixel-cursor", "ring-cursor"
+  ];
   const activePointer = store.get("pointer");
+  const effectsLevel = store.get("interfaceEffects") || "full";
+  const motionLevel = store.get("interfaceAnimations") || "on";
 
-  if (CURSOR_EFFECTS.includes(activePointer)) {
+  if (CURSOR_EFFECTS.includes(activePointer) && effectsLevel !== "off" && motionLevel !== "off") {
     const cursorScript = document.createElement("script");
-    cursorScript.src = "/assets/js/cursor.js";
+    cursorScript.src = "/assets/js/cursor.js?v=lunar8";
     cursorScript.onload = () => initCursorEffect();
     document.head.appendChild(cursorScript);
   }
