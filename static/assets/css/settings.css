@@ -300,3 +300,30 @@ body.reduce-interface-motion .interface-settings-card * {
       width: 100%;
    }
 }
+
+/* Lunar glass dropdowns + background image controls */
+.settings-card select{display:none!important}
+.lunar-select{position:relative;width:100%;margin:0 0 8px;z-index:20}
+.lunar-select.is-open{z-index:1000}
+.lunar-select-trigger{width:100%;min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border:1px solid rgba(255,255,255,.13);border-radius:15px;color:var(--text);background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.035));box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 10px 28px rgba(0,0,0,.16);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);cursor:pointer;font:inherit;font-size:18px;text-align:left;transition:transform .22s cubic-bezier(.2,.8,.2,1),border-color .22s,background .22s,box-shadow .22s}
+.lunar-select-trigger:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.25);background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.045));box-shadow:0 14px 36px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.07)}
+.lunar-select-trigger .lunar-select-arrow{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:rgba(255,255,255,.075);transition:transform .32s cubic-bezier(.2,.9,.25,1.35),background .22s}
+.lunar-select.is-open .lunar-select-arrow{transform:rotate(180deg);background:rgba(255,255,255,.14)}
+.lunar-select-menu{position:absolute;left:0;right:0;top:calc(100% + 8px);max-height:310px;overflow:auto;padding:7px;border:1px solid rgba(255,255,255,.14);border-radius:17px;background:rgba(13,17,24,.72);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);box-shadow:0 24px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);opacity:0;visibility:hidden;transform:translateY(-9px) scale(.985);transform-origin:top;pointer-events:none;transition:opacity .2s ease,transform .3s cubic-bezier(.2,.85,.2,1.15),visibility .2s}
+.lunar-select.is-open .lunar-select-menu{opacity:1;visibility:visible;transform:translateY(0) scale(1);pointer-events:auto}
+.lunar-select-option{position:relative;width:100%;padding:11px 13px;border:0;border-radius:11px;background:transparent;color:var(--text);text-align:left;font:inherit;font-size:16px;cursor:pointer;transition:transform .16s ease,background .18s ease,color .18s ease}
+.lunar-select-option:hover{background:linear-gradient(90deg,rgba(130,165,255,.16),rgba(255,255,255,.055));transform:translateX(3px)}
+.lunar-select-option.is-selected{background:rgba(255,255,255,.10);box-shadow:inset 2px 0 0 rgba(150,180,255,.8)}
+.lunar-select-option.is-selected::after{content:"✓";position:absolute;right:12px;opacity:.8}
+.lunar-select-group{padding:8px 10px 4px;color:var(--text-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.background-upload-row{display:grid;gap:10px;margin-top:10px}
+.background-upload-row #background-file-input{display:none}
+.background-file-label{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:0 16px;border:1px dashed rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.045);cursor:pointer;transition:.22s ease}
+.background-file-label:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.38);transform:translateY(-1px)}
+.background-upload-actions{display:flex;gap:10px}
+.background-upload-actions .key-button{flex:1;width:auto;margin-top:0}
+.background-upload-status{font-size:12px;color:var(--text-muted);text-align:center}
+.background-image-controls{padding:12px 0 2px}
+.background-image-controls label{display:flex!important;justify-content:space-between;align-items:center}
+@media(max-width:520px){.background-upload-actions{flex-direction:column}.lunar-select-menu{max-height:260px}}
+body.reduce-interface-motion .lunar-select *,body.reduce-interface-motion .lunar-select{transition:none!important}
