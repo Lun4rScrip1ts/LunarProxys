@@ -95,45 +95,161 @@ document.addEventListener("DOMContentLoaded", () => {
     themeChange(this);
   });
 
-  // Backgrounds
+  // Background image upload + image-only opacity/blur controls.
   const bgDropdown = document.getElementById("background-dropdown");
   const bgCustomRow = document.getElementById("background-custom-row");
-  const bgInput = document.getElementById("background-input");
+  const bgFile = document.getElementById("background-file-input");
+  const bgFileLabel = document.getElementById("background-file-label-text");
+  const bgStatus = document.getElementById("background-upload-status");
+  const bgControls = document.getElementById("background-image-controls");
+  const bgOpacity = document.getElementById("background-opacity-range");
+  const bgOpacityValue = document.getElementById("background-opacity-value");
+  const bgBlur = document.getElementById("background-blur-range");
+  const bgBlurValue = document.getElementById("background-blur-value");
+  const bgClear = document.getElementById("background-clear-button");
 
   const savedBg = store.get("backgroundImage");
   const savedBgMode = store.get("backgroundMode") || "default";
-  bgDropdown.value = savedBgMode;
-  if (savedBgMode === "custom") {
-    bgCustomRow.style.display = "";
-    bgInput.value = savedBg || "";
+  const savedBgOpacity = Number(store.get("backgroundImageOpacity") || 100);
+  const savedBgBlur = Number(store.get("backgroundImageBlur") || 0);
+
+  if (bgDropdown) bgDropdown.value = savedBgMode;
+  if (bgOpacity) bgOpacity.value = String(savedBgOpacity);
+  if (bgBlur) bgBlur.value = String(savedBgBlur);
+  if (bgOpacityValue) bgOpacityValue.textContent = savedBgOpacity + "%";
+  if (bgBlurValue) bgBlurValue.textContent = savedBgBlur + "px";
+
+  const syncBackgroundControls = () => {
+    const custom = (bgDropdown?.value === "custom") && Boolean(store.get("backgroundImage"));
+    if (bgCustomRow) bgCustomRow.style.display = bgDropdown?.value === "custom" ? "" : "none";
+    if (bgControls) bgControls.style.display = custom ? "" : "none";
+  };
+
+  if (savedBgMode === "custom" && savedBg) {
+    syncBackgroundControls();
   }
 
-  bgDropdown.addEventListener("change", function () {
+  bgDropdown?.addEventListener("change", function () {
     const mode = this.value;
     store.set("backgroundMode", mode);
     if (mode === "default") {
-      bgCustomRow.style.display = "none";
       store.remove("backgroundImage");
-      document.body.style.backgroundImage = "";
+      store.remove("backgroundImageOpacity");
+      store.remove("backgroundImageBlur");
       window.location.reload();
     } else if (mode === "none") {
-      bgCustomRow.style.display = "none";
       store.set("backgroundImage", "none");
+      syncBackgroundControls();
       document.body.style.backgroundImage = "none";
-    } else if (mode === "custom") {
-      bgCustomRow.style.display = "";
+      document.getElementById("lunar-background-image")?.remove();
+    } else {
+      syncBackgroundControls();
     }
   });
 
-  document.getElementById("save-button").addEventListener("click", () => {
-    const url = bgInput.value.trim();
-    if (url) {
-      store.set("backgroundImage", url);
+  function readImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const image = new Image();
+        image.onload = () => {
+          const maxWidth = 2400;
+          const maxHeight = 1600;
+          const scale = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          const context = canvas.getContext("2d");
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          let quality = 0.82;
+          let data = canvas.toDataURL("image/jpeg", quality);
+          while (data.length > 1900000 && quality > 0.5) {
+            quality -= 0.06;
+            data = canvas.toDataURL("image/jpeg", quality);
+          }
+          if (data.length > 2000000) return reject(new Error("That image is too large after compression. Choose a smaller image."));
+          resolve(data);
+        };
+        image.onerror = () => reject(new Error("That image could not be read."));
+        image.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error("Could not read the image."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  bgFile?.addEventListener("change", () => {
+    const file = bgFile.files?.[0];
+    if (file) {
+      bgFileLabel.textContent = file.name;
+      bgStatus.textContent = "Ready to apply · " + Math.round(file.size / 1024) + " KB";
+    }
+  });
+
+  document.getElementById("save-button")?.addEventListener("click", async () => {
+    const file = bgFile?.files?.[0];
+    if (!file) {
+      bgStatus.textContent = "Choose an image first.";
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      bgStatus.textContent = "That image is larger than 8 MB.";
+      return;
+    }
+    try {
+      bgStatus.textContent = "Preparing image…";
+      const data = await readImage(file);
+      let backgroundValue = data;
+
+      // Logged-in users get a server-backed copy, so the background survives
+      // account switching and device changes. Guests keep a compressed local copy.
+      try {
+        const response = await fetch("/api/chat/uploads", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "image", data }),
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.url) backgroundValue = result.url;
+        }
+      } catch {}
+
+      store.set("backgroundImage", backgroundValue);
       store.set("backgroundMode", "custom");
-      document.body.style.backgroundImage = `url('${url}')`;
+      if (bgDropdown) bgDropdown.value = "custom";
+      bgStatus.textContent = backgroundValue.startsWith("/uploads/") ? "Saved to your account." : "Saved on this browser.";
+      syncBackgroundControls();
+      window.location.reload();
+    } catch (error) {
+      bgStatus.textContent = error.message || "Could not apply image.";
     }
   });
 
+  bgClear?.addEventListener("click", () => {
+    store.remove("backgroundImage");
+    store.set("backgroundMode", "custom");
+    if (bgFile) bgFile.value = "";
+    if (bgFileLabel) bgFileLabel.textContent = "Choose background image";
+    if (bgStatus) bgStatus.textContent = "Background image cleared.";
+    syncBackgroundControls();
+    document.getElementById("lunar-background-image")?.remove();
+    window.location.reload();
+  });
+
+  bgOpacity?.addEventListener("input", () => {
+    store.set("backgroundImageOpacity", bgOpacity.value);
+    if (bgOpacityValue) bgOpacityValue.textContent = bgOpacity.value + "%";
+    document.documentElement.style.setProperty("--lunar-background-opacity", String(Number(bgOpacity.value) / 100));
+  });
+  bgBlur?.addEventListener("input", () => {
+    store.set("backgroundImageBlur", bgBlur.value);
+    if (bgBlurValue) bgBlurValue.textContent = bgBlur.value + "px";
+    document.documentElement.style.setProperty("--lunar-background-blur", bgBlur.value + "px");
+  });
+  document.documentElement.style.setProperty("--lunar-background-opacity", String(savedBgOpacity / 100));
+  document.documentElement.style.setProperty("--lunar-background-blur", savedBgBlur + "px");
   // Background Particles
   const particlesDropdown = document.getElementById("particles-dropdown");
   const savedParticles = store.get("particles") || "off";
@@ -242,6 +358,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const savedEngineName = store.get("enginename");
   if (savedEngineName) document.getElementById("engine").value = savedEngineName;
+
+  initLunarGlassDropdowns();
 });
 
 function saveEventKey() {
@@ -547,4 +665,105 @@ function getRandomURL() {
     "https://dictionary.com",
   ];
   return urls[Math.floor(Math.random() * urls.length)];
+}
+
+function initLunarGlassDropdowns() {
+  document.querySelectorAll(".settings-card select").forEach(select => {
+    if (select.dataset.lunarCustomized === "true") return;
+    select.dataset.lunarCustomized = "true";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "lunar-select";
+    wrapper.dataset.for = select.id || "";
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "lunar-select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+
+    const label = document.createElement("span");
+    const arrow = document.createElement("span");
+    arrow.className = "lunar-select-arrow";
+    arrow.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+    trigger.append(label, arrow);
+
+    const menu = document.createElement("div");
+    menu.className = "lunar-select-menu";
+    menu.setAttribute("role", "listbox");
+
+    const sync = () => {
+      const selected = select.options[select.selectedIndex];
+      label.textContent = selected?.textContent?.trim() || "Select…";
+      menu.querySelectorAll(".lunar-select-option").forEach(option => {
+        const active = option.dataset.value === select.value;
+        option.classList.toggle("is-selected", active);
+        option.setAttribute("aria-selected", active ? "true" : "false");
+      });
+    };
+
+    Array.from(select.children).forEach(node => {
+      if (node.tagName === "OPTGROUP") {
+        const group = document.createElement("div");
+        group.className = "lunar-select-group";
+        group.textContent = node.label;
+        menu.appendChild(group);
+        Array.from(node.children).forEach(option => addOption(option));
+      } else if (node.tagName === "OPTION") {
+        addOption(node);
+      }
+    });
+
+    function addOption(option) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "lunar-select-option";
+      item.dataset.value = option.value;
+      item.textContent = option.textContent.trim();
+      item.setAttribute("role", "option");
+      item.addEventListener("click", event => {
+        event.stopPropagation();
+        select.value = option.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        sync();
+        close();
+      });
+      menu.appendChild(item);
+    }
+
+    function open() {
+      document.querySelectorAll(".lunar-select.is-open").forEach(other => {
+        if (other !== wrapper) other.classList.remove("is-open");
+      });
+      wrapper.classList.add("is-open");
+      trigger.setAttribute("aria-expanded", "true");
+    }
+    function close() {
+      wrapper.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+    }
+
+    trigger.addEventListener("click", event => {
+      event.stopPropagation();
+      wrapper.classList.contains("is-open") ? close() : open();
+    });
+    select.addEventListener("change", sync);
+
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.append(trigger, menu, select);
+    sync();
+
+    trigger.addEventListener("keydown", event => {
+      if (event.key === "Escape") close();
+      if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        open();
+        menu.querySelector(".lunar-select-option")?.focus();
+      }
+    });
+  });
+
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".lunar-select.is-open").forEach(el => el.classList.remove("is-open"));
+  });
 }
