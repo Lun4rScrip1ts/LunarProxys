@@ -403,6 +403,7 @@ router.get("/users/:username", (req, res) => {
   const viewer = getSessionUser(req);
   const profile = publicUser(user, false);
   if (viewer) {
+    profile.mutualFriends = getMutualFriends(viewer.id, user.id);
     profile.isSelf = viewer.id === user.id;
     profile.isFriend = viewer.id !== user.id && areFriends(viewer.id, user.id);
     profile.isBlocked = viewer.id !== user.id && isBlocked(viewer.id, user.id);
@@ -538,6 +539,30 @@ function publicFriendUser(user) {
   };
 }
 
+function getMutualFriends(viewerId, targetId) {
+  if (!viewerId || !targetId || viewerId === targetId) return [];
+  const viewerFriends = new Set();
+  const targetFriends = new Set();
+  for (const key of state.friendships) {
+    const ids = key.split(":");
+    if (ids.includes(viewerId)) viewerFriends.add(ids.find(id => id !== viewerId));
+    if (ids.includes(targetId)) targetFriends.add(ids.find(id => id !== targetId));
+  }
+  return [...viewerFriends]
+    .filter(id => targetFriends.has(id))
+    .map(findUser)
+    .filter(Boolean)
+    .filter(user => !state.users[viewerId]?.blockedUsers?.includes(user.id))
+    .slice(0, 12)
+    .map(publicFriendUser);
+}
+
+function publicFriendUserForViewer(user, viewerId) {
+  const result = publicFriendUser(user);
+  result.mutualFriends = getMutualFriends(viewerId, user.id);
+  return result;
+}
+
 function friendshipKey(a, b) {
   return [a, b].sort().join(":");
 }
@@ -589,7 +614,7 @@ router.get("/friends/bootstrap", requireUser, (req, res) => {
     .map(ids => findUser(ids.find(id => id !== me.id)))
     .filter(Boolean)
     .filter(user => !me.blockedUsers?.includes(user.id))
-    .map(publicFriendUser);
+    .map(user => publicFriendUserForViewer(user, me.id));
 
   const incoming = state.friendRequests
     .filter(item => item.toUserId === me.id && item.status === "pending")
