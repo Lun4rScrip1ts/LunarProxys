@@ -529,3 +529,73 @@ body.lunar-default-cursor select,
 body.lunar-default-cursor [role="button"]{
   cursor:pointer!important;
 }
+
+
+/* FINAL CURSOR VISIBILITY FIX
+   Keep the saved pointer visible above Lunar's background/frame layers.
+   DOM cursor effects are above iframes and glass surfaces; the background can never
+   become a stacking context that hides them. */
+html.lunar-pointer-active,
+html.lunar-pointer-active body,
+body.lunar-pointer-active,
+body.lunar-pointer-active *{
+  cursor:none!important;
+}
+
+#lunar-comet-cursor,
+#lunar-soft-glow-cursor,
+#lunar-crosshair-cursor,
+#lunar-ring-cursor,
+#lunar-spark-canvas,
+#lunar-pixel-canvas,
+#pointer-canvas,
+#red-circle-cursor,
+#the-sims-cursor,
+#blue-orbs-glow,
+#white-orbs-glow,
+#rainbow-stars-cursor,
+#rainbow-trail-cursor,
+.sims-halo,
+.sims-pt{
+  z-index:2147483647!important;
+  pointer-events:none!important;
+}
+
+#lunar-background-image,
+#lunar-background-effect,
+#stars,#stars2,#stars3{
+  z-index:0!important;
+  pointer-events:none!important;
+}
+
+body.lunar-default-cursor,
+body.lunar-default-cursor *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 3l5 29 8-9 8 11 5-4-9-11 11-2z' fill='%23ffffff' stroke='%2303070d' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3,auto!important;
+}
+
+body.lunar-default-cursor input,
+body.lunar-default-cursor textarea,
+body.lunar-default-cursor [contenteditable="true"]{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 4v32M14 4h12M14 36h12' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3C/svg%3E") 20 20,auto!important;
+}
+
+html.lunar-pointer-active .frame-container,
+html.lunar-pointer-active iframe,
+html.lunar-pointer-active .browser,
+html.lunar-pointer-active .browser-bar{
+  cursor:none!important;
+}
+
+html.lunar-pointer-active #lunar-background-image,
+html.lunar-pointer-active #lunar-background-effect,
+html.lunar-pointer-active .frame-container,
+html.lunar-pointer-active iframe{
+  pointer-events:auto;
+}
+
+/* If an effect uses a DOM element, force it into the top compositor layer. */
+body.lunar-custom-cursor-active [id*="cursor"],
+body.lunar-custom-cursor-active [class*="cursor"]{
+  z-index:2147483647!important;
+  pointer-events:none!important;
+}
