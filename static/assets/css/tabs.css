@@ -239,3 +239,42 @@ iframe {
    left: 0;
    top: 10%;
 }
+
+
+/* Lunar background-safe browser compositor.
+   The saved background stays behind the browser; the proxied page must always
+   occupy its own explicit stacking layer. */
+#frame-container{
+   position:fixed!important;
+   inset:0!important;
+   z-index:10!important;
+   pointer-events:auto!important;
+   background:transparent!important;
+}
+#frame-container iframe{
+   position:absolute!important;
+   z-index:11!important;
+   left:0!important;
+   width:100%!important;
+   height:90%!important;
+   top:10%!important;
+   border:0!important;
+   background:#fff!important;
+}
+#frame-container iframe.active{
+   display:block!important;
+}
+body#no > .browser-bar{
+   position:fixed!important;
+   z-index:100!important;
+}
+body#no > .browser{
+   position:fixed!important;
+   z-index:101!important;
+}
+#lunar-background-image,
+#lunar-background-effect,
+#stars,#stars2,#stars3{
+   z-index:0!important;
+   pointer-events:none!important;
+}
