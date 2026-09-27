@@ -339,3 +339,11 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(130,165,255,.1
 @media(prefers-reduced-motion:reduce){
   #apps-container .column:hover,.settings-card:hover,.support-card:hover,.cash-card:hover{transform:none}
 }
+
+/* Home member presence indicator */
+.lunar-member-status{display:inline-flex;align-items:center;gap:5px;margin:-2px 0 16px;padding:7px 12px;border:1px solid rgba(255,255,255,.10);border-radius:999px;background:rgba(255,255,255,.035);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:rgba(255,255,255,.68);font-size:12px;letter-spacing:.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 28px rgba(0,0,0,.14);animation:lunarPresenceIn .55s cubic-bezier(.2,.8,.2,1) both}
+.lunar-online-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.09),0 0 12px rgba(74,222,128,.55);animation:lunarOnlinePulse 2s ease-in-out infinite}
+@keyframes lunarPresenceIn{from{opacity:0;transform:translateY(-5px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes lunarOnlinePulse{0%,100%{opacity:.72;transform:scale(.9)}50%{opacity:1;transform:scale(1.08)}}
+@media(max-width:600px){.lunar-member-status{margin-bottom:12px}}
+body.reduce-interface-motion .lunar-member-status,body.reduce-interface-motion .lunar-online-dot{animation:none!important}
