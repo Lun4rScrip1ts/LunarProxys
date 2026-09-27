@@ -41,6 +41,7 @@
   let preserve = false;
   let syncTimer = null;
   let syncInFlight = false;
+  let syncPending = false;
   let syncingFromAccount = false;
 
   function decode(raw) {
@@ -119,28 +120,38 @@
 
   async function syncAccountSettings() {
     if (syncingFromAccount) return;
+    syncPending = false;
+    // Snapshot the exact settings that triggered this request. If another
+    // setting changes while the request is in flight, schedule another PATCH
+    // instead of silently dropping the newer value.
+    const snapshot = { ...fields };
     try {
       const response = await fetch("/api/profile/settings", {
         method: "PATCH",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings: fields }),
+        body: JSON.stringify({ settings: snapshot }),
       });
-      if (!response.ok) return;
-    } catch {}
-    finally {
+      if (!response.ok) syncPending = true;
+    } catch {
+      syncPending = true;
+    } finally {
       syncInFlight = false;
+      if (syncPending && !syncingFromAccount) scheduleAccountSync(50);
     }
   }
 
-  function scheduleAccountSync() {
+  function scheduleAccountSync(delay = 250) {
     if (syncingFromAccount) return;
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => {
-      if (syncInFlight) return;
+      if (syncInFlight) {
+        syncPending = true;
+        return;
+      }
       syncInFlight = true;
       syncAccountSettings();
-    }, 250);
+    }, delay);
   }
 
   async function loadAccountSettings(options = {}) {
