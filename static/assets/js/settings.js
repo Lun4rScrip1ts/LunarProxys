@@ -280,8 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const glassEffect = document.getElementById("glass-effect-dropdown");
   const glassStrength = document.getElementById("glass-strength-range");
   const glassStrengthValue = document.getElementById("glass-strength-value");
-  const uiScale = document.getElementById("ui-scale-range");
-  const uiScaleValue = document.getElementById("ui-scale-value");
   const animations = document.getElementById("animations-dropdown");
   const visualEffects = document.getElementById("visual-effects-dropdown");
   const interfaceReset = document.getElementById("interface-reset-btn");
@@ -307,18 +305,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.documentElement.style.setProperty("--interface-glass-alpha", String(0.25 + saved / 200));
     document.documentElement.style.setProperty("--interface-glass-blur", Math.round(4 + saved / 5) + "px");
-  }
-
-  if (uiScale) {
-    const saved = Number(store.get("interfaceScale") || 100);
-    uiScale.value = String(saved);
-    if (uiScaleValue) uiScaleValue.textContent = saved + "%";
-    document.documentElement.style.setProperty("--interface-ui-scale", String(saved / 100));
-    uiScale.addEventListener("input", () => {
-      store.set("interfaceScale", uiScale.value);
-      if (uiScaleValue) uiScaleValue.textContent = uiScale.value + "%";
-      document.documentElement.style.setProperty("--interface-ui-scale", String(Number(uiScale.value) / 100));
-    });
   }
 
   if (animations) {
@@ -349,7 +335,6 @@ document.addEventListener("DOMContentLoaded", () => {
     interfaceReset.addEventListener("click", () => {
       store.remove("interfaceGlass");
       store.remove("interfaceGlassStrength");
-      store.remove("interfaceScale");
       store.remove("interfaceAnimations");
       store.remove("interfaceEffects");
       window.location.reload();
