@@ -135,10 +135,28 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => {});
   }
 
+  // Re-apply the background after account settings finish loading. This matters when
+  // the saved custom background exists on the account but not in localStorage yet.
+  const applyLunarBackground = () => {
+    const image = store.get("backgroundImage");
+    document.body.style.backgroundImage = "";
+    document.getElementById("lunar-background-image")?.remove();
+
+    if (!image || image === "none") return;
+
+    const imageLayer = document.createElement("div");
+    imageLayer.id = "lunar-background-image";
+    imageLayer.style.backgroundImage = `url("${String(image).replace(/"/g, "\\\"")}")`;
+    imageLayer.style.opacity = String(Number(store.get("backgroundImageOpacity") || 100) / 100);
+    imageLayer.style.filter = `blur(${Number(store.get("backgroundImageBlur") || 0)}px)`;
+    document.body.insertBefore(imageLayer, document.body.firstChild);
+  };
+
   // Restore account-backed settings if this browser/origin does not have them yet.
   // Existing local settings always take priority.
   if (typeof store.loadAccountSettings === "function") {
     store.loadAccountSettings().then(() => {
+      applyLunarBackground();
       if (typeof window.applyLunarSettings === "function") {
         window.applyLunarSettings();
       }
