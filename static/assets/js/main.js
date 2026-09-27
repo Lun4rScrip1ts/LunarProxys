@@ -292,7 +292,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   applyStaticCursor();
-  const activePointer = store.get("pointer");
+  let activePointer = store.get("pointer");
+  const allowedPointers = new Set(["default","crosshair-cursor","normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"]);
+  if (!allowedPointers.has(activePointer)) {
+    store.remove("pointer");
+    activePointer = "default";
+    applyStaticCursor();
+  }
   const effectsLevel = store.get("interfaceEffects") || "full";
   const motionLevel = store.get("interfaceAnimations") || "on";
 
