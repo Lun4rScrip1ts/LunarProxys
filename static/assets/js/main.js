@@ -292,79 +292,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   applyStaticCursor();
-
-  // Universal cursor compositor. This is deliberately independent of the
-  // selected cursor effect so the pointer can never disappear behind the
-  // uploaded background, glass UI, or the embedded browser frame.
-  const ensureLunarMasterCursor = () => {
-    if (document.getElementById("lunar-master-cursor")) return;
-    const cursor = document.createElement("div");
-    cursor.id = "lunar-master-cursor";
-    cursor.setAttribute("aria-hidden", "true");
-    cursor.innerHTML = '<svg viewBox="0 0 40 40" width="40" height="40" focusable="false"><path d="M6 3l5 29 8-9 8 11 5-4-9-11 11-2z" fill="#fff" stroke="#05070b" stroke-width="2.5" stroke-linejoin="round"/></svg>';
-    document.body.appendChild(cursor);
-
-    const move = (x, y) => {
-      cursor.style.transform = "translate3d(" + Math.round(x) + "px," + Math.round(y) + "px,0)";
-      const pointer = store.get("pointer") || "default";
-      cursor.style.opacity = pointer === "default" ? "1" : "0";
-    };
-    const hide = () => { cursor.style.opacity = "0"; };
-
-    window.addEventListener("mousemove", e => move(e.clientX, e.clientY), { passive: true });
-    window.addEventListener("mouseenter", e => move(e.clientX, e.clientY), { passive: true });
-    window.addEventListener("mouseleave", hide, { passive: true });
-
-    const attachIframe = iframe => {
-      if (!iframe || iframe.dataset.lunarMasterCursorTracked) return;
-      iframe.dataset.lunarMasterCursorTracked = "1";
-      const attach = () => {
-        try {
-          const win = iframe.contentWindow;
-          if (!win) return;
-          win.addEventListener("mousemove", e => {
-            const rect = iframe.getBoundingClientRect();
-            move(rect.left + e.clientX, rect.top + e.clientY);
-          }, { passive: true });
-          win.addEventListener("mouseenter", e => {
-            const rect = iframe.getBoundingClientRect();
-            move(rect.left + e.clientX, rect.top + e.clientY);
-          }, { passive: true });
-          win.addEventListener("mouseleave", hide, { passive: true });
-        } catch {}
-      };
-      if (iframe.contentDocument?.readyState === "complete") attach();
-      else iframe.addEventListener("load", attach, { once: true });
-    };
-
-    document.querySelectorAll("iframe").forEach(attachIframe);
-    new MutationObserver(mutations => {
-      mutations.forEach(mutation => mutation.addedNodes.forEach(node => {
-        if (node.nodeType !== 1) return;
-        if (node.matches?.("iframe")) attachIframe(node);
-        node.querySelectorAll?.("iframe").forEach(attachIframe);
-      }));
-    }).observe(document.body, { childList: true, subtree: true });
-  };
-
-  ensureLunarMasterCursor();
-
-  // Keep the master cursor visible only when the default pointer is selected.
-  // This prevents it from covering the user's selected cursor effect.
-  const syncMasterCursor = () => {
-    const master = document.getElementById("lunar-master-cursor");
-    if (!master) return;
-    master.style.opacity = (store.get("pointer") || "default") === "default" ? "1" : "0";
-  };
-  syncMasterCursor();
-
   const activePointer = store.get("pointer");
   const effectsLevel = store.get("interfaceEffects") || "full";
   const motionLevel = store.get("interfaceAnimations") || "on";
 
   if (CURSOR_EFFECTS.includes(activePointer) && effectsLevel !== "off" && motionLevel !== "off") {
     const cursorScript = document.createElement("script");
-    cursorScript.src = "/assets/js/cursor.js?v=lunar10";
+    cursorScript.src = "/assets/js/cursor.js?v=lunar11";
     cursorScript.onload = () => initCursorEffect();
     document.head.appendChild(cursorScript);
   }
@@ -451,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function sync(){
     if (!document.body || typeof store === "undefined") return;
     const pointer = store.get("pointer") || "default";
-    const custom = staticPointers.has(pointer) || effectPointers.has(pointer);
+    const custom = effectPointers.has(pointer);
     document.documentElement.classList.toggle("lunar-pointer-active", custom);
     document.body.classList.toggle("lunar-custom-cursor-active", effectPointers.has(pointer));
   }
