@@ -133,14 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const mode = this.value;
     store.set("backgroundMode", mode);
     if (mode === "default") {
-      store.set("backgroundMode", "default");
       store.remove("backgroundImage");
       store.remove("backgroundImageOpacity");
       store.remove("backgroundImageBlur");
-      document.body.style.backgroundImage = "none";
-      document.getElementById("lunar-background-image")?.remove();
-      if (typeof store.syncAccountSettings === "function") await store.syncAccountSettings();
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 600);
     } else if (mode === "none") {
       store.set("backgroundImage", "none");
       syncBackgroundControls();
@@ -223,29 +219,23 @@ document.addEventListener("DOMContentLoaded", () => {
       store.set("backgroundImage", backgroundValue);
       store.set("backgroundMode", "custom");
       if (bgDropdown) bgDropdown.value = "custom";
-      bgStatus.textContent = backgroundValue.startsWith("/uploads/") ? "Saving to your account…" : "Saving on this browser…";
-      syncBackgroundControls();
-      if (typeof store.syncAccountSettings === "function") await store.syncAccountSettings();
       bgStatus.textContent = backgroundValue.startsWith("/uploads/") ? "Saved to your account." : "Saved on this browser.";
+      syncBackgroundControls();
       window.location.reload();
     } catch (error) {
       bgStatus.textContent = error.message || "Could not apply image.";
     }
   });
 
-  bgClear?.addEventListener("click", async () => {
+  bgClear?.addEventListener("click", () => {
     store.remove("backgroundImage");
-    store.remove("backgroundImageOpacity");
-    store.remove("backgroundImageBlur");
-    store.set("backgroundMode", "default");
+    store.set("backgroundMode", "custom");
     if (bgFile) bgFile.value = "";
     if (bgFileLabel) bgFileLabel.textContent = "Choose background image";
-    if (bgStatus) bgStatus.textContent = "Clearing saved background…";
+    if (bgStatus) bgStatus.textContent = "Background image cleared.";
     syncBackgroundControls();
     document.getElementById("lunar-background-image")?.remove();
-    if (typeof store.syncAccountSettings === "function") await store.syncAccountSettings();
-    bgStatus.textContent = "Background image cleared.";
-    window.location.reload();
+    setTimeout(() => window.location.reload(), 600);
   });
 
   bgOpacity?.addEventListener("input", () => {
@@ -271,18 +261,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cursor Effects
   const pointerDropdown = document.getElementById("pointer-dropdown");
-  // The white Lunar master cursor is the default for every new visitor.
-  // Other cursor choices remain selectable from this dropdown.
-  const savedPointer = store.get("pointer");
-  pointerDropdown.value = savedPointer || "default";
-  pointerDropdown.addEventListener("change", async function () {
+  pointerDropdown.value = store.get("pointer") || "default";
+  pointerDropdown.addEventListener("change", function () {
     const val = this.value;
     if (val === "default") {
       store.remove("pointer");
     } else {
       store.set("pointer", val);
     }
-    if (typeof store.syncAccountSettings === "function") await store.syncAccountSettings();
     window.location.reload();
   });
 
