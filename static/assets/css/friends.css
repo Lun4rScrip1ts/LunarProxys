@@ -77,3 +77,15 @@
 .dm-topbar{background:rgba(10,11,14,.96)!important;box-shadow:0 8px 30px rgba(0,0,0,.2)}
 .dm-message{transition:background .15s ease,transform .15s ease}
 .dm-message:hover{transform:translateX(2px)}
+
+
+/* Profile action controls */
+.profile-actions,.global-profile-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.profile-actions button,.global-profile-actions button{border:0;border-radius:9px;padding:9px 15px;font-weight:800;color:#fff;cursor:pointer;transition:.16s ease;min-width:86px}
+.profile-actions button:hover:not(:disabled),.global-profile-actions button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}
+.profile-actions button:disabled,.global-profile-actions button:disabled{opacity:.55;cursor:default}
+.profile-actions .message-action,.global-profile-actions .global-profile-message{background:#5865f2}
+.profile-actions .friend-action,.global-profile-actions .global-profile-friend{background:#248046}
+.profile-actions .block-action,.global-profile-actions .global-profile-block{background:#3a3d44}
+.global-profile-actions{margin-top:18px}
+.global-profile-actions button{min-width:92px}
