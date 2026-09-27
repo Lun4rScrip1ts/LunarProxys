@@ -151,3 +151,15 @@
 .mutual-friend-avatar:hover{transform:translateY(-2px);border-color:#5865f2}
 .lunar-friends-page .friends-profile-card{z-index:20001}
 .lunar-friends-page .friends-profile-body{position:relative;z-index:2}
+
+
+/* Keep DM message menus and reaction popups above the Friends app frame. They are fixed to the viewport. */
+.lunar-friends-page #message-menu,
+.lunar-friends-page .dm-reaction-picker,
+.lunar-friends-page .dm-reaction-users{
+  position:fixed!important;
+  z-index:2147483000!important;
+  isolation:isolate;
+}
+.lunar-friends-page #message-menu{pointer-events:auto!important}
+.lunar-friends-page .dm-reaction-picker,.lunar-friends-page .dm-reaction-users{pointer-events:auto!important}
