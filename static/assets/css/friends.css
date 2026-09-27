@@ -50,3 +50,30 @@
 
 
 .chat-profile-trigger{appearance:none!important;-webkit-appearance:none!important;border:0!important;background:transparent!important;color:#fff!important;padding:0!important;margin:0!important;cursor:pointer!important;text-align:left!important;font:inherit!important;box-shadow:none!important}.chat-avatar .chat-profile-trigger{width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#252a35!important}.chat-avatar .chat-profile-trigger:hover{background:#30343d!important}.chat-name.chat-profile-trigger{font-weight:800}.chat-name.chat-profile-trigger:hover{text-decoration:underline}.global-profile-modal{position:fixed;inset:0;z-index:30000;background:rgba(0,0,0,.74);display:grid;place-items:center;padding:20px}.global-profile-card{position:relative;width:min(620px,100%);max-height:90vh;overflow:hidden;background:#181a1e;border:1px solid #303238;border-radius:16px;box-shadow:0 30px 100px #000}.global-profile-close{position:absolute;right:58px;top:14px;z-index:4;width:34px;height:34px;border:0;border-radius:9px;background:#25272c;color:#fff;cursor:pointer}.global-profile-menu-button{position:absolute;right:14px;top:14px;z-index:4;width:34px;height:34px;border:0;border-radius:9px;background:#25272c;color:#fff;cursor:pointer}.global-profile-menu-button:hover,.global-profile-close:hover{background:#34373e}.global-profile-menu{position:absolute;right:14px;top:54px;z-index:5;min-width:170px;padding:5px;background:#181a1e;border:1px solid #35383e;border-radius:9px;box-shadow:0 20px 60px #000}.global-profile-menu a{display:block;padding:9px 10px;border-radius:6px;color:#d9dce1;text-decoration:none;font-size:12px;font-weight:700}.global-profile-menu a:hover{background:#2b2d31;color:#fff}.global-profile-banner{height:160px;background:#25272c center/cover no-repeat}.global-profile-body{padding:0 26px 28px}.global-profile-avatar{width:88px;height:88px;margin-top:-44px;border:5px solid #181a1e;border-radius:50%;overflow:hidden;background:#fff;display:grid;place-items:center;font-weight:900}.global-profile-avatar img{width:100%;height:100%;object-fit:cover}.global-profile-name{display:flex;align-items:center;gap:9px;margin-top:12px}.global-profile-name h2{margin:0;color:#fff;font-size:25px}.global-profile-username{color:#858b96;font-size:12px;margin-top:4px}.global-profile-status{margin-top:14px;color:#dfe2e7;font-size:13px}.global-profile-bio{color:#9ca3af;line-height:1.5}.global-profile-full{display:none}@media(max-width:800px){.global-profile-body{padding:0 20px 22px}.global-profile-close{right:58px;top:14px}}
+
+/* Lunar Discord-style interaction polish */
+.lunar-friends-page .friends-sidebar{background:rgba(14,16,21,.94)!important;border-right:1px solid rgba(255,255,255,.07)!important}
+.friends-sidebar-head{height:68px!important;padding:0 12px 0 17px!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+.friends-sidebar-head>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.friends-sidebar-head strong{font-size:16px!important;letter-spacing:.01em}
+.friends-sidebar-head span{font-size:9px;color:#707783;white-space:nowrap}
+.friends-head-actions{display:flex!important;gap:4px}
+.friends-head-actions button,.dm-top-actions .icon-button{width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:#858c98;cursor:pointer;transition:.18s ease}
+.friends-head-actions button:hover,.dm-top-actions .icon-button:hover{background:#2b2d31;color:#fff;transform:translateY(-1px)}
+.friends-head-actions .spinning i{animation:friendsSpin .45s linear}
+@keyframes friendsSpin{to{transform:rotate(360deg)}}
+.friends-search-bar{margin:2px 10px 8px;padding:0 9px;height:34px;display:flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.07);background:#202226;border-radius:8px;color:#777e89}
+.friends-search-bar input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:12px}
+.friends-search-bar button{border:0;background:transparent;color:#777e89;cursor:pointer}
+.friends-tabs{padding:7px 9px!important;gap:4px!important;background:rgba(0,0,0,.12)}
+.friends-tab{flex:1!important;position:relative;display:flex!important;justify-content:center;align-items:center;gap:6px;border-radius:7px!important;font-size:11px!important}
+.friends-tab i{font-size:10px;opacity:.7}.friends-tab[data-tab="online"] i{color:#43b581}
+.dm-top-actions{margin-left:auto;display:flex;gap:2px}
+.dm-top-actions .icon-button{font-size:13px}
+.dm-top-actions .icon-button:first-child{display:none}
+.friend-item{border:1px solid transparent!important;transition:background .16s ease,border-color .16s ease,transform .16s ease!important}
+.friend-item:hover{transform:translateX(2px);border-color:rgba(255,255,255,.05)!important}
+.friend-item.active{background:linear-gradient(90deg,rgba(88,101,242,.18),rgba(88,101,242,.06))!important;border-color:rgba(88,101,242,.18)!important}
+.dm-topbar{background:rgba(10,11,14,.96)!important;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.dm-message{transition:background .15s ease,transform .15s ease}
+.dm-message:hover{transform:translateX(2px)}
