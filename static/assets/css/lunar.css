@@ -463,3 +463,51 @@ body > :not(#lunar-background-image):not(#lunar-background-effect):not(#stars):n
 body#no{background-color:var(--lunar-bg)!important;background-image:none!important}
 body#no #lunar-background-image{z-index:0!important}
 body#no > .browser,body#no > .browser-bar,body#no > .frame-container{position:relative;z-index:2}
+
+
+/* Cursor visibility: custom cursors replace the native cursor instead of appearing beside it. */
+body.lunar-static-cursor,
+body.lunar-static-cursor *{
+  cursor:none!important;
+}
+body.lunar-static-cursor::after,
+body.lunar-static-cursor::before{pointer-events:none!important}
+
+body.lunar-normal-lunar,
+body.lunar-normal-lunar *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3l4 22 6-7 6 8 3-3-7-8 9-1z' fill='white' stroke='%2313171f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 4 3,none!important;
+}
+body.lunar-normal-graphite,
+body.lunar-normal-graphite *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3l4 22 6-7 6 8 3-3-7-8 9-1z' fill='%23aeb4bf' stroke='%23080a0f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 4 3,none!important;
+}
+body.lunar-normal-minimal,
+body.lunar-normal-minimal *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M5 3l4 20 5-6 5 7 2-2-6-7 7-1z' fill='white'/%3E%3C/svg%3E") 4 3,none!important;
+}
+body.lunar-normal-outline,
+body.lunar-normal-outline *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3l4 22 6-7 6 8 3-3-7-8 9-1z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 4 3,none!important;
+}
+body.lunar-normal-cross,
+body.lunar-normal-cross *{
+  cursor:crosshair!important;
+}
+
+/* Effect cursors hide the Windows/browser cursor so the effect is the only pointer visible. */
+body.lunar-comet-cursor,
+body.lunar-spark-cursor,
+body.lunar-pixel-cursor,
+body.lunar-crosshair-cursor,
+body.lunar-soft-glow-cursor,
+body.lunar-ring-cursor{
+  cursor:none!important;
+}
+body.lunar-comet-cursor *,
+body.lunar-spark-cursor *,
+body.lunar-pixel-cursor *,
+body.lunar-crosshair-cursor *,
+body.lunar-soft-glow-cursor *,
+body.lunar-ring-cursor *{
+  cursor:none!important;
+}
