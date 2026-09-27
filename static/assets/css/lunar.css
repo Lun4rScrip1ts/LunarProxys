@@ -455,7 +455,7 @@ body.lunar-static-cursor button,body.lunar-static-cursor a,body.lunar-static-cur
 
 
 /* Keep the saved custom background behind every Lunar page, while all page UI stays above it. */
-body > :not(#lunar-background-image):not(#lunar-background-effect):not(#stars):not(#stars2):not(#stars3):not(.lunar-context-menu):not(#lunar-master-cursor){
+body > :not(#lunar-background-image):not(#lunar-background-effect):not(#stars):not(#stars2):not(#stars3):not(.lunar-context-menu){
   position:relative;
   z-index:2;
 }
@@ -466,10 +466,9 @@ body#no > .browser,body#no > .browser-bar,body#no > .frame-container{position:re
 
 
 /* Cursor visibility: custom cursors replace the native cursor instead of appearing beside it. */
-/* Static cursor modes use the real/DOM pointer; never hide the native cursor. */
 body.lunar-static-cursor,
 body.lunar-static-cursor *{
-  cursor:auto!important;
+  cursor:none!important;
 }
 body.lunar-static-cursor::after,
 body.lunar-static-cursor::before{pointer-events:none!important}
@@ -608,35 +607,4 @@ html.lunar-pointer-active body.lunar-default-cursor *{
 html.lunar-pointer-active body.lunar-static-cursor.lunar-normal-lunar,
 html.lunar-pointer-active body.lunar-static-cursor.lunar-normal-lunar *{
   cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 3l5 29 8-9 8 11 5-4-9-11 11-2z' fill='%23ffffff' stroke='%2303070d' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3,auto!important;
-}
-
-
-/* FINAL MASTER CURSOR
-   The pointer is a fixed DOM layer rather than only a CSS cursor. This makes it
-   visible above glass/background layers and lets it be tracked over same-origin
-   embedded frames. */
-#lunar-master-cursor{
-  position:fixed!important;
-  left:0!important;
-  top:0!important;
-  width:40px!important;
-  height:40px!important;
-  margin:0!important;
-  padding:0!important;
-  z-index:2147483647!important;
-  pointer-events:none!important;
-  opacity:0;
-  transform:translate3d(-100px,-100px,0);
-  transform-origin:0 0;
-  transition:opacity .08s ease;
-  will-change:transform;
-  display:block!important;
-}
-#lunar-master-cursor svg{
-  display:block!important;
-  width:40px!important;
-  height:40px!important;
-  overflow:visible!important;
-  filter:drop-shadow(0 1px 2px rgba(0,0,0,.55));
-  pointer-events:none!important;
 }
