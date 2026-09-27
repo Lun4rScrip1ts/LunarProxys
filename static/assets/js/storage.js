@@ -176,6 +176,13 @@
   }
 
   window.store = {
+    async syncAccountSettings() {
+      clearTimeout(syncTimer);
+      if (syncInFlight) return false;
+      syncInFlight = true;
+      await syncAccountSettings();
+      return true;
+    },
     get(field) {
       return Object.hasOwn(fields, field) ? fields[field] : null;
     },
