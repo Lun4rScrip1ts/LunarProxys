@@ -122,30 +122,53 @@ function createCustomApp() {
   pinnedContainer.appendChild(card);
 }
 
+function getAppStorageId(app, appIndex) {
+  if (app?.link) return `url:${app.link}`;
+  return `name:${String(app?.name || "app").toLowerCase()}`;
+}
+
 function getPinnedApps() {
-  const pins = getFromStorage("pinned") || "";
-  return pins ? pins.split(",").map(Number) : [];
+  const raw = getFromStorage("pinned") || "";
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return raw.split(",").map(Number).filter(Number.isFinite);
+  }
 }
 
 function savePinnedApps(pins) {
-  setInStorage("pinned", pins.join(","));
+  setInStorage("pinned", JSON.stringify([...new Set(pins)]));
 }
 
-function togglePin(appIndex) {
-  const pins = getPinnedApps();
+function migrateLegacyPins(appsList) {
+  const raw = getFromStorage("pinned") || "";
+  if (!raw || raw.trim().startsWith("[")) return;
+  const oldIndexes = raw.split(",").map(Number).filter(Number.isFinite);
+  const migrated = oldIndexes
+    .filter(index => index >= 2)
+    .map(index => appsList[index - 1])
+    .filter(Boolean)
+    .map((app, index) => getAppStorageId(app, index));
+  savePinnedApps(migrated);
+}
 
-  const pinIndex = pins.indexOf(appIndex);
+function togglePin(app, appIndex) {
+  const pins = getPinnedApps();
+  const appId = getAppStorageId(app, appIndex);
+  const pinIndex = pins.indexOf(appId);
   const isCurrentlyPinned = pinIndex !== -1;
 
   if (isCurrentlyPinned) {
     pins.splice(pinIndex, 1);
   } else {
-    pins.push(appIndex);
+    pins.push(appId);
   }
 
   savePinnedApps(pins);
 
-  const card = document.querySelector(`.column[data-app-index="${appIndex}"]`);
+  const card = document.querySelector(`.column[data-app-id="${CSS.escape(appId)}"]`);
   if (card) {
     const pinnedContainer = document.querySelector(".pinned");
     const nonPinnedContainer = document.querySelector(".apps");
@@ -160,11 +183,11 @@ function togglePin(appIndex) {
   }
 }
 
-function isAppPinned(appIndex, pinnedList) {
-  return pinnedList.includes(appIndex);
+function isAppPinned(app, appIndex, pinnedList) {
+  return pinnedList.includes(getAppStorageId(app, appIndex));
 }
 
-function createPinButton(appIndex) {
+function createPinButton(app, appIndex) {
   const pinIcon = document.createElement("i");
   pinIcon.classList.add("fa", "fa-map-pin");
   pinIcon.ariaHidden = true;
@@ -181,7 +204,11 @@ function createPinButton(appIndex) {
     top: -200px;
     position: relative;
   `;
-  button.onclick = () => togglePin(appIndex);
+  button.onclick = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    togglePin(app, appIndex);
+  };
   button.title = "Pin";
 
   return button;
@@ -193,7 +220,9 @@ function renderAppCard(app, appIndex, isCustom = false) {
 
   const categories = isCustom ? "all" : (app.categories || []).join(" ");
   columnDiv.setAttribute("data-category", categories);
+  const appId = getAppStorageId(app, appIndex);
   columnDiv.setAttribute("data-app-index", appIndex);
+  columnDiv.setAttribute("data-app-id", appId);
 
   const link = document.createElement("a");
   link.onclick = () => handleAppClick(app);
@@ -229,8 +258,8 @@ function renderAppCard(app, appIndex, isCustom = false) {
   link.appendChild(paragraph);
   columnDiv.appendChild(link);
 
-  if (appIndex !== 0 && appIndex !== 1) {
-    columnDiv.appendChild(createPinButton(appIndex));
+  if (!isCustom && appIndex !== 0) {
+    columnDiv.appendChild(createPinButton(app, appIndex));
   }
 
   return columnDiv;
@@ -290,15 +319,14 @@ function loadAppsFromJson() {
         appsContainer.appendChild(nonPinnedContainer);
       }
 
-      const specialCards = appsList.splice(0, 2);
+      const customCards = appsList.filter(app => app.custom === "true" || app.custom === true);
+      const catalogCards = appsList.filter(app => !(app.custom === "true" || app.custom === true));
 
-      appsList.sort((a, b) => {
-        if (a.name.startsWith("[Custom]")) return -1;
-        if (b.name.startsWith("[Custom]")) return 1;
-        return a.name.localeCompare(b.name);
-      });
+      catalogCards.sort((a, b) => a.name.localeCompare(b.name));
+      appsList = [...customCards, ...catalogCards];
 
-      appsList.unshift(...specialCards);
+      migrateLegacyPins(appsList);
+      const migratedPinnedList = getPinnedApps();
 
       let appIndex = 0;
 
@@ -309,7 +337,7 @@ function loadAppsFromJson() {
 
         if (appIndex === 0 || appIndex === 1) {
           pinnedContainer.appendChild(card);
-        } else if (pinnedList != null && isAppPinned(appIndex, pinnedList)) {
+        } else if (migratedPinnedList != null && isAppPinned(app, appIndex, migratedPinnedList)) {
           pinnedContainer.appendChild(card);
         } else {
           nonPinnedContainer.appendChild(card);
