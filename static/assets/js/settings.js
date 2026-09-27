@@ -237,7 +237,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   bgClear?.addEventListener("click", () => {
     store.remove("backgroundImage");
-    store.set("backgroundMode", "custom");
+    store.set("backgroundMode", "none");
+    if (bgDropdown) bgDropdown.value = "none";
     if (bgFile) bgFile.value = "";
     if (bgFileLabel) bgFileLabel.textContent = "Choose background image";
     if (bgStatus) bgStatus.textContent = "Background image cleared.";
