@@ -262,6 +262,15 @@ document.addEventListener("DOMContentLoaded", () => {
     "the-sims", "curly-cursor", "comet-cursor", "spark-cursor", "crosshair-cursor",
     "soft-glow-cursor", "pixel-cursor", "ring-cursor"
   ];
+  const STATIC_CURSORS = ["normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"];
+  const applyStaticCursor = () => {
+    document.body.classList.remove("lunar-static-cursor");
+    STATIC_CURSORS.forEach(name => document.body.classList.remove("lunar-" + name));
+    if (STATIC_CURSORS.includes(store.get("pointer"))) {
+      document.body.classList.add("lunar-static-cursor", "lunar-" + store.get("pointer"));
+    }
+  };
+  applyStaticCursor();
   const activePointer = store.get("pointer");
   const effectsLevel = store.get("interfaceEffects") || "full";
   const motionLevel = store.get("interfaceAnimations") || "on";
