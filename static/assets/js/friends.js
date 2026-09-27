@@ -21,7 +21,7 @@ if(!visible.length && filter) $("friends-empty").innerHTML="No friends match you
 else if(!visible.length) $("friends-empty").innerHTML="No friends yet.<br>Send someone a friend request to start chatting.";
 }
 function renderInbox(){const e=$("friends-list");$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length;e.innerHTML=incoming.map(x=>'<div class="search-user">'+avatar(x.from)+'<span class="search-user-info"><strong>'+esc(x.from.displayName)+'</strong><span>@'+esc(x.from.username)+'</span></span><button data-request="accept" data-id="'+x.id+'">Accept</button><button data-request="decline" data-id="'+x.id+'" style="background:#303238">Decline</button></div>').join("")||'<div class="friends-empty">Your inbox is clear.</div>'}
-async function bootstrap(){try{const d=await api("/api/friends/bootstrap");me=d.user;friends=d.friends||[];incoming=d.incoming||[];outgoing=d.outgoing||[];renderFriends();$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length}catch(e){toast(e.message);location.href="/account"}}
+async function bootstrap(){try{const d=await api("/api/friends/bootstrap");me=d.user;friends=d.friends||[];incoming=d.incoming||[];outgoing=d.outgoing||[];document.querySelector(".friends-tab.active")?.dataset.tab==="inbox"?renderInbox():renderFriends();$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length}catch(e){toast(e.message);location.href="/account"}}
 function openModal(id){$(id).hidden=false}
 function closeModals(){["friend-modal","forward-modal"].forEach(id=>$(id).hidden=true);$("message-menu").hidden=true}
 function openAdd(){openModal("friend-modal");$("friend-search-input").focus()}
