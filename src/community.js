@@ -405,7 +405,7 @@ router.get("/users/:username", (req, res) => {
   if (viewer) {
     profile.isSelf = viewer.id === user.id;
     profile.isFriend = viewer.id !== user.id && areFriends(viewer.id, user.id);
-    profile.isBlocked = viewer.id !== user.id && isBlockedBetween(viewer.id, user.id);
+    profile.isBlocked = viewer.id !== user.id && isBlocked(viewer.id, user.id);
     profile.friendRequestPending = viewer.id !== user.id && state.friendRequests.some(item =>
       (item.fromUserId === viewer.id && item.toUserId === user.id) ||
       (item.fromUserId === user.id && item.toUserId === viewer.id)
