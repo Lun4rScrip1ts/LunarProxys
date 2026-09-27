@@ -608,3 +608,15 @@ html.lunar-pointer-active body.lunar-static-cursor.lunar-normal-lunar,
 html.lunar-pointer-active body.lunar-static-cursor.lunar-normal-lunar *{
   cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 3l5 29 8-9 8 11 5-4-9-11 11-2z' fill='%23ffffff' stroke='%2303070d' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3,auto!important;
 }
+
+
+/* UI overlays must always stay above Lunar backgrounds and effects. */
+.friends-profile-modal,
+.global-profile-modal,
+.modal-backdrop,
+.message-menu,
+.gif-panel,
+.friends-toast,
+.lunar-context-menu{
+  z-index:2147483000!important;
+}
