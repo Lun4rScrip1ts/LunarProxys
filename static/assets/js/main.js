@@ -122,6 +122,19 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="navbar-link lunar-account-nav" href="/./account"><i class="fa-solid fa-user navbar-icon"></i><span>Account</span></a>
       </div>`;
     nav.innerHTML = html;
+
+    // Keep the current page highlighted instead of hard-coding Donate as active.
+    const currentPath = window.location.pathname.replace(/\\/$/, "") || "/";
+    nav.querySelectorAll(".navbar-link").forEach(link => {
+      try {
+        const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\\/$/, "") || "/";
+        const active = linkPath === currentPath || (currentPath === "/play.html" && linkPath === "/games");
+        link.classList.toggle("is-active", active);
+        if (active) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      } catch {}
+    });
+
     fetch("/api/auth/me", { credentials: "same-origin" })
       .then(response => response.ok ? response.json() : null)
       .then(data => {
