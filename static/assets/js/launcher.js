@@ -335,7 +335,7 @@ function loadAppsFromJson() {
 
         const card = renderAppCard(app, appIndex);
 
-        if (appIndex === 0 || appIndex === 1) {
+        if (appIndex === 0 && (app.custom === "true" || app.custom === true)) {
           pinnedContainer.appendChild(card);
         } else if (migratedPinnedList != null && isAppPinned(app, appIndex, migratedPinnedList)) {
           pinnedContainer.appendChild(card);
