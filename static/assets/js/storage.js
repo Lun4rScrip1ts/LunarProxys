@@ -134,6 +134,7 @@
   }
 
   function scheduleAccountSync() {
+    if (syncingFromAccount) return;
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => {
       if (syncInFlight) return;
@@ -142,32 +143,36 @@
     }, 250);
   }
 
-  async function loadAccountSettings() {
+  async function loadAccountSettings(options = {}) {
     try {
       const response = await fetch("/api/profile/settings", { credentials: "same-origin" });
       if (!response.ok) return false;
       const data = await response.json();
       if (!data || !data.settings || typeof data.settings !== "object") return false;
+
       const accountSettings = data.settings;
-      const localSettings = fields && typeof fields === "object" ? fields : {};
+      const localSettings = fields && typeof fields === "object" ? { ...fields } : {};
       const localKeys = Object.keys(localSettings);
       const accountKeys = Object.keys(accountSettings);
 
-      // Never replace a user's local settings with an empty account record.
-      // If both exist, keep local values and only fill missing keys from the account.
-      if (accountKeys.length && localKeys.length) {
-        const merged = { ...accountSettings, ...localSettings };
-        syncingFromAccount = true;
-        fields = merged;
-        write(fields);
-        syncingFromAccount = false;
-      } else if (accountKeys.length && !localKeys.length) {
-        syncingFromAccount = true;
+      syncingFromAccount = true;
+      if (accountKeys.length) {
+        // The server is authoritative for a logged-in account. Never merge the
+        // previous account's local settings into this account.
         fields = { ...accountSettings };
         write(fields);
-        syncingFromAccount = false;
+      } else if (options.adoptLocalIfEmpty && localKeys.length) {
+        // Preserve settings that were created before the first account login,
+        // then immediately sync them into that first account.
+        fields = localSettings;
+        write(fields);
+      } else {
+        // A valid account with no saved settings gets clean defaults instead of
+        // inheriting the previous account's settings.
+        fields = {};
+        write(fields);
       }
-
+      syncingFromAccount = false;
       return accountKeys.length > 0;
     } catch {
       syncingFromAccount = false;
