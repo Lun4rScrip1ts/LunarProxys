@@ -800,6 +800,144 @@ function initSnakeTrail() {
   requestAnimationFrame(update);
 }
 
+function initCometCursor() {
+  if (document.getElementById("lunar-comet-cursor")) return;
+  document.body.classList.add("lunar-comet-cursor");
+  const dot = document.createElement("div");
+  dot.id = "lunar-comet-cursor";
+  document.body.appendChild(dot);
+  const trail = [];
+  const maxTrail = 18;
+  let x = innerWidth / 2, y = innerHeight / 2;
+  let tx = x, ty = y;
+
+  const move = (nx, ny) => { tx = nx; ty = ny; dot.style.left = `${nx}px`; dot.style.top = `${ny}px`; };
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  setupIframeTracking(move, () => {});
+
+  function loop() {
+    x += (tx - x) * 0.34;
+    y += (ty - y) * 0.34;
+    trail.push([x, y]);
+    if (trail.length > maxTrail) trail.shift();
+    dot.style.left = `${x}px`;
+    dot.style.top = `${y}px`;
+    dot.style.setProperty("--trail", trail.map((p, i) => `${p[0]}px ${p[1]}px ${Math.max(0, 0.22 - i / maxTrail / 5)}`).join(","));
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function initSparkCursor() {
+  if (document.getElementById("lunar-spark-cursor")) return;
+  document.body.classList.add("lunar-spark-cursor");
+  const canvas = createFullscreenCanvas("lunar-spark-canvas");
+  const ctx = canvas.getContext("2d");
+  const sparks = [];
+  let mx = innerWidth / 2, my = innerHeight / 2;
+
+  function move(x, y) {
+    mx = x; my = y;
+    for (let i = 0; i < 2; i++) sparks.push({
+      x, y, vx: (Math.random() - .5) * 2, vy: (Math.random() - .5) * 2,
+      life: 1, size: Math.random() * 2.5 + 1
+    });
+    if (sparks.length > 90) sparks.splice(0, sparks.length - 90);
+  }
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  setupIframeTracking(move, () => {});
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    sparks.forEach((p, i) => {
+      p.x += p.vx; p.y += p.vy; p.life -= .025;
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+      if (p.life <= 0) sparks.splice(i, 1);
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function initCrosshairCursor() {
+  if (document.getElementById("lunar-crosshair-cursor")) return;
+  document.body.classList.add("lunar-crosshair-cursor");
+  const el = document.createElement("div");
+  el.id = "lunar-crosshair-cursor";
+  el.innerHTML = "<span></span>";
+  document.body.appendChild(el);
+  const move = (x, y) => { el.style.left = `${x}px`; el.style.top = `${y}px`; };
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  setupIframeTracking(move, () => {});
+}
+
+function initSoftGlowCursor() {
+  if (document.getElementById("lunar-soft-glow-cursor")) return;
+  document.body.classList.add("lunar-soft-glow-cursor");
+  const el = document.createElement("div");
+  el.id = "lunar-soft-glow-cursor";
+  document.body.appendChild(el);
+  let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
+  const move = (nx, ny) => { tx = nx; ty = ny; };
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  setupIframeTracking(move, () => {});
+  function loop() {
+    x += (tx - x) * .18; y += (ty - y) * .18;
+    el.style.left = `${x}px`; el.style.top = `${y}px`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function initPixelCursor() {
+  if (document.getElementById("lunar-pixel-canvas")) return;
+  document.body.classList.add("lunar-pixel-cursor");
+  const canvas = createFullscreenCanvas("lunar-pixel-canvas");
+  const ctx = canvas.getContext("2d");
+  const pixels = [];
+  function move(x, y) {
+    for (let i = 0; i < 3; i++) pixels.push({
+      x: x + (Math.random() - .5) * 12, y: y + (Math.random() - .5) * 12,
+      life: 1, size: Math.random() > .7 ? 5 : 3
+    });
+    if (pixels.length > 100) pixels.splice(0, pixels.length - 100);
+  }
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  setupIframeTracking(move, () => {});
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pixels.forEach((p, i) => {
+      p.y += .35; p.life -= .035;
+      ctx.globalAlpha = p.life; ctx.fillStyle = "#fff";
+      ctx.fillRect(Math.round(p.x / 3) * 3, Math.round(p.y / 3) * 3, p.size, p.size);
+      if (p.life <= 0) pixels.splice(i, 1);
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function initRingCursor() {
+  if (document.getElementById("lunar-ring-cursor")) return;
+  document.body.classList.add("lunar-ring-cursor");
+  const el = document.createElement("div");
+  el.id = "lunar-ring-cursor";
+  document.body.appendChild(el);
+  let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
+  const move = (nx, ny) => { tx = nx; ty = ny; };
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  setupIframeTracking(move, () => {});
+  function loop() {
+    x += (tx - x) * .22; y += (ty - y) * .22;
+    el.style.left = `${x}px`; el.style.top = `${y}px`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
 function initCursorEffect() {
   const pointer = store.get("pointer");
   switch (pointer) {
@@ -823,6 +961,24 @@ function initCursorEffect() {
       break;
     case "curly-cursor":
       initSnakeTrail();
+      break;
+    case "comet-cursor":
+      initCometCursor();
+      break;
+    case "spark-cursor":
+      initSparkCursor();
+      break;
+    case "crosshair-cursor":
+      initCrosshairCursor();
+      break;
+    case "soft-glow-cursor":
+      initSoftGlowCursor();
+      break;
+    case "pixel-cursor":
+      initPixelCursor();
+      break;
+    case "ring-cursor":
+      initRingCursor();
       break;
   }
 }
