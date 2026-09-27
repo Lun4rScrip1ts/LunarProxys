@@ -89,3 +89,31 @@
 .profile-actions .block-action,.global-profile-actions .global-profile-block{background:#3a3d44}
 .global-profile-actions{margin-top:18px}
 .global-profile-actions button{min-width:92px}
+
+
+/* Keep the DM surface and profile header above animated/background layers. */
+.lunar-friends-page .friends-app{
+  z-index:2000!important;
+  isolation:isolate!important;
+}
+.lunar-friends-page .dm-panel{
+  position:relative!important;
+  z-index:2!important;
+  min-height:0!important;
+}
+.lunar-friends-page .dm-profile-intro{
+  position:relative!important;
+  z-index:100!important;
+  flex-shrink:0!important;
+  background:#000!important;
+}
+.lunar-friends-page .dm-messages{
+  position:relative!important;
+  z-index:10!important;
+  min-height:0!important;
+}
+.mutual-friends-label{
+  color:#9ca3af;
+  font-size:12px;
+  font-weight:700;
+}
