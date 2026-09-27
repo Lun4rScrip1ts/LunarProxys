@@ -255,7 +255,9 @@ router.get("/auth/me", (req, res) => {
   res.json({ user: user ? publicUser(user, true) : null });
 });
 
-router.get("/members/online", (_req, res) => {
+router.get("/members/online", (req, res) => {
+  // A homepage heartbeat also keeps the current logged-in session online.
+  getSessionUser(req);
   res.set("Cache-Control", "no-store");
   res.json({
     online: getOnlineMemberCount(),
