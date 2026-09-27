@@ -263,7 +263,7 @@ select:hover {
 
 /* Interface appearance controls */
 .interface-settings-card {
-   overflow: hidden;
+   overflow: visible;
 }
 
 .interface-settings-card .interface-range {
@@ -327,3 +327,10 @@ body.reduce-interface-motion .interface-settings-card * {
 .background-image-controls label{display:flex!important;justify-content:space-between;align-items:center}
 @media(max-width:520px){.background-upload-actions{flex-direction:column}.lunar-select-menu{max-height:260px}}
 body.reduce-interface-motion .lunar-select *,body.reduce-interface-motion .lunar-select{transition:none!important}
+
+/* Keep Lunar dropdown menus above their cards instead of clipping them */
+.settings-card:has(.lunar-select){overflow:visible!important}
+.settings-card .lunar-select{z-index:50}
+.settings-card .lunar-select.is-open{z-index:99999}
+.settings-card .lunar-select-menu{z-index:100000}
+.settings-card:has(.lunar-select.is-open){z-index:1000}
