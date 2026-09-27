@@ -136,3 +136,121 @@ body#no::before,body#no::after{display:none!important;content:none!important}
 body#no .frame-container{background:#fff!important}
 body#no .frame-container iframe{background:#fff!important;color-scheme:light}
 body#no .browser-bar,body#no .browser{background:rgba(9,12,17,.96)!important}
+
+/* Lunar interaction + effect controls */
+:root{
+  --interface-glass-alpha:.54;
+  --interface-glass-blur:19px;
+  --interface-ui-scale:1;
+  --interface-motion-scale:1;
+  --interface-effects-opacity:1;
+}
+body.interface-glass .nav-bar,
+body.interface-glass .settings-card,
+body.interface-glass .column,
+body.interface-glass .input-c input,
+body.interface-glass .input-c select,
+body.interface-glass .donate-hero,
+body.interface-glass .donate-panel,
+body.interface-glass .support-card,
+body.interface-glass .cash-card,
+body.interface-glass .donate-bottom,
+body.interface-glass .browser,
+body.interface-glass .browser-bar,
+body.interface-glass .browser-post .bar{
+  background:rgba(18,22,29,var(--interface-glass-alpha))!important;
+  -webkit-backdrop-filter:blur(var(--interface-glass-blur)) saturate(135%)!important;
+  backdrop-filter:blur(var(--interface-glass-blur)) saturate(135%)!important;
+}
+body.interface-glass .settings-card,
+body.interface-glass .column,
+body.interface-glass .donate-hero,
+body.interface-glass .support-card,
+body.interface-glass .cash-card{
+  box-shadow:0 24px 70px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+body.reduce-interface-effects .lunar-bg-effect{opacity:.42}
+body.disable-interface-effects .lunar-bg-effect,
+body.disable-interface-effects #pointer-canvas,
+body.disable-interface-effects [id$="-canvas"]{display:none!important}
+body.reduce-interface-motion *,
+body.reduce-interface-motion *::before,
+body.reduce-interface-motion *::after{
+  animation-duration:calc(var(--interface-motion-scale) * 1s)!important;
+}
+body.reduce-interface-motion .column:hover,
+body.reduce-interface-motion .support-card:hover,
+body.reduce-interface-motion .donate-action:hover{transform:none!important}
+.lunar-bg-effect{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  opacity:var(--interface-effects-opacity);
+  transition:opacity .25s ease;
+}
+.lunar-bg-aurora{
+  background:
+    radial-gradient(50% 55% at 15% 25%,rgba(92,120,255,.20),transparent 70%),
+    radial-gradient(45% 55% at 80% 30%,rgba(71,211,186,.14),transparent 72%),
+    radial-gradient(50% 60% at 55% 90%,rgba(170,100,255,.11),transparent 75%);
+  filter:blur(20px);
+  animation:lunarAurora 18s ease-in-out infinite alternate;
+}
+.lunar-bg-grid{
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 78%,transparent 100%);
+  animation:lunarGrid 24s linear infinite;
+}
+.lunar-bg-bubbles{
+  background:
+    radial-gradient(circle at 12% 24%,rgba(255,255,255,.09) 0 2px,transparent 3px),
+    radial-gradient(circle at 38% 72%,rgba(255,255,255,.07) 0 4px,transparent 5px),
+    radial-gradient(circle at 72% 34%,rgba(125,170,255,.10) 0 3px,transparent 4px),
+    radial-gradient(circle at 88% 78%,rgba(255,255,255,.06) 0 5px,transparent 6px);
+  background-size:260px 260px,340px 340px,300px 300px,420px 420px;
+  animation:lunarBubbles 28s linear infinite;
+}
+.lunar-bg-embers{
+  background:
+    radial-gradient(circle at 20% 85%,rgba(255,190,110,.13) 0 2px,transparent 4px),
+    radial-gradient(circle at 60% 70%,rgba(255,150,110,.10) 0 2px,transparent 4px),
+    radial-gradient(circle at 80% 25%,rgba(255,255,255,.08) 0 1px,transparent 3px);
+  background-size:220px 320px,360px 420px,280px 280px;
+  animation:lunarEmbers 16s linear infinite alternate;
+}
+@keyframes lunarAurora{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,2%,0) scale(1.08)}}
+@keyframes lunarGrid{from{background-position:0 0}to{background-position:64px 64px}}
+@keyframes lunarBubbles{from{background-position:0 0,0 0,0 0,0 0}to{background-position:0 -260px,0 -340px,0 -300px,0 -420px}}
+@keyframes lunarEmbers{from{background-position:0 20px,0 0,0 0}to{background-position:0 -320px,0 -420px,0 -280px}}
+.lunar-bg-effect + #stars,.lunar-bg-effect + #stars2,.lunar-bg-effect + #stars3{z-index:0}
+#lunar-comet-cursor,#lunar-soft-glow-cursor,#lunar-crosshair-cursor,#lunar-ring-cursor{
+  position:fixed;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);
+}
+body.lunar-comet-cursor{cursor:none}
+#lunar-comet-cursor{width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 16px rgba(255,255,255,.9),0 0 34px rgba(108,150,255,.65)}
+#lunar-comet-cursor::before{content:"";position:fixed;width:100px;height:2px;right:2px;top:50%;transform:translateY(-50%) rotate(-24deg);transform-origin:right center;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35));filter:blur(1px)}
+body.lunar-spark-cursor,body.lunar-pixel-cursor{cursor:none}
+#lunar-spark-canvas,#lunar-pixel-canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
+body.lunar-crosshair-cursor{cursor:none}
+#lunar-crosshair-cursor{width:28px;height:28px;border:1px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 18px rgba(255,255,255,.16)}
+#lunar-crosshair-cursor::before,#lunar-crosshair-cursor::after{content:"";position:absolute;background:#fff;opacity:.75}
+#lunar-crosshair-cursor::before{width:42px;height:1px;left:-8px;top:13px}
+#lunar-crosshair-cursor::after{height:42px;width:1px;left:13px;top:-8px}
+body.lunar-soft-glow-cursor{cursor:none}
+#lunar-soft-glow-cursor{width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),rgba(105,140,255,.12) 35%,transparent 72%);filter:blur(4px);mix-blend-mode:screen}
+body.lunar-pixel-cursor{cursor:none}
+body.lunar-ring-cursor{cursor:none}
+#lunar-ring-cursor{width:34px;height:34px;border:1px solid rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 0 5px rgba(255,255,255,.035),0 0 24px rgba(120,150,255,.28)}
+#lunar-ring-cursor::after{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
+#apps-container .column,.settings-card,.donate-action,.support-card,.key-button,.navbar-link{
+  transition:transform calc(.22s * var(--interface-motion-scale)) ease,box-shadow calc(.22s * var(--interface-motion-scale)) ease,border-color calc(.22s * var(--interface-motion-scale)) ease,background calc(.22s * var(--interface-motion-scale)) ease;
+}
+#apps-container .column:focus-within{border-color:rgba(255,255,255,.25)!important;box-shadow:0 0 0 4px rgba(255,255,255,.045),0 22px 55px rgba(0,0,0,.3)!important}
+#apps-container .column button{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+#apps-container .column button:hover{transform:translateY(-2px) scale(1.08);background:rgba(255,255,255,.16)!important;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+#apps-container .column button:focus-visible,.donate-action:focus-visible,.key-button:focus-visible,.navbar-link:focus-visible{
+  outline:2px solid rgba(255,255,255,.75);outline-offset:3px;
+}
+@media(prefers-reduced-motion:reduce){
+  .lunar-bg-aurora,.lunar-bg-grid,.lunar-bg-bubbles,.lunar-bg-embers{animation:none!important}
+  *{scroll-behavior:auto!important}
+}
