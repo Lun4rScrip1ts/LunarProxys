@@ -39,9 +39,47 @@ $("friend-search-input").oninput=async e=>{const q=e.target.value.trim();if(q.le
 $("friend-search-results").onclick=async e=>{const b=e.target.closest("[data-add-user]");if(!b||b.disabled)return;try{await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:b.dataset.addUser})});toast("Friend request sent.");closeModals();await bootstrap()}catch(x){toast(x.message)}};
 $("friends-list").onclick=async e=>{const b=e.target.closest("[data-request]");if(b){try{const old=incoming.find(x=>x.id===b.dataset.id);await api("/api/friends/requests/"+b.dataset.id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:b.dataset.request})});await bootstrap();if(b.dataset.request==="accept"&&old)openDm(old.from)}catch(x){toast(x.message)}return}const f=e.target.closest("[data-friend]");if(f){const u=friends.find(x=>x.id===f.dataset.friend);if(u)openDm(u)}};
 function profileAvatarHtml(u){return u&&u.avatarUrl?'<img src="'+esc(u.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(u&&u.displayName||u&&u.username))}
-async function openUserProfile(username){try{const d=await api("/api/users/"+encodeURIComponent(username));const u=d.user;if(!u)return;const modal=$("friends-profile-modal");$("friends-profile-avatar").innerHTML=profileAvatarHtml(u);$("friends-profile-display").textContent=u.displayName||u.username;$("friends-profile-username").textContent="@"+u.username;$("friends-profile-status").textContent=u.status||"Online";$("friends-profile-bio").textContent=u.bio||"No bio yet.";const owner=$("friends-profile-owner");owner.hidden=!u.isOwner;const roles=$("friends-profile-roles");roles.innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");const stickers=$("friends-profile-stickers");stickers.innerHTML=(u.stickers||[]).slice(0,12).map(s=>'<img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'" loading="lazy">').join("");$("friends-profile-banner").style.backgroundImage=u.bannerUrl?'url("'+esc(u.bannerUrl)+'")':"none";modal.hidden=false}catch(e){toast(e.message)}}
+async function openUserProfile(username){
+try{
+  const d=await api("/api/users/"+encodeURIComponent(username));
+  const u=d.user;
+  if(!u)return;
+  const modal=$("friends-profile-modal");
+  $("friends-profile-avatar").innerHTML=profileAvatarHtml(u);
+  $("friends-profile-display").textContent=u.displayName||u.username;
+  $("friends-profile-username").textContent="@"+u.username;
+  $("friends-profile-status").textContent=u.status||"Online";
+  $("friends-profile-bio").textContent=u.bio||"No bio yet.";
+  $("friends-profile-owner").hidden=!u.isOwner;
+  $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
+  $("friends-profile-stickers").innerHTML=(u.stickers||[]).slice(0,12).map(s=>'<img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'" loading="lazy">').join("");
+  $("friends-profile-banner").style.backgroundImage=u.bannerUrl?'url("'+esc(u.bannerUrl)+'")':"none";
+  const actions=$("friends-profile-actions");
+  const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block");
+  actions.hidden=!!u.isSelf;
+  message.onclick=()=>{ location.href="/friends?user="+encodeURIComponent(u.username); };
+  friend.textContent=u.isFriend?"Added":(u.friendRequestPending?"Pending":"Friend");
+  friend.disabled=!!u.isFriend||!!u.friendRequestPending;
+  friend.onclick=async()=>{
+    try{
+      await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
+      friend.textContent="Pending"; friend.disabled=true; toast("Friend request sent.");
+      await bootstrap();
+    }catch(e){toast(e.message)}
+  };
+  block.textContent=u.isBlocked?"Blocked":"Block";
+  block.disabled=!!u.isBlocked;
+  block.onclick=async()=>{
+    if(!confirm("Block @"+u.username+"?"))return;
+    try{
+      await api("/api/friends/block/"+encodeURIComponent(u.id),{method:"POST"});
+      block.textContent="Blocked"; block.disabled=true; toast("User blocked."); closeUserProfile(); await bootstrap();
+    }catch(e){toast(e.message)}
+  };
+  modal.hidden=false;
+}catch(e){toast(e.message)}
+}
 function closeUserProfile(){$("friends-profile-modal").hidden=true}
-
 async function openDm(f){active=f;document.querySelector(".friends-app").classList.add("dm-open");$("dm-empty").hidden=true;$("dm-view").hidden=false;$("dm-top-username").textContent=f.username;$("dm-profile-name").textContent=f.displayName;$("dm-profile-handle").textContent="@"+f.username;$("dm-profile-description").textContent="This is the very beginning of your legendary conversation with "+f.username+".";$("dm-mini-avatar").innerHTML=f.avatarUrl?'<img src="'+esc(f.avatarUrl)+'" alt=""><i></i>':esc(initials(f.displayName))+'<i></i>';$("dm-large-avatar").innerHTML=f.avatarUrl?'<img src="'+esc(f.avatarUrl)+'" alt="">':esc(initials(f.displayName));$("dm-input").placeholder="Message @"+f.username;renderFriends();await loadMessages();$("profile-friend").disabled=true;$("profile-friend").textContent="Friends"}
 async function loadMessages(){if(!active)return;try{const d=await api("/api/friends/dms/"+active.id+"/messages?limit=100");messages=d.messages||[];renderMessages()}catch(e){toast(e.message)}}
 function reactionHtml(m){return(m.reactions||[]).map(r=>'<button class="dm-reaction '+(r.users.some(u=>u.userId===me.id)?"mine":"")+'" data-react="'+m.id+'" data-emoji="'+esc(r.emoji)+'">'+esc(r.emoji)+" "+r.users.length+"</button>").join("")}
@@ -84,3 +122,5 @@ document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=closeModals
 document.addEventListener("click",e=>{if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest(".dm-reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}});
 setupGifs();bootstrap();setInterval(()=>{bootstrap();if(active)loadMessages()},5000);
 })();
+$("friends-profile-close").onclick=closeUserProfile;
+$("friends-profile-modal").addEventListener("click",e=>{if(e.target===$("friends-profile-modal"))closeUserProfile();});
