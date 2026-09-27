@@ -511,3 +511,21 @@ body.lunar-soft-glow-cursor *,
 body.lunar-ring-cursor *{
   cursor:none!important;
 }
+
+
+/* Always-visible default Lunar pointer: white fill + dark outline works on light and dark custom images. */
+body.lunar-default-cursor,
+body.lunar-default-cursor *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3l4 22 6-7 6 8 3-3-7-8 9-1z' fill='white' stroke='%23070a0f' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 4 3,auto!important;
+}
+body.lunar-default-cursor input,
+body.lunar-default-cursor textarea,
+body.lunar-default-cursor [contenteditable="true"]{
+  cursor:text!important;
+}
+body.lunar-default-cursor button,
+body.lunar-default-cursor a,
+body.lunar-default-cursor select,
+body.lunar-default-cursor [role="button"]{
+  cursor:pointer!important;
+}
