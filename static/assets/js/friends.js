@@ -121,6 +121,11 @@ $("gif-preview-remove").onclick=()=>{gifDraft=null;$("gif-preview").hidden=true}
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=closeModals);document.querySelector("[data-close-forward]").onclick=closeModals;
 document.addEventListener("click",e=>{if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest(".dm-reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}});
 setupGifs();bootstrap();setInterval(()=>{bootstrap();if(active)loadMessages()},5000);
-})();
+
 $("friends-profile-close").onclick=closeUserProfile;
 $("friends-profile-modal").addEventListener("click",e=>{if(e.target===$("friends-profile-modal"))closeUserProfile();});
+const requestedProfile=new URLSearchParams(location.search).get("user");
+if(requestedProfile){
+  setTimeout(()=>openUserProfile(requestedProfile),300);
+}
+})();
