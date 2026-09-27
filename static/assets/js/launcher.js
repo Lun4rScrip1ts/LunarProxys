@@ -128,7 +128,7 @@ function getAppStorageId(app, appIndex) {
 }
 
 function getPinnedApps() {
-  const raw = getFromStorage("pinned") || "";
+  const raw = store.get(getStorageKey("pinned")) || "";
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -139,11 +139,11 @@ function getPinnedApps() {
 }
 
 function savePinnedApps(pins) {
-  setInStorage("pinned", JSON.stringify([...new Set(pins)]));
+  store.set(getStorageKey("pinned"), JSON.stringify([...new Set(pins)]));
 }
 
 function migrateLegacyPins(appsList) {
-  const raw = getFromStorage("pinned") || "";
+  const raw = store.get(getStorageKey("pinned")) || getFromStorage("pinned") || "";
   if (!raw || raw.trim().startsWith("[")) return;
   const oldIndexes = raw.split(",").map(Number).filter(Number.isFinite);
   const migrated = oldIndexes
@@ -226,7 +226,6 @@ function createPinButton(app, appIndex) {
     event.stopPropagation();
     togglePin(app, appIndex);
   };
-  button.title = "Pin";
 
   return button;
 }
@@ -410,6 +409,12 @@ function filterBySearchTerm() {
 window.category = filterByCategory;
 window.bar = filterBySearchTerm;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try { await store.loadAccountSettings?.(); } catch {}
+  const accountKey = getStorageKey("pinned");
+  if (!store.get(accountKey)) {
+    const legacy = getFromStorage("pinned");
+    if (legacy) { try { store.set(accountKey, JSON.stringify(JSON.parse(legacy))); store.removeRaw("pinned"); } catch {} }
+  }
   loadAppsFromJson();
 });
