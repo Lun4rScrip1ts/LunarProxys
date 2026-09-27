@@ -115,10 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
     nav.innerHTML = html;
 
     // Keep the current page highlighted instead of hard-coding Donate as active.
-    const currentPath = window.location.pathname.replace(/\\/$/, "") || "/";
+    const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
     nav.querySelectorAll(".navbar-link").forEach(link => {
       try {
-        const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\\/$/, "") || "/";
+        const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
         const active = linkPath === currentPath || (currentPath === "/play.html" && linkPath === "/games");
         link.classList.toggle("is-active", active);
         if (active) link.setAttribute("aria-current", "page");
