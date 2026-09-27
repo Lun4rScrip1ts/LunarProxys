@@ -346,11 +346,18 @@ router.patch("/profile/settings", requireUser, async (req, res) => {
     return res.status(400).json({ error: "Invalid settings." });
   }
   const safe = {};
+  const removals = [];
   for (const [key, value] of Object.entries(incoming).slice(0, 200)) {
     if (!/^[A-Za-z0-9_.:-]{1,80}$/.test(key)) continue;
+    if (value === null) {
+      removals.push(key);
+      continue;
+    }
     if (typeof value === "string") safe[key] = value.slice(0, 20000);
   }
-  req.user.settings = { ...(req.user.settings || {}), ...safe };
+  const current = { ...(req.user.settings || {}) };
+  for (const key of removals) delete current[key];
+  req.user.settings = { ...current, ...safe };
   await persist();
   res.json({ settings: req.user.settings });
 });
