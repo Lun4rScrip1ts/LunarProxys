@@ -133,9 +133,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const mode = this.value;
     store.set("backgroundMode", mode);
     if (mode === "default") {
+      store.set("backgroundMode", "default");
       store.remove("backgroundImage");
       store.remove("backgroundImageOpacity");
       store.remove("backgroundImageBlur");
+      document.body.style.backgroundImage = "none";
+      document.getElementById("lunar-background-image")?.remove();
       window.location.reload();
     } else if (mode === "none") {
       store.set("backgroundImage", "none");
@@ -229,7 +232,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   bgClear?.addEventListener("click", () => {
     store.remove("backgroundImage");
-    store.set("backgroundMode", "custom");
+    store.remove("backgroundImageOpacity");
+    store.remove("backgroundImageBlur");
+    store.set("backgroundMode", "default");
     if (bgFile) bgFile.value = "";
     if (bgFileLabel) bgFileLabel.textContent = "Choose background image";
     if (bgStatus) bgStatus.textContent = "Background image cleared.";
