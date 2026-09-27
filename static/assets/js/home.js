@@ -52,11 +52,11 @@ if (!inFrame && !navigator.userAgent.includes("Firefox") && store.get("ab") === 
 // Splash texts
 const SplashT = [
   "Made by @lunar.undetected",
-  "Check out discord.gg/lunarslounge :)",
+  "Check out discord.gg/lunarstudio :)",
   "Thanks for using the site",
   "Follow me on tiktok! @lunar.undetected",
   "Check out the settings page",
-  "Join lunarslounge on discord for updates and recommendations for games and more! (.gg/lunarslounge)",
+  "Join LunarStudios on discord for updates and recommendations for games and more! (.gg/lunarstudio)",
 ];
 
 let SplashI = Math.floor(Math.random() * SplashT.length);
