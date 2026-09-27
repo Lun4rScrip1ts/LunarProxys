@@ -176,13 +176,6 @@
   }
 
   window.store = {
-    async syncAccountSettings() {
-      clearTimeout(syncTimer);
-      if (syncInFlight) return false;
-      syncInFlight = true;
-      await syncAccountSettings();
-      return true;
-    },
     get(field) {
       return Object.hasOwn(fields, field) ? fields[field] : null;
     },
@@ -192,10 +185,8 @@
       });
     },
     remove(field) {
-      // Keep an explicit null tombstone locally so account sync can remove the
-      // same setting from the server instead of the server merging it back.
       mutate(data => {
-        data[field] = null;
+        delete data[field];
       });
     },
     getRaw(name) {
