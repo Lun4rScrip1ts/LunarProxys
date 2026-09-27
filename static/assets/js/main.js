@@ -204,6 +204,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+
+    // Make the background feel responsive without affecting clicks or scrolling.
+    if (backgroundEffect === "reactive") {
+      let rafPending = false;
+      let lastX = 50;
+      let lastY = 50;
+      const updateGlow = () => {
+        rafPending = false;
+        layer.style.setProperty("--lunar-mx", lastX + "%");
+        layer.style.setProperty("--lunar-my", lastY + "%");
+      };
+      const trackPointer = event => {
+        lastX = Math.max(0, Math.min(100, (event.clientX / window.innerWidth) * 100));
+        lastY = Math.max(0, Math.min(100, (event.clientY / window.innerHeight) * 100));
+        if (!rafPending) {
+          rafPending = true;
+          requestAnimationFrame(updateGlow);
+        }
+      };
+      window.addEventListener("pointermove", trackPointer, { passive: true });
+      layer.style.setProperty("--lunar-mx", "50%");
+      layer.style.setProperty("--lunar-my", "50%");
+    }
   }
 
   // Pointer Effects — cursor.js is only loaded when visual effects are enabled.
@@ -218,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (CURSOR_EFFECTS.includes(activePointer) && effectsLevel !== "off" && motionLevel !== "off") {
     const cursorScript = document.createElement("script");
-    cursorScript.src = "/assets/js/cursor.js?v=lunar8";
+    cursorScript.src = "/assets/js/cursor.js?v=lunar9";
     cursorScript.onload = () => initCursorEffect();
     document.head.appendChild(cursorScript);
   }
