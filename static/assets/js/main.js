@@ -144,6 +144,16 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => {});
   }
 
+  // Restore account-backed settings if this browser/origin does not have them yet.
+  // Existing local settings always take priority.
+  if (typeof store.loadAccountSettings === "function" && Object.keys(store.all()).length === 0) {
+    store.loadAccountSettings().then(() => {
+      if (typeof window.applyLunarSettings === "function") {
+        window.applyLunarSettings();
+      }
+    }).catch(() => {});
+  }
+
   // Favicon and Name Logic
   const icon = document.getElementById("tab-favicon");
   const title = document.getElementById("t");
