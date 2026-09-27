@@ -84,15 +84,6 @@ function reconstructSafeUrl(raw) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const blockedHostnames = ["gointerstellar.app"];
-
-  if (!blockedHostnames.includes(window.location.hostname)) {
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.textContent = `(()=>{const k="p",d=15e4,s=()=>{let t=localStorage.getItem(k);return !t||Date.now()-t>d},m=()=>localStorage.setItem(k,Date.now());function h(){if(!s())return;window.open("https://undercoverhiking.com/cn4ai6dv?key=4d729d45e2fde8ef6d2caccfe564d6be","_blank");m();document.removeEventListener("click",h)}s()&&document.addEventListener("click",h,{once:1})})();`;
-    document.body.appendChild(script);
-  }
-
   // Only the original host needs its legacy ad loader.
   if (window.location.hostname === "gointerstellar.app" && !document.getElementById("frame-container")) {
     const ads = document.createElement("script");
@@ -146,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Restore account-backed settings if this browser/origin does not have them yet.
   // Existing local settings always take priority.
-  if (typeof store.loadAccountSettings === "function" && Object.keys(store.all()).length === 0) {
+  if (typeof store.loadAccountSettings === "function") {
     store.loadAccountSettings().then(() => {
       if (typeof window.applyLunarSettings === "function") {
         window.applyLunarSettings();
