@@ -217,10 +217,55 @@ body.reduce-interface-motion .donate-action:hover{transform:none!important}
   background-size:220px 320px,360px 420px,280px 280px;
   animation:lunarEmbers 16s linear infinite alternate;
 }
+.lunar-bg-nebula{
+  background:
+    radial-gradient(42% 38% at 12% 18%,rgba(96,125,255,.22),transparent 72%),
+    radial-gradient(38% 44% at 82% 22%,rgba(85,220,190,.16),transparent 72%),
+    radial-gradient(45% 42% at 70% 82%,rgba(175,105,255,.18),transparent 74%),
+    radial-gradient(30% 35% at 28% 78%,rgba(255,150,190,.09),transparent 72%);
+  filter:blur(18px) saturate(120%);
+  animation:lunarNebula 24s ease-in-out infinite alternate;
+}
+.lunar-bg-mesh{
+  background:
+    linear-gradient(115deg,transparent 0 46%,rgba(255,255,255,.055) 47%,transparent 48%),
+    linear-gradient(65deg,transparent 0 46%,rgba(255,255,255,.04) 47%,transparent 48%),
+    radial-gradient(circle at 50% 50%,rgba(120,150,255,.10),transparent 55%);
+  background-size:180px 180px,180px 180px,100% 100%;
+  mask-image:radial-gradient(ellipse at center,black 0 45%,transparent 82%);
+  animation:lunarMesh 22s linear infinite;
+}
+.lunar-bg-constellation{
+  background:
+    radial-gradient(circle at 12% 25%,rgba(255,255,255,.9) 0 1px,transparent 2px),
+    radial-gradient(circle at 35% 68%,rgba(170,200,255,.85) 0 1.5px,transparent 3px),
+    radial-gradient(circle at 68% 28%,rgba(255,255,255,.8) 0 1px,transparent 2px),
+    radial-gradient(circle at 86% 72%,rgba(150,190,255,.75) 0 1.5px,transparent 3px),
+    linear-gradient(145deg,transparent 48%,rgba(130,160,255,.055) 49%,transparent 50%);
+  background-size:420px 360px,520px 460px,360px 420px,600px 500px,260px 260px;
+  animation:lunarConstellation 32s linear infinite;
+}
+.lunar-bg-reactive{
+  background:
+    radial-gradient(420px circle at var(--lunar-mx,50%) var(--lunar-my,50%),rgba(130,165,255,.18),transparent 70%),
+    radial-gradient(620px circle at 20% 80%,rgba(95,220,195,.10),transparent 72%),
+    radial-gradient(560px circle at 85% 15%,rgba(170,120,255,.10),transparent 72%);
+  transition:background .25s ease;
+}
+.lunar-bg-effect::after{
+  content:"";
+  position:absolute;
+  inset:-15%;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.24) 100%);
+}
 @keyframes lunarAurora{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,2%,0) scale(1.08)}}
 @keyframes lunarGrid{from{background-position:0 0}to{background-position:64px 64px}}
 @keyframes lunarBubbles{from{background-position:0 0,0 0,0 0,0 0}to{background-position:0 -260px,0 -340px,0 -300px,0 -420px}}
 @keyframes lunarEmbers{from{background-position:0 20px,0 0,0 0}to{background-position:0 -320px,0 -420px,0 -280px}}
+@keyframes lunarNebula{from{transform:translate3d(-2%,-1%,0) scale(1)}to{transform:translate3d(3%,2%,0) scale(1.08)}}
+@keyframes lunarMesh{from{background-position:0 0,0 0,center}to{background-position:180px 180px,-180px 180px,center}}
+@keyframes lunarConstellation{from{background-position:0 0,0 0,0 0,0 0,0 0}to{background-position:-420px 120px,260px -180px,-360px 180px,420px -220px,260px 260px}}
 .lunar-bg-effect + #stars,.lunar-bg-effect + #stars2,.lunar-bg-effect + #stars3{z-index:0}
 #lunar-comet-cursor,#lunar-soft-glow-cursor,#lunar-crosshair-cursor,#lunar-ring-cursor{
   position:fixed;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);
@@ -261,3 +306,36 @@ body.lunar-ring-cursor{cursor:none}
   box-shadow:0 0 0 3px rgba(255,255,255,.035),0 8px 24px rgba(0,0,0,.24);
 }
 #apps-container .column button.is-pinned i{transform:rotate(-18deg);filter:drop-shadow(0 0 6px rgba(255,255,255,.32))}
+
+/* High-interaction surface polish */
+#apps-container .column,.settings-card,.donate-action,.support-card,.cash-card,.navbar-link,.browser-post .bar,.input-c input,.input-c select{
+  position:relative;
+  isolation:isolate;
+  will-change:transform;
+}
+#apps-container .column::after,.settings-card::after,.donate-action::after,.support-card::after,.cash-card::after,.navbar-link::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(260px circle at var(--lunar-card-x,50%) var(--lunar-card-y,50%),rgba(255,255,255,.10),transparent 62%);
+  transition:opacity .25s ease;
+  z-index:-1;
+}
+#apps-container .column:hover::after,.settings-card:hover::after,.donate-action:hover::after,.support-card:hover::after,.cash-card:hover::after,.navbar-link:hover::after{opacity:1}
+#apps-container .column:hover,.settings-card:hover,.support-card:hover,.cash-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 24px 70px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.07)!important;
+}
+button,.key-button,.navbar-link,.donate-action{transition:transform .18s var(--ease-spring),box-shadow .2s ease,background .2s ease,border-color .2s ease,filter .2s ease}
+button:hover,.key-button:hover,.donate-action:hover{filter:brightness(1.08)}
+button:active,.key-button:active,.donate-action:active{transform:translateY(1px) scale(.97)!important}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(130,165,255,.10),0 10px 30px rgba(0,0,0,.18)!important}
+@media(max-width:700px){
+  #apps-container .column:hover,.settings-card:hover,.support-card:hover,.cash-card:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  #apps-container .column:hover,.settings-card:hover,.support-card:hover,.cash-card:hover{transform:none}
+}
