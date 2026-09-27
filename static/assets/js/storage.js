@@ -148,11 +148,27 @@
       if (!response.ok) return false;
       const data = await response.json();
       if (!data || !data.settings || typeof data.settings !== "object") return false;
-      syncingFromAccount = true;
-      fields = { ...data.settings };
-      write(fields);
-      syncingFromAccount = false;
-      return true;
+      const accountSettings = data.settings;
+      const localSettings = fields && typeof fields === "object" ? fields : {};
+      const localKeys = Object.keys(localSettings);
+      const accountKeys = Object.keys(accountSettings);
+
+      // Never replace a user's local settings with an empty account record.
+      // If both exist, keep local values and only fill missing keys from the account.
+      if (accountKeys.length && localKeys.length) {
+        const merged = { ...accountSettings, ...localSettings };
+        syncingFromAccount = true;
+        fields = merged;
+        write(fields);
+        syncingFromAccount = false;
+      } else if (accountKeys.length && !localKeys.length) {
+        syncingFromAccount = true;
+        fields = { ...accountSettings };
+        write(fields);
+        syncingFromAccount = false;
+      }
+
+      return accountKeys.length > 0;
     } catch {
       syncingFromAccount = false;
       return false;
