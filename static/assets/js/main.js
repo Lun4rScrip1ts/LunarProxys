@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="nav-bar-right">
         
         <a class="navbar-link" href="/./friends"><i class="fa-solid fa-user-group navbar-icon"></i><span>Friends</span></a>
+        <a class="navbar-link" href="/./chat"><i class="fa-solid fa-comments navbar-icon"></i><span>Chat</span></a>
         <a class="navbar-link donate-nav-link" href="/./donate"><i class="fa-solid fa-heart navbar-icon"></i><span>Donate</span></a>
         <a class="navbar-link" href="/./games"><i class="fa-solid fa-gamepad navbar-icon"></i><span>Games</span></a>
         <a class="navbar-link" href="/./apps"><i class="fa-solid fa-table-cells navbar-icon"></i><span>Apps</span></a>
