@@ -161,16 +161,35 @@
       const user = data.user || data;
       let modal = document.getElementById("global-profile-modal");
       if (!modal) { modal = document.createElement("div"); modal.id = "global-profile-modal"; modal.className = "global-profile-modal"; document.body.appendChild(modal); }
-      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><button class="global-profile-menu-button" type="button" aria-label="More profile options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="global-profile-menu" hidden><a href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'</div></div>';
+      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><button class="global-profile-menu-button" type="button" aria-label="More profile options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="global-profile-menu" hidden><a href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'<div class="global-profile-actions" '+(user.isSelf?'hidden':'')+'><button type="button" class="global-profile-message">Message</button><button type="button" class="global-profile-friend">'+(user.isFriend?'Added':(user.friendRequestPending?'Pending':'Friend'))+'</button><button type="button" class="global-profile-block">'+(user.isBlocked?'Blocked':'Block')+'</button></div></div></div>';
       const menuButton = modal.querySelector(".global-profile-menu-button");
       const menu = modal.querySelector(".global-profile-menu");
-      menuButton.onclick = event => {
-        event.stopPropagation();
-        menu.hidden = !menu.hidden;
-        menuButton.setAttribute("aria-expanded", String(!menu.hidden));
-      };
+      menuButton.onclick = event => { event.stopPropagation(); menu.hidden = !menu.hidden; menuButton.setAttribute("aria-expanded", String(!menu.hidden)); };
       modal.querySelector(".global-profile-close").onclick=()=>modal.remove();
       modal.onclick=e=>{if(e.target===modal)modal.remove()};
+      const messageButton=modal.querySelector(".global-profile-message");
+      const friendButton=modal.querySelector(".global-profile-friend");
+      const blockButton=modal.querySelector(".global-profile-block");
+      messageButton?.addEventListener("click",()=>{location.href="/friends?user="+encodeURIComponent(user.username)});
+      if(friendButton){
+        friendButton.disabled=!!user.isFriend||!!user.friendRequestPending;
+        friendButton.addEventListener("click",async()=>{
+          try{
+            await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user.username})});
+            friendButton.textContent="Pending"; friendButton.disabled=true; showToast("Friend request sent.");
+          }catch(e){showToast(e.message)}
+        });
+      }
+      if(blockButton){
+        blockButton.disabled=!!user.isBlocked;
+        blockButton.addEventListener("click",async()=>{
+          if(!confirm("Block @"+user.username+"?"))return;
+          try{
+            await api("/api/friends/block/"+encodeURIComponent(user.id),{method:"POST"});
+            blockButton.textContent="Blocked"; blockButton.disabled=true; showToast("User blocked."); modal.remove();
+          }catch(e){showToast(e.message)}
+        });
+      }
     } catch(e) { showToast(e.message); }
   }
 
