@@ -7,13 +7,33 @@ let me=null,friends=[],incoming=[],outgoing=[],active=null,messages=[],reply=nul
 const toast=m=>{clearTimeout(timer);$("friends-toast").textContent=m;$("friends-toast").classList.add("show");timer=setTimeout(()=>$("friends-toast").classList.remove("show"),2200)};
 const avatar=u=>u&&u.avatarUrl?'<div class="friend-avatar"><img src="'+esc(u.avatarUrl)+'" alt=""><i></i></div>':'<div class="friend-avatar">'+esc(initials(u&&u.displayName||u&&u.username))+'<i></i></div>';
 const friendOf=id=>friends.some(x=>x.id===id);
-function renderFriends(){const e=$("friends-list");e.innerHTML=friends.map(f=>'<button class="friend-item '+(active&&active.id===f.id?"active":"")+'" data-friend="'+f.id+'">'+avatar(f)+'<span class="friend-copy"><strong>'+esc(f.displayName)+'</strong><span>@'+esc(f.username)+'</span></span></button>').join("");$("friends-empty").hidden=!!friends.length}
+function renderFriends(){
+const e=$("friends-list");
+const filter=($("friends-filter")?.value||"").trim().toLowerCase();
+const onlineOnly=document.querySelector(".friends-tab.active")?.dataset.tab==="online";
+const visible=friends.filter(f=>{
+  const name=((f.displayName||"")+" "+(f.username||"")).toLowerCase();
+  const isOnline=!f.status||f.status==="online";
+  return (!filter||name.includes(filter))&&(!onlineOnly||isOnline);
+});
+e.innerHTML=visible.map(f=>'<button class="friend-item '+(active&&active.id===f.id?"active":"")+'" data-friend="'+f.id+'">'+avatar(f)+'<span class="friend-copy"><strong>'+esc(f.displayName)+'</strong><span>@'+esc(f.username)+'</span></span></button>').join("");$("friends-empty").hidden=!!visible.length;
+if(!visible.length && filter) $("friends-empty").innerHTML="No friends match your search.";
+else if(!visible.length) $("friends-empty").innerHTML="No friends yet.<br>Send someone a friend request to start chatting.";
+}
 function renderInbox(){const e=$("friends-list");$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length;e.innerHTML=incoming.map(x=>'<div class="search-user">'+avatar(x.from)+'<span class="search-user-info"><strong>'+esc(x.from.displayName)+'</strong><span>@'+esc(x.from.username)+'</span></span><button data-request="accept" data-id="'+x.id+'">Accept</button><button data-request="decline" data-id="'+x.id+'" style="background:#303238">Decline</button></div>').join("")||'<div class="friends-empty">Your inbox is clear.</div>'}
 async function bootstrap(){try{const d=await api("/api/friends/bootstrap");me=d.user;friends=d.friends||[];incoming=d.incoming||[];outgoing=d.outgoing||[];renderFriends();$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length}catch(e){toast(e.message);location.href="/account"}}
 function openModal(id){$(id).hidden=false}
 function closeModals(){["friend-modal","forward-modal"].forEach(id=>$(id).hidden=true);$("message-menu").hidden=true}
 function openAdd(){openModal("friend-modal");$("friend-search-input").focus()}
 $("add-friend-button").onclick=openAdd;$("empty-add-friend").onclick=openAdd;
+$("friends-search-button").onclick=()=>{const w=$("friends-filter-wrap");w.hidden=!w.hidden;if(!w.hidden)$("friends-filter").focus()};
+$("friends-filter").oninput=()=>renderFriends();
+$("friends-filter-clear").onclick=()=>{$("friends-filter").value="";renderFriends();$("friends-filter").focus()};
+$("friends-refresh-button").onclick=async()=>{const b=$("friends-refresh-button");b.classList.add("spinning");await bootstrap();setTimeout(()=>b.classList.remove("spinning"),400)};
+$("dm-search-button").onclick=()=>{if(!active)return;const q=prompt("Search this conversation");if(!q)return;const found=messages.find(m=>(m.message||"").toLowerCase().includes(q.toLowerCase()));toast(found?"Found a matching message.":"No matching messages.")};
+$("dm-call-button").onclick=()=>toast("Voice calls are not enabled yet.");
+$("dm-video-button").onclick=()=>toast("Video calls are not enabled yet.");
+$("dm-more-button").onclick=()=>{if(active)openUserProfile(active.username)};
 document.querySelectorAll(".friends-tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".friends-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");b.dataset.tab==="inbox"?renderInbox():renderFriends()});
 $("friend-search-input").oninput=async e=>{const q=e.target.value.trim();if(q.length<2){$("friend-search-results").innerHTML="";return}try{const d=await api("/api/friends/users?q="+encodeURIComponent(q));$("friend-search-results").innerHTML=(d.users||[]).map(u=>{const p=outgoing.some(x=>x.to.id===u.id)||incoming.some(x=>x.from.id===u.id);return'<div class="search-user">'+avatar(u)+'<span class="search-user-info"><strong>'+esc(u.displayName)+'</strong><span>@'+esc(u.username)+'</span></span><button data-add-user="'+esc(u.username)+'" '+(p||friendOf(u.id)?"disabled":"")+'>'+(friendOf(u.id)?"Friends":p?"Pending":"Add")+'</button></div>'}).join("")||'<div class="friends-empty">No users found.</div>'}catch(x){toast(x.message)}};
 $("friend-search-results").onclick=async e=>{const b=e.target.closest("[data-add-user]");if(!b||b.disabled)return;try{await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:b.dataset.addUser})});toast("Friend request sent.");closeModals();await bootstrap()}catch(x){toast(x.message)}};
