@@ -282,10 +282,13 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
   const STATIC_CURSORS = ["normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"];
   const applyStaticCursor = () => {
-    document.body.classList.remove("lunar-static-cursor");
+    document.body.classList.remove("lunar-static-cursor", "lunar-default-cursor");
     STATIC_CURSORS.forEach(name => document.body.classList.remove("lunar-" + name));
-    if (STATIC_CURSORS.includes(store.get("pointer"))) {
-      document.body.classList.add("lunar-static-cursor", "lunar-" + store.get("pointer"));
+    const selected = store.get("pointer") || "default";
+    if (STATIC_CURSORS.includes(selected)) {
+      document.body.classList.add("lunar-static-cursor", "lunar-" + selected);
+    } else if (selected === "default") {
+      document.body.classList.add("lunar-default-cursor");
     }
   };
   applyStaticCursor();
