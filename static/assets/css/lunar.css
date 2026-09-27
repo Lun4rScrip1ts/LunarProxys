@@ -254,3 +254,10 @@ body.lunar-ring-cursor{cursor:none}
   .lunar-bg-aurora,.lunar-bg-grid,.lunar-bg-bubbles,.lunar-bg-embers{animation:none!important}
   *{scroll-behavior:auto!important}
 }
+
+#apps-container .column button.is-pinned{
+  background:rgba(255,255,255,.16)!important;
+  border-color:rgba(255,255,255,.25)!important;
+  box-shadow:0 0 0 3px rgba(255,255,255,.035),0 8px 24px rgba(0,0,0,.24);
+}
+#apps-container .column button.is-pinned i{transform:rotate(-18deg);filter:drop-shadow(0 0 6px rgba(255,255,255,.32))}
