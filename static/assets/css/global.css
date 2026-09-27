@@ -78,25 +78,26 @@
    --slider-inactive-background: var(--toggle-off);
 }
 
-::-webkit-scrollbar {
-   width: 6px;
-   background-color: var(--background);
+/* Invisible scrollbars: scrolling still works with wheel, touch, keyboard and trackpad. */
+html {
+   scrollbar-width: none;
+   -ms-overflow-style: none;
 }
 
-::-webkit-scrollbar-track {
-   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-   border-radius: 10px;
-   background-color: var(--background);
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+   width: 0 !important;
+   height: 0 !important;
+   display: none !important;
+   background: transparent !important;
 }
 
-::-webkit-scrollbar-thumb {
-   border-radius: 10px;
-   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-   background-color: var(--text);
-}
-
-::-webkit-scrollbar-thumb:hover {
-   background-color: var(--text-faint);
+html,
+body,
+* {
+   scrollbar-width: none;
+   -ms-overflow-style: none;
 }
 
 body {
