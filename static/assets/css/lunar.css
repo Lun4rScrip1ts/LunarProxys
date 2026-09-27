@@ -19,14 +19,14 @@ body{
   background-attachment:fixed!important;
 }
 body:not(#no)::after{
-  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   background:
     radial-gradient(900px 500px at 50% -10%,rgba(255,255,255,.10),transparent 65%),
     radial-gradient(600px 400px at 85% 100%,rgba(100,120,160,.07),transparent 70%),
     linear-gradient(145deg,rgba(6,8,12,.52),rgba(11,14,20,.60) 55%,rgba(6,8,12,.68));
 }
 body:not(#no):before{
-  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
   background-size:48px 48px;mask-image:linear-gradient(to bottom,black,transparent 75%);
 }
@@ -350,7 +350,7 @@ body.reduce-interface-motion .lunar-member-status,body.reduce-interface-motion .
 
 /* Uploaded background image layer */
 #lunar-background-image{
-  position:fixed;inset:-35px;z-index:-1;pointer-events:none;
+  position:fixed;inset:-35px;z-index:0;pointer-events:none;
   background-position:center;background-repeat:no-repeat;background-size:cover;
   background-attachment:fixed;
   transform:translateZ(0);
@@ -452,3 +452,14 @@ body.lunar-static-cursor button,body.lunar-static-cursor a,body.lunar-static-cur
 .lunar-context-item.danger:hover{background:rgba(214,61,78,.12);color:#ff9aa5}
 @media(max-width:700px){.lunar-context-menu{width:225px}}
 @media(prefers-reduced-motion:reduce){.lunar-bg-stars::before,.lunar-bg-nebula::before,.lunar-bg-mesh::before,.lunar-bg-constellation::before{animation:none}}
+
+
+/* Keep the saved custom background behind every Lunar page, while all page UI stays above it. */
+body > :not(#lunar-background-image):not(#lunar-background-effect):not(#stars):not(#stars2):not(#stars3):not(.lunar-context-menu){
+  position:relative;
+  z-index:2;
+}
+#lunar-background-image,#lunar-background-effect,#stars,#stars2,#stars3{z-index:0!important}
+body#no{background-color:var(--lunar-bg)!important;background-image:none!important}
+body#no #lunar-background-image{z-index:0!important}
+body#no > .browser,body#no > .browser-bar,body#no > .frame-container{position:relative;z-index:2}
