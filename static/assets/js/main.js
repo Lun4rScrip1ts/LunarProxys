@@ -306,7 +306,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const move = (x, y) => {
       cursor.style.transform = "translate3d(" + Math.round(x) + "px," + Math.round(y) + "px,0)";
-      cursor.style.opacity = "1";
+      const pointer = store.get("pointer") || "default";
+      cursor.style.opacity = pointer === "default" ? "1" : "0";
     };
     const hide = () => { cursor.style.opacity = "0"; };
 
@@ -347,6 +348,15 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   ensureLunarMasterCursor();
+
+  // Keep the master cursor visible only when the default pointer is selected.
+  // This prevents it from covering the user's selected cursor effect.
+  const syncMasterCursor = () => {
+    const master = document.getElementById("lunar-master-cursor");
+    if (!master) return;
+    master.style.opacity = (store.get("pointer") || "default") === "default" ? "1" : "0";
+  };
+  syncMasterCursor();
 
   const activePointer = store.get("pointer");
   const effectsLevel = store.get("interfaceEffects") || "full";
