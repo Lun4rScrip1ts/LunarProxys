@@ -170,6 +170,12 @@ function togglePin(app, appIndex) {
 
   const card = document.querySelector(`.column[data-app-id="${CSS.escape(appId)}"]`);
   if (card) {
+    const pinButton = card.querySelector("button");
+    if (pinButton) {
+      pinButton.classList.toggle("is-pinned", !isCurrentlyPinned);
+      pinButton.setAttribute("aria-pressed", String(!isCurrentlyPinned));
+      pinButton.title = isCurrentlyPinned ? "Pin" : "Unpin";
+    }
     const pinnedContainer = document.querySelector(".pinned");
     const nonPinnedContainer = document.querySelector(".apps");
     if (isCurrentlyPinned) {
@@ -194,16 +200,27 @@ function createPinButton(app, appIndex) {
 
   const button = document.createElement("button");
   button.appendChild(pinIcon);
+  const initiallyPinned = getPinnedApps().includes(getAppStorageId(app, appIndex));
   button.style.cssText = `
-    float: right;
-    cursor: pointer;
-    background-color: rgb(45,45,45);
-    border-radius: 50%;
-    border-color: transparent;
-    color: white;
-    top: -200px;
-    position: relative;
+    position:absolute;
+    top:8px;
+    right:8px;
+    width:34px;
+    height:34px;
+    padding:0;
+    margin:0;
+    display:grid;
+    place-items:center;
+    cursor:pointer;
+    background:rgba(8,10,15,.72);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:10px;
+    color:white;
+    z-index:4;
   `;
+  button.classList.toggle("is-pinned", initiallyPinned);
+  button.setAttribute("aria-pressed", String(initiallyPinned));
+  button.title = initiallyPinned ? "Unpin" : "Pin";
   button.onclick = event => {
     event.preventDefault();
     event.stopPropagation();
