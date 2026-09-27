@@ -368,3 +368,42 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
+
+
+/* Cursor compositor guard: keep custom/animated cursors above every page surface,
+   including the embedded browser iframe and saved background. */
+(function initLunarCursorCompositor(){
+  const effectPointers = new Set([
+    "rainbow-stars","white-orbs","rainbow-trail","blue-orbs","red-circle",
+    "the-sims","curly-cursor","comet-cursor","spark-cursor","crosshair-cursor",
+    "soft-glow-cursor","pixel-cursor","ring-cursor"
+  ]);
+  const staticPointers = new Set([
+    "normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"
+  ]);
+
+  function sync(){
+    if (!document.body || typeof store === "undefined") return;
+    const pointer = store.get("pointer") || "default";
+    const custom = pointer === "default" || staticPointers.has(pointer) || effectPointers.has(pointer);
+    document.documentElement.classList.toggle("lunar-pointer-active", custom);
+    document.body.classList.toggle("lunar-custom-cursor-active", effectPointers.has(pointer));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", sync, {once:true});
+  } else {
+    sync();
+  }
+
+  /* Settings can change the pointer without a full page reload. */
+  let last = null;
+  setInterval(() => {
+    if (typeof store === "undefined") return;
+    const current = store.get("pointer") || "default";
+    if (current !== last) {
+      last = current;
+      sync();
+    }
+  }, 300);
+})();
