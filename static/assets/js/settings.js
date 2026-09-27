@@ -136,9 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Background Particles
   const particlesDropdown = document.getElementById("particles-dropdown");
-  particlesDropdown.value = store.get("particles") === "true" ? "on" : "off";
+  const savedParticles = store.get("particles") || "off";
+  particlesDropdown.value = savedParticles === "true" ? "stars" : savedParticles;
   particlesDropdown.addEventListener("change", function () {
-    store.set("particles", this.value === "on" ? "true" : "false");
+    store.set("particles", this.value);
+    window.location.reload();
   });
 
   // Cursor Effects
@@ -165,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const uiScale = document.getElementById("ui-scale-range");
   const uiScaleValue = document.getElementById("ui-scale-value");
   const animations = document.getElementById("animations-dropdown");
+  const visualEffects = document.getElementById("visual-effects-dropdown");
   const interfaceReset = document.getElementById("interface-reset-btn");
 
   if (glassEffect) {
@@ -206,9 +209,24 @@ document.addEventListener("DOMContentLoaded", () => {
     animations.value = store.get("interfaceAnimations") || "on";
     animations.addEventListener("change", () => {
       store.set("interfaceAnimations", animations.value);
-      document.body.classList.toggle("reduce-interface-motion", animations.value === "reduced");
+      document.body.classList.toggle("reduce-interface-motion", animations.value !== "on");
+      document.documentElement.style.setProperty("--interface-motion-scale", animations.value === "off" ? "0" : animations.value === "reduced" ? "0.45" : "1");
     });
-    document.body.classList.toggle("reduce-interface-motion", animations.value === "reduced");
+    document.body.classList.toggle("reduce-interface-motion", animations.value !== "on");
+    document.documentElement.style.setProperty("--interface-motion-scale", animations.value === "off" ? "0" : animations.value === "reduced" ? "0.45" : "1");
+  }
+
+  if (visualEffects) {
+    visualEffects.value = store.get("interfaceEffects") || "full";
+    const applyEffects = () => {
+      const value = visualEffects.value;
+      store.set("interfaceEffects", value);
+      document.body.classList.toggle("reduce-interface-effects", value === "reduced");
+      document.body.classList.toggle("disable-interface-effects", value === "off");
+      document.documentElement.style.setProperty("--interface-effects-opacity", value === "off" ? "0" : value === "reduced" ? "0.42" : "1");
+    };
+    visualEffects.addEventListener("change", applyEffects);
+    applyEffects();
   }
 
   if (interfaceReset) {
@@ -217,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
       store.remove("interfaceGlassStrength");
       store.remove("interfaceScale");
       store.remove("interfaceAnimations");
+      store.remove("interfaceEffects");
       window.location.reload();
     });
   }
