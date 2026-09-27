@@ -229,6 +229,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Subtle pointer spotlight on interactive surfaces.
+  const interactiveSurfaceSelector = ".settings-card,.column,.support-card,.cash-card,.donate-action,.navbar-link";
+  let surfaceRaf = false;
+  let surfaceEvent = null;
+  document.addEventListener("pointermove", event => {
+    surfaceEvent = event;
+    if (surfaceRaf) return;
+    surfaceRaf = true;
+    requestAnimationFrame(() => {
+      surfaceRaf = false;
+      const target = surfaceEvent && surfaceEvent.target;
+      const surface = target && target.closest ? target.closest(interactiveSurfaceSelector) : null;
+      if (!surface) return;
+      const rect = surface.getBoundingClientRect();
+      const x = ((surfaceEvent.clientX - rect.left) / rect.width) * 100;
+      const y = ((surfaceEvent.clientY - rect.top) / rect.height) * 100;
+      surface.style.setProperty("--lunar-card-x", Math.max(0, Math.min(100, x)) + "%");
+      surface.style.setProperty("--lunar-card-y", Math.max(0, Math.min(100, y)) + "%");
+    });
+  }, { passive: true });
+
   // Pointer Effects — cursor.js is only loaded when visual effects are enabled.
   const CURSOR_EFFECTS = [
     "rainbow-stars", "white-orbs", "rainbow-trail", "blue-orbs", "red-circle",
