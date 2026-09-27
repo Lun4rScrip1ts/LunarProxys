@@ -347,3 +347,13 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px rgba(130,165,255,.1
 @keyframes lunarOnlinePulse{0%,100%{opacity:.72;transform:scale(.9)}50%{opacity:1;transform:scale(1.08)}}
 @media(max-width:600px){.lunar-member-status{margin-bottom:12px}}
 body.reduce-interface-motion .lunar-member-status,body.reduce-interface-motion .lunar-online-dot{animation:none!important}
+
+/* Uploaded background image layer */
+#lunar-background-image{
+  position:fixed;inset:-35px;z-index:-1;pointer-events:none;
+  background-position:center;background-repeat:no-repeat;background-size:cover;
+  background-attachment:fixed;
+  transform:translateZ(0);
+  transition:opacity .25s ease,filter .25s ease;
+}
+body:has(#lunar-background-image){background-image:none!important}
