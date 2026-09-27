@@ -10,12 +10,12 @@
   <title id="t">Home</title>
   <link rel="stylesheet" id="global" href="/assets/css/global.css" />
   <link rel="stylesheet" href="/assets/css/container.css" />
-  <link rel="stylesheet" href="/assets/css/nav.css?v=lunar7" />
+  <link rel="stylesheet" href="/assets/css/nav.css?v=lunar8" />
   <link rel="stylesheet" href="/assets/css/settings.css" />
-  <script src="/assets/js/storage.js?v=lunar7"></script>
-  <script src="/assets/js/main.js?v=lunar7"></script>
+  <script src="/assets/js/storage.js?v=lunar8"></script>
+  <script src="/assets/js/main.js?v=lunar8"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar3">
+  <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar7">
 </head>
 
 <body>
@@ -190,10 +190,14 @@
           <button class="key-button" id="save-button">Save</button>
         </div>
 
-        <label>Background Particles</label>
+        <label>Background Effect</label>
         <select id="particles-dropdown">
           <option value="off">Off</option>
-          <option value="on">Stars</option>
+          <option value="stars">Starfield</option>
+          <option value="aurora">Aurora</option>
+          <option value="grid">Moving Grid</option>
+          <option value="bubbles">Floating Bubbles</option>
+          <option value="embers">Soft Embers</option>
         </select>
 
         <label>Cursor Effect</label>
@@ -206,6 +210,12 @@
           <option value="blue-orbs">Blue Orbs</option>
           <option value="the-sims">The Sims</option>
           <option value="curly-cursor">Curly Cursor</option>
+          <option value="comet-cursor">Comet Trail</option>
+          <option value="spark-cursor">Spark Cursor</option>
+          <option value="crosshair-cursor">Precision Crosshair</option>
+          <option value="soft-glow-cursor">Soft Glow</option>
+          <option value="pixel-cursor">Pixel Trail</option>
+          <option value="ring-cursor">Orbit Ring</option>
         </select>
       </div>
 
@@ -229,8 +239,16 @@
 
         <label>Animations</label>
         <select id="animations-dropdown">
-          <option value="on">On</option>
+          <option value="on">Full</option>
           <option value="reduced">Reduced</option>
+          <option value="off">Off</option>
+        </select>
+
+        <label>Visual Effects</label>
+        <select id="visual-effects-dropdown">
+          <option value="full">Full</option>
+          <option value="reduced">Reduced</option>
+          <option value="off">Off</option>
         </select>
 
         <button class="key-button" id="interface-reset-btn" type="button">Reset Interface Settings</button>
@@ -296,8 +314,8 @@
       </div>
     </div>
   </div>
-  <script src="/assets/js/settings.js"></script>
-  <script src="/assets/js/lunar-settings.js"></script>
+  <script src="/assets/js/settings.js?v=lunar8"></script>
+  <script src="/assets/js/lunar-settings.js?v=lunar8"></script>
   <!-- DO NOT REMOVE-->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WKJQ5QHQTJ"></script>
   <script>
@@ -310,7 +328,7 @@
     gtag("config", "G-WKJQ5QHQTJ");
   </script>
   <!-- DO NOT REMOVE-->
-  <script src="/assets/js/lunar.js"></script>
+  <script src="/assets/js/lunar.js?v=lunar7"></script>
 </body>
 
 </html>
