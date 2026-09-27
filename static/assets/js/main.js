@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function sync(){
     if (!document.body || typeof store === "undefined") return;
     const pointer = store.get("pointer") || "default";
-    const custom = pointer === "default" || staticPointers.has(pointer) || effectPointers.has(pointer);
+    const custom = staticPointers.has(pointer) || effectPointers.has(pointer);
     document.documentElement.classList.toggle("lunar-pointer-active", custom);
     document.body.classList.toggle("lunar-custom-cursor-active", effectPointers.has(pointer));
   }
