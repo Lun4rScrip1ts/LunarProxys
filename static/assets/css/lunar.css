@@ -141,7 +141,7 @@ body#no .browser-bar,body#no .browser{background:rgba(9,12,17,.96)!important}
 :root{
   --interface-glass-alpha:.54;
   --interface-glass-blur:19px;
-  --interface-ui-scale:1;
+
   --interface-motion-scale:1;
   --interface-effects-opacity:1;
 }
