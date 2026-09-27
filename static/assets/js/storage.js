@@ -185,8 +185,10 @@
       });
     },
     remove(field) {
+      // Keep an explicit null tombstone locally so account sync can remove the
+      // same setting from the server instead of the server merging it back.
       mutate(data => {
-        delete data[field];
+        data[field] = null;
       });
     },
     getRaw(name) {
