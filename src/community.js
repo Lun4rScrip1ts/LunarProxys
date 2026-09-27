@@ -400,7 +400,18 @@ router.get("/users/:username", (req, res) => {
   const username = cleanText(req.params.username, USERNAME_MAX).toLowerCase();
   const user = Object.values(state.users).find(item => item.username.toLowerCase() === username);
   if (!user) return res.status(404).json({ error: "Profile not found." });
-  res.json({ user: publicUser(user, false) });
+  const viewer = getSessionUser(req);
+  const profile = publicUser(user, false);
+  if (viewer) {
+    profile.isSelf = viewer.id === user.id;
+    profile.isFriend = viewer.id !== user.id && areFriends(viewer.id, user.id);
+    profile.isBlocked = viewer.id !== user.id && isBlockedBetween(viewer.id, user.id);
+    profile.friendRequestPending = viewer.id !== user.id && state.friendRequests.some(item =>
+      (item.fromUserId === viewer.id && item.toUserId === user.id) ||
+      (item.fromUserId === user.id && item.toUserId === viewer.id)
+    );
+  }
+  res.json({ user: profile });
 });
 
 router.get("/chat/messages", (req, res) => {
