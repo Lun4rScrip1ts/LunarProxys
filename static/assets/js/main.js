@@ -282,3 +282,68 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(cursorScript);
   }
 });
+
+
+/* Lunar custom context menu */
+(() => {
+  const boot = () => {
+    if (document.getElementById("lunar-context-menu")) return;
+    const menu=document.createElement("div");
+    menu.id="lunar-context-menu";
+    menu.className="lunar-context-menu";
+    menu.innerHTML='<div class="lunar-context-head"><strong>Lunar Menu</strong><span id="lunar-context-target">Page actions</span></div><div id="lunar-context-actions"></div>';
+    document.body.appendChild(menu);
+    let context={x:0,y:0,link:null,image:null,selection:"",input:null};
+    const actions=menu.querySelector("#lunar-context-actions");
+    const close=()=>{menu.classList.remove("is-open");context={...context,x:context.x,y:context.y}};
+    const item=(icon,label,key,extra="")=>'<button type="button" class="lunar-context-item '+extra+'" data-context-action="'+key+'"><i class="'+icon+'"></i><span>'+label+'</span></button>';
+    function render(){
+      const target=document.querySelector("#lunar-context-target");
+      const parts=[];
+      if(context.link) parts.push(item("fa-solid fa-arrow-up-right-from-square","Open link in new tab","open-link"));
+      if(context.image) parts.push(item("fa-regular fa-image","Open image","open-image"),item("fa-regular fa-copy","Copy image address","copy-image"));
+      parts.push(item("fa-solid fa-arrow-left","Back","back"),item("fa-solid fa-arrow-right","Forward","forward"),item("fa-solid fa-rotate","Reload","reload"));
+      if(context.selection) parts.push('<div class="lunar-context-sep"></div>',item("fa-regular fa-copy","Copy selection","copy"),item("fa-solid fa-magnifying-glass","Search selection","search"));
+      if(context.input) parts.push('<div class="lunar-context-sep"></div>',item("fa-regular fa-clipboard","Paste","paste"),item("fa-solid fa-i-cursor","Select all","select-all"));
+      if(context.link) parts.push('<div class="lunar-context-sep"></div>',item("fa-regular fa-copy","Copy link","copy-link"));
+      actions.innerHTML=parts.join("");
+      target.textContent=context.link?"Link actions":context.image?"Image actions":context.input?"Text field":"Page actions";
+    }
+    document.addEventListener("contextmenu",e=>{
+      e.preventDefault();
+      const t=e.target;
+      const link=t.closest?.("a[href]");
+      const img=t.closest?.("img[src]");
+      const input=t.closest?.("input,textarea,[contenteditable='true']");
+      const sel=window.getSelection?.()?.toString().trim()||"";
+      context={x:e.clientX,y:e.clientY,link:link?.href||null,image:img?.src||null,selection:sel,input:input||null};
+      render();
+      menu.style.left="0px";menu.style.top="0px";menu.classList.add("is-open");
+      const rect=menu.getBoundingClientRect();
+      const left=Math.min(e.clientX,innerWidth-rect.width-8);
+      const top=Math.min(e.clientY,innerHeight-rect.height-8);
+      menu.style.left=Math.max(8,left)+"px";menu.style.top=Math.max(8,top)+"px";
+    });
+    document.addEventListener("click",e=>{if(!menu.contains(e.target))close()});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+    actions.addEventListener("click",async e=>{
+      const b=e.target.closest("[data-context-action]");if(!b)return;
+      const a=b.dataset.contextAction;
+      try{
+        if(a==="back") history.back();
+        else if(a==="forward") history.forward();
+        else if(a==="reload") location.reload();
+        else if(a==="open-link"&&context.link) window.open(context.link,"_blank","noopener,noreferrer");
+        else if(a==="copy-link"&&context.link){await navigator.clipboard.writeText(context.link);window.dispatchEvent(new CustomEvent("lunar:toast",{detail:"Link copied"}))}
+        else if(a==="open-image"&&context.image) window.open(context.image,"_blank","noopener,noreferrer");
+        else if(a==="copy-image"&&context.image){await navigator.clipboard.writeText(context.image);window.dispatchEvent(new CustomEvent("lunar:toast",{detail:"Image address copied"}))}
+        else if(a==="copy"&&context.selection){await navigator.clipboard.writeText(context.selection);window.dispatchEvent(new CustomEvent("lunar:toast",{detail:"Copied"}))}
+        else if(a==="paste"&&context.input){const text=await navigator.clipboard.readText();if("value" in context.input){const start=context.input.selectionStart??context.input.value.length;const end=context.input.selectionEnd??start;context.input.setRangeText(text,start,end,"end");context.input.dispatchEvent(new Event("input",{bubbles:true}))}else{document.execCommand("insertText",false,text)}}
+        else if(a==="select-all"&&context.input){context.input.focus();if("select" in context.input)context.input.select();else{const r=document.createRange();r.selectNodeContents(context.input);const s=getSelection();s.removeAllRanges();s.addRange(r)}}
+        else if(a==="search"&&context.selection){const q=encodeURIComponent(context.selection);window.open("https://www.google.com/search?q="+q,"_blank","noopener,noreferrer")}
+      }catch(err){window.dispatchEvent(new CustomEvent("lunar:toast",{detail:"Action unavailable"}))}
+      close();
+    });
+  };
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
+})();
