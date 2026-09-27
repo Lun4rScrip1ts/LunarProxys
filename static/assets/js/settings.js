@@ -136,7 +136,12 @@ document.addEventListener("DOMContentLoaded", () => {
       store.remove("backgroundImage");
       store.remove("backgroundImageOpacity");
       store.remove("backgroundImageBlur");
-      setTimeout(() => window.location.reload(), 600);
+      (async () => {
+        if (typeof store.flushAccountSettings === "function") {
+          await store.flushAccountSettings();
+        }
+        window.location.reload();
+      })();
     } else if (mode === "none") {
       store.set("backgroundImage", "none");
       syncBackgroundControls();
@@ -221,6 +226,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (bgDropdown) bgDropdown.value = "custom";
       bgStatus.textContent = backgroundValue.startsWith("/uploads/") ? "Saved to your account." : "Saved on this browser.";
       syncBackgroundControls();
+      if (typeof store.flushAccountSettings === "function") {
+        await store.flushAccountSettings();
+      }
       window.location.reload();
     } catch (error) {
       bgStatus.textContent = error.message || "Could not apply image.";
@@ -235,7 +243,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (bgStatus) bgStatus.textContent = "Background image cleared.";
     syncBackgroundControls();
     document.getElementById("lunar-background-image")?.remove();
-    setTimeout(() => window.location.reload(), 600);
+    (async () => {
+      if (typeof store.flushAccountSettings === "function") {
+        await store.flushAccountSettings();
+      }
+      window.location.reload();
+    })();
   });
 
   bgOpacity?.addEventListener("input", () => {
