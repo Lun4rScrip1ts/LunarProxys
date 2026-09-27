@@ -185,9 +185,20 @@
           <option value="none">None</option>
           <option value="custom">Custom</option>
         </select>
-        <div id="background-custom-row" style="display:none;">
-          <input class="key-form" type="text" id="background-input" placeholder="Enter image URL" />
-          <button class="key-button" id="save-button">Save</button>
+        <div id="background-custom-row" class="background-upload-row" style="display:none;">
+          <label class="background-file-label" for="background-file-input"><i class="fa-solid fa-image"></i><span id="background-file-label-text">Choose background image</span></label>
+          <input id="background-file-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+          <div class="background-upload-actions">
+            <button class="key-button" id="save-button" type="button">Apply Image</button>
+            <button class="key-button" id="background-clear-button" type="button">Clear</button>
+          </div>
+          <div class="background-upload-status" id="background-upload-status">PNG, JPG, WEBP or GIF · up to 8 MB</div>
+        </div>
+        <div id="background-image-controls" class="background-image-controls" style="display:none;">
+          <label>Image Opacity <span id="background-opacity-value">100%</span></label>
+          <input id="background-opacity-range" type="range" min="10" max="100" value="100" class="interface-range" />
+          <label>Image Blur <span id="background-blur-value">0px</span></label>
+          <input id="background-blur-range" type="range" min="0" max="30" value="0" class="interface-range" />
         </div>
 
         <label>Background Effect</label>
