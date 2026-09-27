@@ -336,31 +336,7 @@ body.reduce-interface-motion .lunar-select *,body.reduce-interface-motion .lunar
 .settings-card:has(.lunar-select.is-open){z-index:1000}
 
 
-/* Background image controls: keep the range inputs inside the settings card.
-   The base settings stylesheet gives generic inputs large padding, so explicitly
-   reset every dimension here. */
-#background-image-controls{
-   width:100%;
-   max-width:100%;
-   min-width:0;
-   box-sizing:border-box;
-   padding:12px 0 4px;
-   overflow:hidden;
-}
-#background-image-controls label{
-   width:100%;
-   max-width:100%;
-   box-sizing:border-box;
-}
-#background-image-controls .interface-range,
-#background-opacity-range,
-#background-blur-range{
-   display:block!important;
-   width:100%!important;
-   max-width:100%!important;
-   min-width:0!important;
-   box-sizing:border-box!important;
-   padding:0!important;
-   margin:8px 0 14px!important;
-   height:6px!important;
-}
+/* Safe Lunar background slider sizing */
+#background-image-controls{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:12px 0 4px;overflow:hidden}
+#background-image-controls label{width:100%;max-width:100%;box-sizing:border-box}
+#background-image-controls input[type="range"],#background-opacity-range,#background-blur-range{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:0!important;margin:8px 0 14px!important;height:6px!important}
