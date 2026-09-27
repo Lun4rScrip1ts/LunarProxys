@@ -176,12 +176,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Background Image Logic
+  // Background Image Logic — isolated in its own layer so opacity/blur affect
+  // only the uploaded image and never the UI or background effects.
   const savedBackgroundImage = store.get("backgroundImage");
-  if (savedBackgroundImage === "none") {
-    document.body.style.backgroundImage = "none";
-  } else if (savedBackgroundImage) {
-    document.body.style.backgroundImage = `url('${savedBackgroundImage}')`;
+  document.body.style.backgroundImage = "";
+  document.getElementById("lunar-background-image")?.remove();
+  if (savedBackgroundImage && savedBackgroundImage !== "none") {
+    const imageLayer = document.createElement("div");
+    imageLayer.id = "lunar-background-image";
+    imageLayer.style.backgroundImage = `url("${String(savedBackgroundImage).replace(/"/g, "\\\"")}")`;
+    imageLayer.style.opacity = String(Number(store.get("backgroundImageOpacity") || 100) / 100);
+    imageLayer.style.filter = `blur(${Number(store.get("backgroundImageBlur") || 0)}px)`;
+    document.body.insertBefore(imageLayer, document.body.firstChild);
   }
 
   // Background effects
