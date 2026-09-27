@@ -127,7 +127,20 @@ function getSessionUser(req) {
     delete state.sessions[token];
     return null;
   }
-  return state.users[session.userId] || null;
+  const user = state.users[session.userId] || null;
+  if (user) session.lastSeen = Date.now();
+  return user;
+}
+
+function getOnlineMemberCount() {
+  const cutoff = Date.now() - 2 * 60 * 1000;
+  const online = new Set();
+  for (const session of Object.values(state.sessions)) {
+    if (session?.kind === "active" && session.lastSeen && session.lastSeen > cutoff && state.users[session.userId]) {
+      online.add(session.userId);
+    }
+  }
+  return online.size;
 }
 
 function requireUser(req, res, next) {
@@ -141,7 +154,7 @@ function setSession(res, userId) {
   const token = randomBytes(32).toString("hex");
   const rememberedToken = randomBytes(32).toString("hex");
   const expiresAt = Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000;
-  state.sessions[token] = { userId, expiresAt, kind: "active" };
+  state.sessions[token] = { userId, expiresAt, kind: "active", lastSeen: Date.now() };
   state.sessions[rememberedToken] = { userId, expiresAt, kind: "remembered" };
   const cookieOptions = {
     httpOnly: true,
@@ -240,6 +253,14 @@ async function verifyPassword(password, record) {
 router.get("/auth/me", (req, res) => {
   const user = getSessionUser(req);
   res.json({ user: user ? publicUser(user, true) : null });
+});
+
+router.get("/members/online", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    online: getOnlineMemberCount(),
+    members: Object.keys(state.users).length,
+  });
 });
 
 router.post("/auth/register", async (req, res) => {
