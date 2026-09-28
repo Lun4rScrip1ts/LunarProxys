@@ -874,3 +874,22 @@ body.interface-glass .lunar-community-page .chat-edit-box textarea{
   border-color:rgba(255,255,255,.12)!important;
 }
 @media(max-width:600px){.sticker-upload-zone{grid-template-columns:56px 1fr}.sticker-upload-zone>button{grid-column:2}.sticker-create-row{grid-template-columns:1fr}}
+
+body.interface-glass .lunar-community-page .community-shell,
+body.interface-glass .lunar-community-page .chat-messages,
+body.interface-glass .lunar-community-page .chat-message,
+body.interface-glass .lunar-community-page .chat-avatar,
+body.interface-glass .lunar-community-page .chat-message-body,
+body.interface-glass .lunar-community-page .chat-form,
+body.interface-glass .lunar-community-page .chat-compose-row,
+body.interface-glass .lunar-community-page .chat-tool,
+body.interface-glass .lunar-community-page .chat-send{
+  color:#f3f5f9!important;
+}
+body.interface-glass .lunar-community-page .chat-message,
+body.interface-glass .lunar-community-page .chat-form{
+  background:rgba(17,21,29,var(--interface-glass-alpha,.54))!important;
+  border-color:rgba(255,255,255,.09)!important;
+  -webkit-backdrop-filter:blur(var(--interface-glass-blur,19px)) saturate(145%)!important;
+  backdrop-filter:blur(var(--interface-glass-blur,19px)) saturate(145%)!important;
+}
