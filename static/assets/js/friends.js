@@ -33,13 +33,13 @@ $("friends-refresh-button").onclick=async()=>{const b=$("friends-refresh-button"
 $("dm-search-button").onclick=()=>{if(!active)return;const q=prompt("Search this conversation");if(!q)return;const found=messages.find(m=>(m.message||"").toLowerCase().includes(q.toLowerCase()));toast(found?"Found a matching message.":"No matching messages.")};
 $("dm-call-button").onclick=()=>toast("Voice calls are not enabled yet.");
 $("dm-video-button").onclick=()=>toast("Video calls are not enabled yet.");
-$("dm-more-button").onclick=()=>{if(active)openUserProfile(active.username)};
+$("dm-more-button").onclick=()=>{if(active)openUserProfile(active.username,document.querySelector(".dm-top-name"))};
 document.querySelectorAll(".friends-tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".friends-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");b.dataset.tab==="inbox"?renderInbox():renderFriends()});
 $("friend-search-input").oninput=async e=>{const q=e.target.value.trim();if(q.length<2){$("friend-search-results").innerHTML="";return}try{const d=await api("/api/friends/users?q="+encodeURIComponent(q));$("friend-search-results").innerHTML=(d.users||[]).map(u=>{const p=outgoing.some(x=>x.to.id===u.id)||incoming.some(x=>x.from.id===u.id);return'<div class="search-user">'+avatar(u)+'<span class="search-user-info"><strong>'+esc(u.displayName)+'</strong><span>@'+esc(u.username)+'</span></span><button data-add-user="'+esc(u.username)+'" '+(p||friendOf(u.id)?"disabled":"")+'>'+(friendOf(u.id)?"Friends":p?"Pending":"Add")+'</button></div>'}).join("")||'<div class="friends-empty">No users found.</div>'}catch(x){toast(x.message)}};
 $("friend-search-results").onclick=async e=>{const b=e.target.closest("[data-add-user]");if(!b||b.disabled)return;try{await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:b.dataset.addUser})});toast("Friend request sent.");closeModals();await bootstrap()}catch(x){toast(x.message)}};
 $("friends-list").onclick=async e=>{const b=e.target.closest("[data-request]");if(b){try{const old=incoming.find(x=>x.id===b.dataset.id);await api("/api/friends/requests/"+b.dataset.id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:b.dataset.request})});await bootstrap();if(b.dataset.request==="accept"&&old)openDm(old.from)}catch(x){toast(x.message)}return}const f=e.target.closest("[data-friend]");if(f){const u=friends.find(x=>x.id===f.dataset.friend);if(u)openDm(u)}};
 function profileAvatarHtml(u){return u&&u.avatarUrl?'<img src="'+esc(u.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(u&&u.displayName||u&&u.username))}
-async function openUserProfile(username){
+async function openUserProfile(username,anchor=null){
 try{
   const d=await api("/api/users/"+encodeURIComponent(username));
   const u=d.user;
@@ -53,6 +53,10 @@ try{
   $("friends-profile-owner").hidden=!u.isOwner;
   $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
   $("friends-profile-stickers").innerHTML=(u.stickers||[]).slice(0,12).map(s=>'<img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'" loading="lazy">').join("");
+  const mutuals=Array.isArray(u.mutualFriends)?u.mutualFriends:[];
+  let mutualBox=document.getElementById("friends-profile-mutuals");
+  if(!mutualBox){mutualBox=document.createElement("div");mutualBox.id="friends-profile-mutuals";mutualBox.className="friends-profile-mutuals";actions?.before(mutualBox)}
+  mutualBox.innerHTML=mutuals.length?`<strong>${mutuals.length} Mutual Friend${mutuals.length===1?"":"s"}</strong><div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${esc(m.avatarUrl)}" alt="@${esc(m.username)}" title="@${esc(m.username)}">`:`<span title="@${esc(m.username)}">${esc(initials(m.displayName||m.username))}</span>`).join("")}</div>`:"<strong>No Mutual Friends</strong>";
   $("friends-profile-banner").style.backgroundImage=u.bannerUrl?'url("'+esc(u.bannerUrl)+'")':"none";
   const actions=$("friends-profile-actions");
   const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block");
@@ -77,6 +81,8 @@ try{
     }catch(e){toast(e.message)}
   };
   modal.hidden=false;
+  const card=modal.querySelector(".friends-profile-card");
+  if(anchor&&card){const r=anchor.getBoundingClientRect(),w=card.offsetWidth||360,h=card.offsetHeight||420;let left=r.right+12,top=r.top;if(left+w>innerWidth-12)left=Math.max(12,r.left-w-12);if(top+h>innerHeight-12)top=Math.max(12,innerHeight-h-12);card.style.left=left+"px";card.style.top=top+"px";}
 }catch(e){toast(e.message)}
 }
 function closeUserProfile(){$("friends-profile-modal").hidden=true}
@@ -113,7 +119,7 @@ function positionPopup(el,rect,width,height){let left=Math.max(8,Math.min(innerW
 async function reactToMessage(m,emoji){try{await api("/api/friends/dms/messages/"+m.id+"/reactions",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});closeReactionPopups();await loadMessages()}catch(x){toast(x.message)}}
 function showReactionPicker(m,anchor){closeReactionPopups();const p=document.createElement("div");p.className="dm-reaction-picker";p.innerHTML=REACTION_EMOJIS.map(x=>'<button type="button" data-emoji="'+esc(x)+'">'+x+'</button>').join("");document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),300,46);p.onclick=async e=>{const b=e.target.closest("[data-emoji]");if(b)await reactToMessage(m,b.dataset.emoji)}}
 function showReactionUsers(m,anchor){closeReactionPopups();const p=document.createElement("div");p.className="dm-reaction-users";const users=(m.reactions||[]).flatMap(r=>(r.users||[]).map(u=>({emoji:r.emoji,username:u.username})));p.innerHTML="<strong>Reactions</strong>"+(users.length?users.map(u=>"<div>"+esc(u.emoji)+" @"+esc(u.username)+"</div>").join(""):"<div>No reactions yet.</div>");document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180)}
-$("dm-messages").onclick=async e=>{const profile=e.target.closest("[data-profile-user]");if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser);return}const reaction=e.target.closest("[data-react]");if(reaction){const m=messages.find(x=>x.id===reaction.dataset.react);if(m)await reactToMessage(m,reaction.dataset.emoji);return}const action=e.target.closest("[data-action]");if(!action)return;const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);if(!m)return;if(action.dataset.action==="react"){showReactionPicker(m,action);return}showMenu(m,action)};
+$("dm-messages").onclick=async e=>{const profile=e.target.closest("[data-profile-user]");if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser,profile);return}const reaction=e.target.closest("[data-react]");if(reaction){const m=messages.find(x=>x.id===reaction.dataset.react);if(m)await reactToMessage(m,reaction.dataset.emoji);return}const action=e.target.closest("[data-action]");if(!action)return;const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);if(!m)return;if(action.dataset.action==="react"){showReactionPicker(m,action);return}showMenu(m,action)};
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
 $("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||m.attachment?.url||"");toast("Copied.")}else if(b.dataset.mm==="delete"){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
 let forwardContext={sourceType:"dm",messageId:"",excludeId:""};
