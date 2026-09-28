@@ -620,3 +620,50 @@ html.lunar-pointer-active body.lunar-static-cursor.lunar-normal-lunar *{
 .lunar-context-menu{
   z-index:2147483000!important;
 }
+
+/* Cursor persistence fix: keep selected cursors visible on every route, not just Settings. */
+html.lunar-pointer-active,
+html.lunar-pointer-active body,
+body.lunar-static-cursor,
+body.lunar-static-cursor *{
+  cursor:auto!important;
+}
+body.lunar-normal-lunar,
+body.lunar-normal-lunar *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 3l5 29 8-9 8 11 5-4-9-11 11-2z' fill='%23ffffff' stroke='%2303070d' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3,auto!important;
+}
+body.lunar-normal-graphite,
+body.lunar-normal-graphite *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 3l5 29 8-9 8 11 5-4-9-11 11-2z' fill='%23c7ccd5' stroke='%2303070d' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3,auto!important;
+}
+body.lunar-normal-minimal,
+body.lunar-normal-minimal *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cpath d='M6 3l5 24 6-7 6 8 3-3-8-9 9-1z' fill='%23ffffff' stroke='%2303070d' stroke-width='2'/%3E%3C/svg%3E") 5 3,auto!important;
+}
+body.lunar-normal-outline,
+body.lunar-normal-outline *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 3l5 29 8-9 8 11 5-4-9-11 11-2z' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 3,auto!important;
+}
+body.lunar-normal-cross,
+body.lunar-normal-cross *{cursor:crosshair!important}
+body.lunar-static-cursor input,
+body.lunar-static-cursor textarea,
+body.lunar-static-cursor [contenteditable="true"]{cursor:text!important}
+body.lunar-static-cursor button,
+body.lunar-static-cursor a{cursor:pointer!important}
+
+/* Animated cursor layers must remain visible above route-specific glass surfaces. */
+#pointer-canvas,
+#rainbow-trail-cursor,
+#blue-orbs-cursor,
+#red-circle-cursor,
+#the-sims-cursor,
+#curly-cursor,
+#comet-cursor,
+#spark-cursor,
+#lunar-crosshair-cursor,
+#lunar-soft-glow-cursor,
+#lunar-pixel-cursor,
+#lunar-ring-cursor{
+  z-index:2147483646!important;
+}
