@@ -65,6 +65,7 @@
     if(!["image/png","image/jpeg","image/webp","image/gif"].includes(f.type))throw new Error("Use PNG, JPG, WEBP, or GIF images.");
     if(f.size>8*1024*1024)throw new Error("Each image must be smaller than 8 MB.");
     return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("Could not read image."));r.readAsDataURL(f);});};
+  const returnTo = new URLSearchParams(location.search).get("returnTo") || "/";
   const savedLogin = localStorage.getItem("ls_login_identifier") || "";
   const identifierInput = document.getElementById("auth-identifier");
   if (identifierInput) identifierInput.value = savedLogin;
@@ -77,7 +78,7 @@
       if (mode === "login") localStorage.setItem("ls_login_identifier", document.getElementById("auth-identifier").value.trim());
       user=data.user;
       if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();
-      setProfile();}
+      setProfile(); setTimeout(() => { location.href = returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/"; }, 120);}
     catch(err){errorEl.textContent=err.message;}finally{b.disabled=false;}});
   profileForm.addEventListener("submit",async e=>{e.preventDefault();const ok=document.getElementById("profile-success"),err=document.getElementById("profile-error");ok.textContent="";err.textContent="";
     const username=document.getElementById("profile-username-input").value.trim();
@@ -114,5 +115,6 @@
     }
   });
   document.getElementById("logout-button").addEventListener("click",async()=>{try{await api("/api/auth/logout",{method:"POST"});}catch{}user=null;authCard.hidden=false;profileCard.hidden=true;setMode("login");});
-  api("/api/auth/me").then(async d=>{user=d.user;if(user){if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();setProfile();}else setMode("login");}).catch(()=>setMode("login"));
+  const initialMode = new URLSearchParams(location.search).get("mode");
+  api("/api/auth/me").then(async d=>{user=d.user;if(user){if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();setProfile();}else setMode(initialMode==="register"?"register":"login");}).catch(()=>setMode(initialMode==="register"?"register":"login"));
 })();
