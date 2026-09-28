@@ -190,33 +190,28 @@
 .forward-global-target{border:1px solid rgba(88,101,242,.28)!important;background:rgba(88,101,242,.10)!important}
 .forward-global-target>i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#5865f2;color:#fff}
 
-/* Chat overlays: always stay in the viewport instead of inheriting bottom-anchored layout */
+
+/* Chat overlays: viewport anchored without breaking the hidden attribute or JS popup coordinates */
+.lunar-friends-page .friends-profile-modal[hidden],
+.lunar-friends-page .global-profile-modal[hidden],
+.lunar-friends-page .dm-reaction-picker[hidden],
+.lunar-friends-page .dm-reaction-users[hidden],
+.lunar-friends-page #message-menu[hidden]{display:none!important}
 .lunar-friends-page .friends-profile-modal,
 .lunar-friends-page .global-profile-modal{
-  position:fixed!important;
-  top:0!important;right:0!important;bottom:0!important;left:0!important;
-  inset:0!important;
-  display:grid!important;
-  place-items:center!important;
-  transform:none!important;
-  margin:0!important;
+  position:fixed!important;inset:0!important;display:grid!important;place-items:center!important;
+  transform:none!important;margin:0!important;
 }
 .lunar-friends-page .friends-profile-card,
 .lunar-friends-page .global-profile-card{
-  position:relative!important;
-  top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
-  transform:none!important;
-  margin:0!important;
+  position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+  transform:none!important;margin:0!important;
 }
-.lunar-friends-page .message-menu{
-  position:fixed!important;
-  top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
-  transform:none!important;
-}
+.lunar-friends-page #message-menu,
 .lunar-friends-page .dm-reaction-picker,
 .lunar-friends-page .dm-reaction-users{
   position:fixed!important;
-  top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
   transform:none!important;
   margin:0!important;
+  z-index:2147483000!important;
 }
