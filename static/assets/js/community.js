@@ -580,9 +580,14 @@
   function setPickerTab(tab) {
     document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(button => button.classList.toggle("active", button.dataset.pickerTab === tab));
     document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(pane => pane.classList.toggle("active", pane.dataset.pickerPane === tab));
-    if (tab === "stickers") renderStickers(currentUser?.stickers || []);
+    if (tab === "stickers") renderStickers(currentUser?.stickers || []); else renderRecentEmojis();
   }
 
+  function renderRecentEmojis(){
+    const wrap=document.getElementById("community-emoji-recent");if(!wrap)return;let recent=[];try{recent=JSON.parse(localStorage.getItem("lunar-recent-emojis")||"[]")}catch{}
+    wrap.innerHTML=recent.map(emoji=>`<button type="button" data-recent-emoji="${escapeAttr(emoji)}" title="Recently used">${escape(emoji)}</button>`).join("");wrap.hidden=!recent.length;
+  }
+  function rememberEmoji(emoji){let recent=[];try{recent=JSON.parse(localStorage.getItem("lunar-recent-emojis")||"[]")}catch{};recent=[emoji,...recent.filter(x=>x!==emoji)].slice(0,24);localStorage.setItem("lunar-recent-emojis",JSON.stringify(recent));renderRecentEmojis();}
   async function ensureEmojiPicker() {
     if (emojiPickerElement) return emojiPickerElement;
     if (emojiPickerLoading) return emojiPickerLoading;
@@ -594,10 +599,12 @@
       emojiPickerElement = document.createElement("emoji-picker");
       emojiPickerElement.className = "dark";
       emojiPickerElement.setAttribute("locale", "en");
+      emojiPickerElement.setAttribute("emoji-version", "17.0");
       host.replaceChildren(emojiPickerElement);
       emojiPickerElement.addEventListener("emoji-click", async event => {
         const emoji = event.detail?.unicode;
         if (!emoji) return;
+        rememberEmoji(emoji);
         if (pickerContext.type === "reaction") return reactWithPickerEmoji(pickerContext.messageId, emoji);
         const start = input.selectionStart ?? input.value.length;
         const end = input.selectionEnd ?? start;
@@ -645,6 +652,7 @@
 
   function showReactionPicker(button, messageId) { openUnifiedPicker("emoji", button, {type:"reaction", messageId}); }
 
+  document.getElementById("community-emoji-recent")?.addEventListener("click", event => { const b=event.target.closest("[data-recent-emoji]"); if(!b)return; const emoji=b.dataset.recentEmoji; if(pickerContext.type==="reaction") reactWithPickerEmoji(pickerContext.messageId,emoji); else { const start=input.selectionStart??input.value.length; const end=input.selectionEnd??start; input.setRangeText(emoji,start,end,"end"); input.focus(); closePopovers(); } });
   reactionPicker.addEventListener("click", async event => {
     const tab = event.target.closest("[data-picker-tab]");
     if (tab) { setPickerTab(tab.dataset.pickerTab); return; }
