@@ -97,14 +97,21 @@ input:focus {
 /* Lunar Proxy home: interactive command-center redesign */
 .lunar-home{overflow-x:hidden;}
 .lunar-home .main{position:relative;z-index:2;width:min(920px,92vw);display:flex;flex-direction:column;align-items:center;gap:0;padding:clamp(90px,13vh,150px) 0 50px;}
-.lunar-home .title{margin:0 0 10px;font-size:clamp(54px,8vw,92px);letter-spacing:-3px;cursor:default;}
+.lunar-home .title{margin:0 0 10px;font-size:clamp(54px,8vw,92px);letter-spacing:-3px;cursor:default;position:relative;display:inline-block;transition:transform .35s cubic-bezier(.2,.8,.2,1),text-shadow .35s ease,letter-spacing .35s ease;}
+.lunar-home .title:before,.lunar-home .title:after{content:'';position:absolute;inset:45% -8%;height:3px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .45s cubic-bezier(.2,.8,.2,1);}
+.lunar-home .title:before{background:linear-gradient(90deg,transparent,rgba(120,135,255,.9),transparent);transform:scaleX(.25) rotate(-2deg);}
+.lunar-home .title:after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);transform:scaleX(.15) rotate(2deg);}
+.lunar-home .title:hover{transform:translateY(-7px) scale(1.08);letter-spacing:-1px;text-shadow:0 0 18px rgba(120,135,255,.45),0 12px 35px rgba(0,0,0,.28);}
+.lunar-home .title:hover:before{opacity:1;transform:scaleX(1.15) rotate(-2deg) translateY(-13px);}
+.lunar-home .title:hover:after{opacity:.8;transform:scaleX(.9) rotate(2deg) translateY(13px);}
+
 .lunar-home #splash{margin:0 0 24px;font-size:15px;}
 .lunar-home .search-container{width:min(760px,100%);}
 .lunar-home .search-container form{width:100%;position:relative;}
-.lunar-home .truncate{box-sizing:border-box;width:100%;height:66px!important;padding:0 66px 0 24px!important;border-radius:22px!important;font-size:17px!important;text-align:left!important;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease,background .22s ease!important;}
-.lunar-home .truncate:focus{transform:translateY(-3px);box-shadow:0 18px 55px rgba(0,0,0,.28),0 0 0 4px rgba(88,101,242,.12)!important;}
-.lunar-home .search-container form:after{content:'↵';position:absolute;right:18px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;color:var(--text-faint);background:rgba(255,255,255,.06);pointer-events:none;}
 .lunar-home .lunar-member-status{margin:0 0 20px;order:-1;padding:9px 14px;border:1px solid var(--border);border-radius:999px;background:var(--surface);backdrop-filter:var(--backdrop-filter);box-shadow:0 10px 35px rgba(0,0,0,.12);font-size:12px;}
+.lunar-home .lunar-url-warning{margin:-10px 0 18px;max-width:680px;padding:7px 13px;border:1px solid rgba(255,190,80,.28);border-radius:10px;background:rgba(255,190,80,.07);color:var(--text-faint);font-size:11px;line-height:1.45;text-align:center;}
+.lunar-home .lunar-url-warning a{color:var(--text);font-weight:700;text-decoration:underline;text-underline-offset:2px;}
+
 .lunar-home .lunar-online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#43d17b;box-shadow:0 0 12px rgba(67,209,123,.65);}
 .lunar-home .lunar-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:min(760px,100%);margin-top:18px;}
 .lunar-home .lunar-quick a{min-height:58px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 14px;border:1px solid var(--border);border-radius:17px;background:var(--surface);color:var(--text);text-decoration:none;backdrop-filter:var(--backdrop-filter);transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease;}
@@ -113,5 +120,6 @@ input:focus {
 .lunar-home .lunar-quick a:active{transform:translateY(-1px) scale(.98);}
 .lunar-home .main:before{content:'';position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(88,101,242,.16),transparent 68%);filter:blur(8px);z-index:-1;pointer-events:none;animation:homePulse 6s ease-in-out infinite;}
 @keyframes homePulse{0%,100%{transform:scale(.9);opacity:.65}50%{transform:scale(1.12);opacity:1}}
-@media(max-width:700px){.lunar-home .main{padding-top:100px}.lunar-home .lunar-quick{grid-template-columns:repeat(2,1fr)}.lunar-home .truncate{height:60px!important}.lunar-home .title{letter-spacing:-2px}}
+@media(max-width:700px){.lunar-home .main{padding-top:100px .lunar-home .lunar-url-warning{max-width:88vw;}}
+.lunar-home .lunar-quick{grid-template-columns:repeat(2,1fr)}.lunar-home .truncate{height:60px!important}.lunar-home .title{letter-spacing:-2px}}
 @media(prefers-reduced-motion:reduce){.lunar-home .main:before,.lunar-home .lunar-quick a,.lunar-home .truncate{animation:none!important;transition:none!important}}
