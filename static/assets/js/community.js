@@ -21,7 +21,6 @@
   const attachmentNameEl = document.getElementById("attachment-name");
   const attachmentKindEl = document.getElementById("attachment-kind");
   const cancelAttachmentButton = document.getElementById("cancel-attachment");
-  const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
   let currentUser = null;
   let messages = [];
   let replyTo = null;
@@ -574,42 +573,88 @@
     return data;
   }
 
-  function showReactionPicker(button, messageId) {
-    closePopovers();
-    reactionPicker.innerHTML = ALLOWED_REACTIONS.map(emoji =>
-      `<button type="button" data-picker-message="${escapeAttr(messageId)}" data-picker-emoji="${escapeAttr(emoji)}">${emoji}</button>`
-    ).join("");
-    const rect = button.getBoundingClientRect();
-    reactionPicker.style.left = Math.max(8, Math.min(window.innerWidth - 250, rect.left - 80)) + "px";
-    reactionPicker.style.top = Math.max(8, rect.top - 55) + "px";
-    reactionPicker.hidden = false;
+  let pickerContext = {type:"compose", messageId:"", anchor:null};
+  let emojiPickerElement = null;
+  let emojiPickerLoading = null;
+
+  function setPickerTab(tab) {
+    document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(button => button.classList.toggle("active", button.dataset.pickerTab === tab));
+    document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(pane => pane.classList.toggle("active", pane.dataset.pickerPane === tab));
+    if (tab === "stickers") renderStickers(currentUser?.stickers || []);
   }
 
-  reactionPicker.addEventListener("click", async event => {
-    const pickerButton = event.target.closest("[data-picker-message]");
-    if (!pickerButton) return;
-
-    const id = pickerButton.dataset.pickerMessage;
-    const emoji = pickerButton.dataset.pickerEmoji;
-    reactionPicker.hidden = true;
-
-    if (!currentUser) {
-      location.href = "/account";
-      return;
-    }
-
-    try {
-      await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
-        method:"PATCH",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({emoji})
+  async function ensureEmojiPicker() {
+    if (emojiPickerElement) return emojiPickerElement;
+    if (emojiPickerLoading) return emojiPickerLoading;
+    emojiPickerLoading = (async () => {
+      if (!customElements.get("emoji-picker")) await import("https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js");
+      await customElements.whenDefined("emoji-picker");
+      const host = document.getElementById("community-emoji-picker-host");
+      if (!host) return null;
+      emojiPickerElement = document.createElement("emoji-picker");
+      emojiPickerElement.className = "dark";
+      emojiPickerElement.setAttribute("locale", "en");
+      host.replaceChildren(emojiPickerElement);
+      emojiPickerElement.addEventListener("emoji-click", async event => {
+        const emoji = event.detail?.unicode;
+        if (!emoji) return;
+        if (pickerContext.type === "reaction") return reactWithPickerEmoji(pickerContext.messageId, emoji);
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? start;
+        input.setRangeText(emoji, start, end, "end");
+        input.focus();
+        closePopovers();
       });
+      return emojiPickerElement;
+    })().catch(error => { emojiPickerLoading = null; showToast("Emoji picker could not load. Please try again."); throw error; });
+    return emojiPickerLoading;
+  }
+
+  function positionPicker(anchor) {
+    const rect = (anchor || document.getElementById("chat-emoji-button"))?.getBoundingClientRect();
+    const width = Math.min(420, window.innerWidth - 20);
+    const height = Math.min(500, window.innerHeight - 100);
+    let left = rect ? rect.left + rect.width / 2 - width / 2 : (window.innerWidth - width) / 2;
+    let top = rect ? rect.top - height - 8 : 80;
+    if (top < 8) top = rect ? rect.bottom + 8 : 80;
+    reactionPicker.style.width = width + "px";
+    reactionPicker.style.left = Math.max(8, Math.min(window.innerWidth - width - 8, left)) + "px";
+    reactionPicker.style.top = Math.max(8, Math.min(window.innerHeight - height - 8, top)) + "px";
+  }
+
+  async function openUnifiedPicker(tab="emoji", anchor=null, context={type:"compose"}) {
+    if (!currentUser) { location.href="/account"; return; }
+    pickerContext = context;
+    await ensureEmojiPicker();
+    const slot = document.getElementById("community-sticker-slot");
+    if (stickerDrawer && slot && stickerDrawer.parentElement !== slot) slot.appendChild(stickerDrawer);
+    renderStickers(currentUser.stickers || []);
+    setPickerTab(tab);
+    reactionUsers.hidden = true;
+    reactionPicker.hidden = false;
+    positionPicker(anchor);
+  }
+
+  async function reactWithPickerEmoji(messageId, emoji) {
+    try {
+      await api("/api/chat/messages/" + encodeURIComponent(messageId) + "/reactions", {method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});
+      closePopovers();
       await refresh();
-    } catch (error) {
-      showToast(error.message);
+    } catch (error) { showToast(error.message); }
+  }
+
+  function showReactionPicker(button, messageId) { openUnifiedPicker("emoji", button, {type:"reaction", messageId}); }
+
+  reactionPicker.addEventListener("click", async event => {
+    const tab = event.target.closest("[data-picker-tab]");
+    if (tab) { setPickerTab(tab.dataset.pickerTab); return; }
+    if (event.target.closest("#emoji-sticker-close")) { closePopovers(); return; }
+    const sticker = event.target.closest("[data-send-sticker]");
+    if (sticker && pickerContext.type === "reaction") {
+      try { await sendMessage("", {url:sticker.dataset.sendSticker, kind:"sticker", name:sticker.dataset.stickerName}); closePopovers(); }
+      catch (error) { showToast(error.message); }
     }
   });
-
   function showReactionUsers(button, reaction) {
     closePopovers();
     const users = reaction?.users || [];
@@ -731,20 +776,15 @@
 
   document.getElementById("chat-image-button").addEventListener("click", () => document.getElementById("chat-image-file").click());
   document.getElementById("chat-gif-button")?.addEventListener("click", event => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!giphyPanel) {
-      document.getElementById("chat-gif-file")?.click();
-      return;
-    }
-    if (!currentUser) {
-      location.href="/account";
-      return;
-    }
-    giphyPanel.hidden = false;
-    giphyPanel.removeAttribute("hidden");
-    giphyPanel.style.display = "flex";
-    loadGlobalGifs();
+    event.preventDefault(); event.stopPropagation();
+    if (!currentUser) { location.href="/account"; return; }
+    closePopovers();
+    giphyPanel.hidden = false; giphyPanel.removeAttribute("hidden"); giphyPanel.style.display = "flex";
+    loadGlobalGifs(); giphySearch?.focus();
+  });
+  document.getElementById("chat-emoji-button")?.addEventListener("click", event => {
+    event.preventDefault(); event.stopPropagation();
+    openUnifiedPicker("emoji", event.currentTarget, {type:"compose"});
   });
   giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true});
   giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
@@ -756,37 +796,21 @@
   document.getElementById("global-gif-search-clear")?.addEventListener("click",()=>{if(!giphySearch)return;giphySearch.value="";loadGlobalGifs();giphySearch.focus();});
   document.querySelectorAll("[data-global-gif-tab]").forEach(tab=>tab.addEventListener("click",()=>{document.querySelectorAll("[data-global-gif-tab]").forEach(x=>x.classList.remove("active"));tab.classList.add("active");giphyTab=tab.dataset.globalGifTab;loadGlobalGifs()}));
   giphyGrid?.addEventListener("click",async event=>{const card=event.target.closest("[data-global-gif-id]");if(!card)return;const gif=giphyItems.find(x=>x.id===card.dataset.globalGifId);if(!gif)return;const favorite=event.target.closest(".gif-fav");if(favorite){try{await api("/api/friends/gifs/favorites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gif})});favorite.classList.add("is-saved");favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';favorite.title="Saved GIF";showToast("GIF saved to favourites.")}catch(e){showToast(e.message)}return}try{await sendMessage("",{url:gif.url,kind:"gif",name:gif.title});giphyPanel.hidden=true}catch(e){showToast(e.message)}});
-  document.getElementById("chat-sticker-button").addEventListener("click", () => document.getElementById("chat-sticker-file").click());
   document.getElementById("chat-image-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "image").finally(() => event.target.value=""));
-  document.getElementById("chat-gif-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "gif").finally(() => event.target.value=""));
-  document.getElementById("chat-sticker-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "sticker").finally(() => event.target.value=""));
   cancelAttachmentButton.addEventListener("click", clearAttachmentDraft);
 
-  function openStickerDrawer(anchor = document.getElementById("chat-sticker-catalog")) {
-    if (!currentUser) { location.href="/account"; return; }
-    renderStickers(currentUser.stickers || []);
-    stickerDrawer.classList.add("open");
-    stickerDrawer.setAttribute("aria-hidden","false");
-    if(anchor){const r=anchor.getBoundingClientRect();const w=Math.min(390,innerWidth-24);const h=Math.min(520,Math.floor(innerHeight*.7));const gap=8;let left=Math.max(12,Math.min(innerWidth-w-12,r.left+r.width/2-w/2));const above=r.top-gap-h;const below=r.bottom+gap;let top=above>=12?above:(below+h<=innerHeight-12?below:Math.max(12,Math.min(innerHeight-h-12,above)));stickerDrawer.style.left=left+"px";stickerDrawer.style.right="auto";stickerDrawer.style.top=top+"px";stickerDrawer.style.bottom="auto";}
-  }
-  function closeStickerDrawer() {
-    stickerDrawer.classList.remove("open");
-    stickerDrawer.setAttribute("aria-hidden","true");
-  }
-  document.getElementById("chat-sticker-catalog").addEventListener("click", e => openStickerDrawer(e.currentTarget));
+  function openStickerDrawer(anchor = document.getElementById("chat-emoji-button")) { return openUnifiedPicker("stickers", anchor, {type:"compose"}); }
+  function closeStickerDrawer() { closePopovers(); stickerDrawer?.setAttribute("aria-hidden","true"); }
   document.getElementById("close-sticker-drawer").addEventListener("click", closeStickerDrawer);
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       if (stickerCreateInline && !stickerCreateInline.hidden) closeStickerCreator();
-      else closeStickerDrawer();
+      else closePopovers();
     }
   });
   document.addEventListener("click", event => {
-    if (stickerDrawer?.classList.contains("open") && !stickerDrawer.contains(event.target) && !event.target.closest("#chat-sticker-catalog")) {
-      closeStickerDrawer();
-    }
+    if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(event.target) && !event.target.closest("#chat-emoji-button") && !event.target.closest("[data-action=\"react\"]")) closePopovers();
   });
-
   stickerGrid.addEventListener("click", async event => {
     const sticker = event.target.closest("[data-send-sticker]");
     if (!sticker) return;
