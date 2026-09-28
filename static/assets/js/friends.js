@@ -212,8 +212,13 @@ let emojiPickerLoading=null;
 function setPickerTab(tab){
   document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(b=>b.classList.toggle("active",b.dataset.pickerTab===tab));
   document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(p=>p.classList.toggle("active",p.dataset.pickerPane===tab));
-  if(tab==="stickers") renderFriendStickers(me?.stickers||[]);
+  if(tab==="stickers") renderFriendStickers(me?.stickers||[]); else renderRecentEmojis();
 }
+function renderRecentEmojis(){
+  const wrap=$("friends-emoji-recent");if(!wrap)return;let recent=[];try{recent=JSON.parse(localStorage.getItem("lunar-recent-emojis")||"[]")}catch{}
+  wrap.innerHTML=recent.map(emoji=>'<button type="button" data-recent-emoji="'+esc(emoji)+'" title="Recently used">'+esc(emoji)+'</button>').join("");wrap.hidden=!recent.length;
+}
+function rememberEmoji(emoji){let recent=[];try{recent=JSON.parse(localStorage.getItem("lunar-recent-emojis")||"[]")}catch{};recent=[emoji,...recent.filter(x=>x!==emoji)].slice(0,24);localStorage.setItem("lunar-recent-emojis",JSON.stringify(recent));renderRecentEmojis();}
 async function ensureEmojiPicker(){
   if(emojiPickerElement)return emojiPickerElement;
   if(emojiPickerLoading)return emojiPickerLoading;
@@ -221,10 +226,10 @@ async function ensureEmojiPicker(){
     if(!customElements.get("emoji-picker"))await import("https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js");
     await customElements.whenDefined("emoji-picker");
     const host=$("friends-emoji-picker-host");if(!host)return null;
-    emojiPickerElement=document.createElement("emoji-picker");emojiPickerElement.className="dark";emojiPickerElement.setAttribute("locale","en");
+    emojiPickerElement=document.createElement("emoji-picker");emojiPickerElement.className="dark";emojiPickerElement.setAttribute("locale","en");emojiPickerElement.setAttribute("emoji-version","17.0");
     host.replaceChildren(emojiPickerElement);
     emojiPickerElement.addEventListener("emoji-click",async e=>{
-      const emoji=e.detail?.unicode;if(!emoji)return;
+      const emoji=e.detail?.unicode;if(!emoji)return;rememberEmoji(emoji);
       if(pickerContext.type==="reaction"){await reactToMessageByPicker(pickerContext.messageId,emoji);return;}
       const input=$("dm-input");const start=input.selectionStart??input.value.length;const end=input.selectionEnd??start;input.setRangeText(emoji,start,end,"end");input.focus();closeReactionPopups();
     });
@@ -246,6 +251,7 @@ async function openUnifiedPicker(tab="emoji",anchor=null,context={type:"compose"
 async function reactToMessageByPicker(id,emoji){
   try{await api("/api/friends/dms/messages/"+id+"/reactions",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});closeReactionPopups();await loadMessages()}catch(e){toast(e.message)}
 }
+$("friends-emoji-recent")?.addEventListener("click",e=>{const b=e.target.closest("[data-recent-emoji]");if(!b)return;const emoji=b.dataset.recentEmoji;if(pickerContext.type==="reaction")reactToMessageByPicker(pickerContext.messageId,emoji);else{const input=$("dm-input");const start=input.selectionStart??input.value.length;const end=input.selectionEnd??start;input.setRangeText(emoji,start,end,"end");input.focus();closeReactionPopups()}});
 function showReactionPicker(m,anchor){openUnifiedPicker("emoji",anchor,{type:"reaction",messageId:m.id})}
 $("reaction-picker").onclick=async e=>{
   const tab=e.target.closest("[data-picker-tab]");if(tab){setPickerTab(tab.dataset.pickerTab);return;}
