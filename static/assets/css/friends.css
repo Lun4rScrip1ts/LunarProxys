@@ -978,3 +978,73 @@ body.interface-glass .lunar-friends-page .dm-messages{
 .lunar-friends-page .emoji-recent button:hover{background:rgba(145,117,255,.14)!important}
 .lunar-friends-page .emoji-picker-host{flex:1;min-height:0;display:flex}
 .lunar-friends-page .emoji-picker-host emoji-picker{flex:1!important;min-height:0!important}
+
+
+/* Final Friends picker, avatar, reaction, and sizing fixes */
+.lunar-friends-page .friend-avatar img,
+.lunar-friends-page .mini-avatar img,
+.lunar-friends-page .large-avatar img,
+.lunar-friends-page .dm-avatar img,
+.lunar-friends-page .friends-profile-avatar img,
+.lunar-friends-page .mutual-friend-avatar img{
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:auto!important;
+}
+.lunar-friends-page .dm-reaction{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  min-width:32px!important;
+  min-height:30px!important;
+  padding:3px 7px!important;
+}
+.lunar-friends-page .dm-reaction-sticker{
+  width:22px!important;
+  height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  object-fit:contain!important;
+  display:block!important;
+  flex:0 0 22px!important;
+}
+.lunar-friends-page .dm-reaction-user-sticker{
+  width:22px!important;
+  height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  object-fit:contain!important;
+  vertical-align:middle!important;
+  margin-right:4px!important;
+}
+.lunar-friends-page .dm-sticker{
+  width:auto!important;
+  height:auto!important;
+  max-width:230px!important;
+  max-height:230px!important;
+  object-fit:contain!important;
+  display:block!important;
+  margin-top:6px!important;
+  border-radius:8px!important;
+}
+.lunar-friends-page .sticker-picker-tab{
+  width:34px!important;
+  padding:0!important;
+}
+.lunar-friends-page .sticker-picker-tab i{font-size:13px!important;}
+.lunar-friends-page .emoji-sticker-picker .sticker-drawer{
+  max-width:none!important;
+}
+@media(min-width:801px){
+  .lunar-friends-page .friends-app{
+    zoom:.92;
+    width:calc((100% - 30px) / .92)!important;
+    height:calc((100% - 107px) / .92)!important;
+  }
+}
+
