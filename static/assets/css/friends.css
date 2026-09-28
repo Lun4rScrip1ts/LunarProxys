@@ -1048,3 +1048,45 @@ body.interface-glass .lunar-friends-page .dm-messages{
   }
 }
 
+
+
+/* DM sticker bookmark: only the bookmark changes on hover, not the sticker itself. */
+.lunar-friends-page .dm-sticker-attachment{
+  position:relative!important;
+  width:max-content!important;
+  max-width:230px!important;
+  max-height:230px!important;
+  display:inline-block!important;
+  overflow:visible!important;
+}
+.lunar-friends-page .dm-sticker-attachment .sticker-save-badge{
+  position:absolute!important;
+  right:5px!important;
+  top:5px!important;
+  width:30px!important;
+  height:30px!important;
+  display:grid!important;
+  place-items:center!important;
+  box-sizing:border-box!important;
+  padding:0!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  border-radius:9px!important;
+  background:#090b10!important;
+  color:#fff!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  z-index:5!important;
+  cursor:pointer!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.45)!important;
+}
+.lunar-friends-page .dm-sticker-attachment:hover .sticker-save-badge,
+.lunar-friends-page .dm-sticker-attachment .sticker-save-badge:focus-visible,
+.lunar-friends-page .dm-sticker-attachment .sticker-save-badge.is-saving{
+  opacity:1!important;
+  visibility:visible!important;
+}
+.lunar-friends-page .dm-sticker-attachment .sticker-save-badge.is-saved{
+  background:#050609!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.5)!important;
+}
