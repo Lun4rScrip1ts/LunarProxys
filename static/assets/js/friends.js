@@ -74,6 +74,11 @@ $("friend-sticker-browse")?.addEventListener("click",()=>friendStickerCreateFile
 $("friend-sticker-upload-zone")?.addEventListener("click",e=>{if(!e.target.closest("button"))friendStickerCreateFile?.click()});
 $("dm-sticker")?.addEventListener("click",openFriendStickerDrawer);
 $("friend-close-sticker-drawer")?.addEventListener("click",closeFriendStickerDrawer);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeFriendStickerDrawer();}});
+document.addEventListener("click",e=>{
+  const drawer=$("friend-sticker-drawer");
+  if(drawer?.classList.contains("open")&&!drawer.contains(e.target)&&!e.target.closest("#dm-sticker"))closeFriendStickerDrawer();
+});
 $("friend-open-sticker-create")?.addEventListener("click",openFriendStickerCreator);
 $("friend-close-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-cancel-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
