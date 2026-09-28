@@ -234,3 +234,9 @@ body.lunar-friends-page > #message-menu{
 .lunar-friends-page .friends-profile-card{position:fixed!important;left:12px;top:12px;width:min(380px,calc(100vw - 24px))!important;max-height:min(620px,calc(100vh - 24px));overflow:auto!important;pointer-events:auto!important;z-index:2147483640!important;}
 .lunar-friends-page .friends-profile-mutuals{margin-top:14px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07);color:#dfe2e7;font-size:12px}.friends-profile-mutuals>div{display:flex;gap:6px;margin-top:8px}.friends-profile-mutuals img,.friends-profile-mutuals span{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#292d35;color:#dfe2e7;font-size:9px;font-weight:800}
 .lunar-friends-page .dm-reaction-picker,.lunar-friends-page .dm-reaction-users{z-index:2147483647!important;}
+
+
+/* Friends-only mode and profile surface polish */
+.lunar-friends-page .friends-profile-card{background:#181a1e!important;background-repeat:no-repeat!important;background-attachment:local!important;color:#f1f3f7!important;border:1px solid rgba(255,255,255,.12)!important;box-shadow:0 30px 100px rgba(0,0,0,.58),0 0 0 1px rgba(0,0,0,.18)!important;}
+.lunar-friends-page .friends-profile-body{background:linear-gradient(180deg,rgba(12,14,19,.18),rgba(12,14,19,.82) 55%,rgba(12,14,19,.96));min-height:360px!important;}
+.lunar-friends-page .friends-profile-banner{background-color:#252a33!important;box-shadow:inset 0 -1px 0 rgba(255,255,255,.08)!important;}
