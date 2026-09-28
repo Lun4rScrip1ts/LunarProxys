@@ -276,12 +276,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cursor Effects
   const pointerDropdown = document.getElementById("pointer-dropdown");
   pointerDropdown.value = store.get("pointer") || "default";
-  pointerDropdown.addEventListener("change", function () {
+  pointerDropdown.addEventListener("change", async function () {
     const val = this.value;
     if (val === "default") {
       store.remove("pointer");
     } else {
       store.set("pointer", val);
+    }
+    // Commit the cursor choice before navigating so the next page cannot
+    // restore an older account setting over the newly selected cursor.
+    if (typeof store.flushAccountSettings === "function") {
+      await store.flushAccountSettings();
     }
     window.location.reload();
   });
@@ -314,10 +319,10 @@ document.addEventListener("DOMContentLoaded", () => {
     glassStrength.addEventListener("input", () => {
       store.set("interfaceGlassStrength", glassStrength.value);
       if (glassStrengthValue) glassStrengthValue.textContent = glassStrength.value + "%";
-      document.documentElement.style.setProperty("--interface-glass-alpha", String(0.25 + Number(glassStrength.value) / 200));
+      document.documentElement.style.setProperty("--interface-glass-alpha", String(0.18 + Number(glassStrength.value) / 180));
       document.documentElement.style.setProperty("--interface-glass-blur", Math.round(4 + Number(glassStrength.value) / 5) + "px");
     });
-    document.documentElement.style.setProperty("--interface-glass-alpha", String(0.25 + saved / 200));
+    document.documentElement.style.setProperty("--interface-glass-alpha", String(0.18 + saved / 180));
     document.documentElement.style.setProperty("--interface-glass-blur", Math.round(4 + saved / 5) + "px");
   }
 
