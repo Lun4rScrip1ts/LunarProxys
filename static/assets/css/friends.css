@@ -681,3 +681,39 @@ body.interface-glass .lunar-friends-page .gif-panel{
   }
   .lunar-friends-page .gif-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
 }
+
+/* Final profile modal isolation: the profile owns the entire top layer. */
+.lunar-friends-page .friends-profile-modal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483646!important;
+  display:block!important;
+  padding:0!important;
+  pointer-events:auto!important;
+  background:rgba(3,5,9,.68)!important;
+  overflow:hidden!important;
+}
+.lunar-friends-page .friends-profile-modal[hidden]{display:none!important;}
+.lunar-friends-page .friends-profile-card{
+  position:fixed!important;
+  left:50%!important;
+  top:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(380px,calc(100vw - 24px))!important;
+  max-height:min(620px,calc(100vh - 24px))!important;
+  overflow:auto!important;
+  z-index:2147483647!important;
+  background-color:#181a1e!important;
+  isolation:isolate!important;
+}
+.lunar-friends-page .friends-profile-body{
+  position:relative!important;
+  z-index:2!important;
+  background:#181a1e!important;
+}
+.lunar-friends-page .friends-profile-body,
+.lunar-friends-page .friends-profile-body *{
+  isolation:isolate;
+}
