@@ -53,7 +53,9 @@ try{
   $("friends-profile-owner").hidden=!u.isOwner;
   $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
   $("friends-profile-stickers").innerHTML=(u.stickers||[]).slice(0,12).map(s=>'<img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'" loading="lazy">').join("");
-  $("friends-profile-banner").style.backgroundImage=u.bannerUrl?'url("'+esc(u.bannerUrl)+'")':"none";
+  $("friends-profile-banner").style.backgroundImage=u.bannerUrl?`url("${String(u.bannerUrl).replace(/"/g, '\\\\"')}")`:"none";
+  const profileCard=modal.querySelector(".friends-profile-card");
+  if(profileCard){const bg=u.backgroundUrl||"";profileCard.style.backgroundImage=bg?`linear-gradient(180deg,rgba(10,12,17,.18),rgba(10,12,17,.94) 62%),url("${String(bg).replace(/"/g, '\\\\"')}")`:"linear-gradient(180deg,#20242d,#17191e)";profileCard.style.backgroundSize=bg?"cover":"auto";profileCard.style.backgroundPosition="center";}
   const actions=$("friends-profile-actions");
   const mutuals=Array.isArray(u.mutualFriends)?u.mutualFriends:[];
   let mutualBox=document.getElementById("friends-profile-mutuals");
@@ -160,8 +162,6 @@ $("dm-form").onsubmit=async e=>{e.preventDefault();if(!active)return;const text=
 $("friends-profile-close").onclick=closeUserProfile;
 $("friends-profile-modal").addEventListener("click",e=>{if(e.target.id==="friends-profile-modal")closeUserProfile()});
 document.querySelector(".dm-top-name").onclick=()=>{if(active)openUserProfile(active.username)};
-$("friends-server-button").onclick=()=>{document.querySelector(".friends-sidebar").classList.remove("global-chat-hidden");$("global-chat-view").hidden=true;document.querySelector(".dm-panel").hidden=false;document.querySelectorAll(".server-icon").forEach(x=>x.classList.remove("active"));$("friends-server-button").classList.add("active")};
-$("global-server-button").onclick=()=>{document.querySelector(".friends-sidebar").classList.add("global-chat-hidden");$("global-chat-view").hidden=false;document.querySelector(".dm-panel").hidden=true;document.querySelectorAll(".server-icon").forEach(x=>x.classList.remove("active"));$("global-server-button").classList.add("active")};
 
 $("dm-back").onclick=()=>{active=null;document.querySelector(".friends-app").classList.remove("dm-open");$("dm-view").hidden=true;$("dm-empty").hidden=false};
 $("dm-cancel-reply").onclick=()=>{reply=null;$("dm-reply-bar").hidden=true};$("dm-cancel-edit").onclick=()=>{editing=null;$("dm-edit-bar").hidden=true;$("dm-input").value=""};
