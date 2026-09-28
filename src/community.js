@@ -19,7 +19,7 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MAX_STICKERS = 100;
 const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
-const ALLOWED_REACTIONS = ["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
+const MAX_REACTION_TEXT = 8;
 
 let state = {
   users: {},
@@ -49,7 +49,7 @@ async function loadState() {
         dmMessages: Array.isArray(parsed.dmMessages) ? parsed.dmMessages.slice(-5000) : [],
         reports: Array.isArray(parsed.reports) ? parsed.reports : [],
       };
-      for (const user of Object.values(state.users)) {
+      state.friendships = normalizeFriendshipEntries(state.friendships, state.friendRequests);\n      for (const user of Object.values(state.users)) {
         user.username = String(user.username || "").slice(0, USERNAME_MAX);
         user.displayName = String(user.displayName || user.username || "").slice(0, DISPLAY_NAME_MAX);
         user.email = String(user.email || "").toLowerCase();
@@ -81,6 +81,34 @@ async function persist() {
     await rename(temp, DATA_FILE);
   }).catch(error => console.error("[Lunar Community] Save failed:", error.message));
   return writeQueue;
+}
+
+function normalizeFriendshipEntries(entries, requests = []) {
+  const normalized = new Set();
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    let ids = null;
+    if (typeof entry === "string") {
+      ids = entry.split(":");
+    } else if (entry && typeof entry === "object") {
+      ids = Array.isArray(entry.userIds) ? entry.userIds
+        : Array.isArray(entry.users) ? entry.users
+        : [entry.userId1 || entry.userA || entry.fromUserId, entry.userId2 || entry.userB || entry.toUserId];
+    }
+    if (Array.isArray(ids) && ids.length >= 2 && ids[0] && ids[1] && ids[0] !== ids[1]) {
+      const a = String(ids[0]);
+      const b = String(ids[1]);
+      if (state.users[a] && state.users[b]) normalized.add(friendshipKey(a, b));
+    }
+  }
+  if (!normalized.size) {
+    for (const request of Array.isArray(requests) ? requests : []) {
+      if (request?.status !== "accepted") continue;
+      const a = request.fromUserId;
+      const b = request.toUserId;
+      if (a && b && a !== b && state.users[a] && state.users[b]) normalized.add(friendshipKey(a, b));
+    }
+  }
+  return [...normalized];
 }
 
 function cleanText(value, max) {
@@ -509,7 +537,7 @@ router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
   const stickerUrl = cleanText(req.body?.stickerUrl, 1000);
   const stickerName = cleanText(req.body?.stickerName, 80) || "Sticker";
 
-  if (kind === "emoji" && !ALLOWED_REACTIONS.includes(emoji)) {
+  if (kind === "emoji" && (!emoji || emoji.length > MAX_REACTION_TEXT)) {
     return res.status(400).json({ error: "Reaction is not available." });
   }
   if (kind === "sticker" && !stickerUrl.startsWith("/uploads/")) {
