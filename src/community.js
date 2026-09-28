@@ -538,6 +538,34 @@ router.post("/chat/messages/:id/forward", requireUser, async (req, res) => {
   res.status(201).json({ message: publicDmMessage(message, req.user.id) });
 });
 
+router.post("/stickers/create", requireUser, async (req, res) => {
+  try {
+    const name = cleanText(req.body?.name, 50) || "My Sticker";
+    const emoji = cleanText(req.body?.emoji, 8);
+    const category = cleanText(req.body?.category, 24) || "Custom";
+    const data = req.body?.data;
+    const url = await saveImage(data, req.user.id, "sticker");
+    if (!url) return res.status(400).json({ error: "Upload a sticker image first." });
+    if (!Array.isArray(req.user.stickers)) req.user.stickers = [];
+    const existing = req.user.stickers.find(sticker => sticker.url === url);
+    if (!existing) {
+      req.user.stickers.unshift({
+        id: randomUUID(),
+        url,
+        name,
+        emoji,
+        category,
+        createdAt: new Date().toISOString()
+      });
+      req.user.stickers = req.user.stickers.slice(0, MAX_STICKERS);
+      await persist();
+    }
+    res.status(201).json({ sticker: req.user.stickers[0], stickers: req.user.stickers });
+  } catch (error) {
+    res.status(400).json({ error: error.message || "Unable to create sticker." });
+  }
+});
+
 router.post("/stickers/save", requireUser, async (req, res) => {
   const url = cleanText(req.body?.url, 1000);
   const name = cleanText(req.body?.name, 50) || "Saved sticker";
