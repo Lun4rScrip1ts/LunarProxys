@@ -319,6 +319,67 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+/* Session-local navigation history used by the Lunar context menu. */
+(() => {
+  const KEY = "lunar-context-navigation";
+  const read = () => {
+    try {
+      const value = JSON.parse(sessionStorage.getItem(KEY) || "{}");
+      return Array.isArray(value.entries) && Number.isInteger(value.index) ? value : {entries:[],index:-1};
+    } catch { return {entries:[],index:-1}; }
+  };
+  const write = state => {
+    try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  };
+  const current = () => location.href;
+  const state = read();
+  const here = current();
+  if (!state.entries.length) {
+    state.entries=[here];
+    state.index=0;
+    write(state);
+  } else if (state.entries[state.index] !== here) {
+    const existing = state.entries.indexOf(here);
+    if (existing >= 0) {
+      state.index=existing;
+    } else {
+      state.entries=state.entries.slice(0,state.index+1);
+      state.entries.push(here);
+      state.index++;
+    }
+    write(state);
+  }
+
+  window.lunarContextNavigate = direction => {
+    const next = read();
+    const targetIndex = next.index + (direction === "forward" ? 1 : -1);
+    if (targetIndex < 0 || targetIndex >= next.entries.length) {
+      if (direction === "back" && history.length > 1) history.back();
+      else if (direction === "forward") history.forward();
+      return;
+    }
+    next.index=targetIndex;
+    const target=next.entries[targetIndex];
+    write(next);
+    if (target && target !== current()) location.href=target;
+  };
+
+  document.addEventListener("click", event => {
+    const link=event.target.closest?.("a[href]");
+    if (!link || event.defaultPrevented || link.target==="_blank" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    let url;
+    try { url=new URL(link.href,location.href); } catch { return; }
+    if (url.origin !== location.origin || url.protocol !== location.protocol) return;
+    const state=read();
+    const next=url.href;
+    if (state.entries[state.index] === next) return;
+    state.entries=state.entries.slice(0,state.index+1);
+    state.entries.push(next);
+    state.index++;
+    write(state);
+  }, true);
+})();
+
 /* Lunar custom context menu */
 (() => {
   const boot = () => {
@@ -365,8 +426,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const b=e.target.closest("[data-context-action]");if(!b)return;
       const a=b.dataset.contextAction;
       try{
-        if(a==="back") history.back();
-        else if(a==="forward") history.forward();
+        if(a==="back") window.lunarContextNavigate?.("back");
+        else if(a==="forward") window.lunarContextNavigate?.("forward");
         else if(a==="reload") location.reload();
         else if(a==="open-link"&&context.link) window.open(context.link,"_blank","noopener,noreferrer");
         else if(a==="copy-link"&&context.link){await navigator.clipboard.writeText(context.link);window.dispatchEvent(new CustomEvent("lunar:toast",{detail:"Link copied"}))}
