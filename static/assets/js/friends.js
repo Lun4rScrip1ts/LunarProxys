@@ -116,8 +116,39 @@ function showReactionUsers(m,anchor){closeReactionPopups();const p=document.crea
 $("dm-messages").onclick=async e=>{const profile=e.target.closest("[data-profile-user]");if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser);return}const reaction=e.target.closest("[data-react]");if(reaction){const m=messages.find(x=>x.id===reaction.dataset.react);if(m)await reactToMessage(m,reaction.dataset.emoji);return}const action=e.target.closest("[data-action]");if(!action)return;const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);if(!m)return;if(action.dataset.action==="react"){showReactionPicker(m,action);return}showMenu(m,action)};
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
 $("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||m.attachment?.url||"");toast("Copied.")}else if(b.dataset.mm==="delete"){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
-async function openForward(m){openModal("forward-modal");$("forward-friends").innerHTML=friends.map(f=>'<button data-forward="'+f.id+'">'+avatar(f)+'<span>'+esc(f.displayName)+' @'+esc(f.username)+'</span></button>').join("")||'<div class="friends-empty">No friends.</div>';$("forward-friends").dataset.mid=m.id}
-$("forward-friends").onclick=async e=>{const b=e.target.closest("[data-forward]");if(!b)return;try{await api("/api/friends/dms/messages/"+$("forward-friends").dataset.mid+"/forward",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({recipientId:b.dataset.forward})});closeModals();toast("Message forwarded.")}catch(x){toast(x.message)}};
+let forwardContext={sourceType:"dm",messageId:"",excludeId:""};
+function renderForwardTargets(){
+  const wrap=$("forward-friends");
+  const q=($("forward-search")?.value||"").trim().toLowerCase();
+  const list=friends.filter(f=>{
+    if(forwardContext.excludeId && f.id===forwardContext.excludeId) return false;
+    const name=((f.displayName||"")+" "+(f.username||"")).toLowerCase();
+    return !q || name.includes(q);
+  });
+  wrap.innerHTML=(forwardContext.sourceType==="dm"
+    ? '<button class="forward-global-target" data-forward-global="1"><i class="fa-solid fa-earth-americas"></i><span><strong>Global Chat</strong><small>Send this message to Global Chat</small></span></button>'
+    : '')+
+    (list.map(f=>'<button data-forward="'+f.id+'">'+avatar(f)+'<span><strong>'+esc(f.displayName)+'</strong><small>@'+esc(f.username)+'</small></span></button>').join("")||'<div class="friends-empty">No matching friends.</div>');
+}
+async function openForward(m){
+  forwardContext={sourceType:"dm",messageId:m.id,excludeId:active?.id||m.senderId||""};
+  openModal("forward-modal");
+  $("forward-search").value="";
+  renderForwardTargets();
+  $("forward-search").focus();
+}
+$("forward-search").oninput=renderForwardTargets;
+$("forward-friends").onclick=async e=>{
+  const global=e.target.closest("[data-forward-global]");
+  const b=e.target.closest("[data-forward]");
+  if(!global&&!b)return;
+  try{
+    const endpoint="/api/friends/dms/messages/"+forwardContext.messageId+"/forward";
+    const body=global?{targetType:"global"}:{recipientId:b.dataset.forward,targetType:"friend"};
+    await api(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    closeModals();toast(global?"Message forwarded to Global Chat.":"Message forwarded.");
+  }catch(x){toast(x.message)}
+};
 $("dm-form").onsubmit=async e=>{e.preventDefault();if(!active)return;const text=$("dm-input").value.trim();if(editing){if(!text)return;try{await api("/api/friends/dms/messages/"+editing,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});editing=null;$("dm-edit-bar").hidden=true;$("dm-input").value="";await loadMessages()}catch(x){toast(x.message)}return}if(!text&&!gifDraft)return;try{await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,attachment:gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null,replyTo:reply?reply.id:""})});$("dm-input").value="";gifDraft=null;$("gif-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;await loadMessages()}catch(x){toast(x.message)}};
 
 $("friends-profile-close").onclick=closeUserProfile;
