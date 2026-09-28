@@ -178,3 +178,14 @@
 .lunar-friends-page .dm-messages{padding:22px 32px 28px!important}
 .lunar-friends-page .dm-composer{margin:0 18px 18px!important}
 @media(max-width:800px){.lunar-friends-page .friends-app{top:82px!important;right:8px!important;bottom:8px!important;left:8px!important;inset:82px 8px 8px!important}.lunar-friends-page .dm-profile-intro{padding:22px 22px 14px!important}.lunar-friends-page .dm-messages{padding:14px!important}.lunar-friends-page .dm-composer{margin:0 10px 10px!important}}
+
+/* Forwarding dialog shared with Global Chat */
+.forward-question{margin:2px 0 10px;color:#aeb5c4;font-size:12px;line-height:1.45}
+.forward-search-wrap{margin:0 0 10px!important}
+.forward-search-wrap input{width:100%}
+.forward-friends button{display:flex;align-items:center;gap:10px}
+.forward-friends button span:not(.friend-avatar):not(.forward-initials){min-width:0;display:flex;flex-direction:column;gap:2px}
+.forward-friends button strong{font-size:12px;color:#fff}
+.forward-friends button small{font-size:10px;color:#7f8796}
+.forward-global-target{border:1px solid rgba(88,101,242,.28)!important;background:rgba(88,101,242,.10)!important}
+.forward-global-target>i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#5865f2;color:#fff}
