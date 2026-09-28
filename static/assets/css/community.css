@@ -304,3 +304,23 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
 .lunar-community-page .community-header{margin-bottom:28px!important}
 .lunar-community-page .chat-card{border-radius:24px!important}
 @media(max-width:900px){.lunar-community-page .community-shell{padding-top:125px!important}}
+
+/* Consistent cross-chat forwarding */
+.forward-question{margin:2px 0 10px;color:#aeb5c4;font-size:12px;line-height:1.45}
+.forward-search-wrap{margin:0 0 10px!important}
+.forward-search-wrap input{width:100%}
+.forward-friends button{display:flex;align-items:center;gap:10px}
+.forward-friends button img,.forward-friends button .forward-initials{width:34px;height:34px;flex:0 0 34px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#292d36;color:#e8eaf0;font-size:10px;font-weight:900}
+.forward-friends button span:not(.forward-initials){min-width:0;display:flex;flex-direction:column;gap:2px}
+.forward-friends button strong{font-size:12px;color:#fff}
+.forward-friends button small{font-size:10px;color:#7f8796}
+.forward-global-target{border:1px solid rgba(88,101,242,.28)!important;background:rgba(88,101,242,.10)!important}
+.forward-global-target>i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#5865f2;color:#fff}
+.forward-modal{width:min(430px,calc(100vw - 28px));max-height:min(600px,80vh);overflow:hidden;padding:18px;border:1px solid var(--lunar-border);border-radius:16px;background:#181a1e;box-shadow:0 30px 90px rgba(0,0,0,.55)}
+.chat-forward-modal{z-index:30000}
+.lunar-community-page .global-chat-view .chat-text{font-size:13px;line-height:1.42}
+.lunar-community-page .global-chat-view .chat-meta{font-size:11px}
+.lunar-community-page .global-chat-view .chat-username,
+.lunar-community-page .global-chat-view .chat-time{font-size:10px}
+.lunar-community-page .global-chat-view .chat-message{padding:10px 8px;gap:10px}
+.lunar-community-page .global-chat-view .chat-message-body{font-size:13px}
