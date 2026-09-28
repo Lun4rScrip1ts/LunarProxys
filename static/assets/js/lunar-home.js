@@ -7,7 +7,31 @@
     if (brand) brand.remove();
     if (logo) { logo.setAttribute("aria-label", "Lunar Studios"); }
     document.body.classList.add("ls-ready");
-    if (title) title.textContent = "Lunar Proxy";
+    if (title) {
+      title.textContent = "Lunar Proxy";
+      title.setAttribute("aria-label", "Lunar Proxy");
+      title.innerHTML = [...title.textContent].map((ch, i) => `<span class="lunar-title-letter" style="--i:${i}">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
+      if (!title.dataset.flowBound) {
+        title.dataset.flowBound = "1";
+        const letters = [...title.querySelectorAll(".lunar-title-letter")];
+        const reset = () => letters.forEach((el) => { el.style.removeProperty("--mx"); el.style.removeProperty("--my"); });
+        title.addEventListener("pointermove", (event) => {
+          const r = title.getBoundingClientRect();
+          const x = event.clientX - r.left;
+          const y = event.clientY - r.top;
+          letters.forEach((el) => {
+            const er = el.getBoundingClientRect();
+            const cx = er.left - r.left + er.width / 2;
+            const cy = er.top - r.top + er.height / 2;
+            const d = Math.hypot(x - cx, y - cy);
+            const influence = Math.max(0, 1 - d / 145);
+            el.style.setProperty("--mx", `${(x - cx) * influence * 0.12}px`);
+            el.style.setProperty("--my", `${(y - cy) * influence * 0.18}px`);
+          });
+        });
+        title.addEventListener("pointerleave", reset);
+      }
+    }
     if (splash) splash.textContent = "A cleaner way to explore the web.";
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyLunarHome);
