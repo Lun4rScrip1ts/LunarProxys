@@ -73,11 +73,12 @@ friendStickerCreateFile?.addEventListener("change",async e=>{
 $("friend-sticker-browse")?.addEventListener("click",()=>friendStickerCreateFile?.click());
 $("friend-sticker-upload-zone")?.addEventListener("click",e=>{if(!e.target.closest("button"))friendStickerCreateFile?.click()});
 $("dm-emoji-button")?.addEventListener("click",e=>openUnifiedPicker("emoji",e.currentTarget,{type:"compose"}));
+$("dm-sticker-button")?.addEventListener("click",e=>openUnifiedPicker("stickers",e.currentTarget,{type:"browse"}));
 $("friend-close-sticker-drawer")?.addEventListener("click",()=>closeReactionPopups());
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeReactionPopups();}});
 document.addEventListener("click",e=>{if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(e.target)&&!e.target.closest("#dm-emoji-button")&&!e.target.closest("[data-action=\"react\"]"))closeReactionPopups();});
 $("friend-open-sticker-create")?.addEventListener("click",async()=>{
-  const context=pickerContext.type==="reaction"?pickerContext:{type:"reaction",messageId:"",anchor:$("dm-emoji-button")};
+  const context=(pickerContext.type==="reaction"||pickerContext.type==="browse")?pickerContext:{type:"browse",messageId:"",anchor:$("dm-sticker-button")};
   await openUnifiedPicker("stickers",context.anchor||$("dm-emoji-button"),context);
   openFriendStickerCreator();
 });
@@ -265,7 +266,7 @@ let emojiPickerElement=null;
 let emojiPickerLoading=null;
 function setPickerTab(tab){
   const stickerTab=document.querySelector("#reaction-picker [data-picker-tab=\"stickers\"]");
-  const stickersAllowed=pickerContext.type==="reaction";
+  const stickersAllowed=pickerContext.type==="reaction"||pickerContext.type==="browse";
   if(stickerTab)stickerTab.hidden=!stickersAllowed;
   if(!stickersAllowed&&tab==="stickers")tab="emoji";
   document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(b=>b.classList.toggle("active",b.dataset.pickerTab===tab));
@@ -327,6 +328,8 @@ $("reaction-picker").onclick=async e=>{
   const sticker=e.target.closest("[data-friend-send-sticker]");
   if(sticker&&pickerContext.type==="reaction"){
     await reactToStickerByPicker(pickerContext.messageId,{url:sticker.dataset.friendSendSticker,name:sticker.dataset.stickerName});
+  }else if(sticker&&pickerContext.type==="browse"){
+    toast("Sticker collection opened. Use a message's reaction button to send a sticker reaction.");
   }
 }
 function showReactionUsers(m,anchor){
