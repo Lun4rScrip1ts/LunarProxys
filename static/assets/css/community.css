@@ -1017,3 +1017,81 @@ body.interface-glass .lunar-community-page .chat-form{
 .lunar-community-page .emoji-recent button:hover{background:rgba(145,117,255,.14)!important}
 .lunar-community-page .emoji-picker-host{flex:1;min-height:0;display:flex}
 .lunar-community-page .emoji-picker-host emoji-picker{flex:1!important;min-height:0!important}
+
+
+/* Final sticker/reaction fixes */
+.lunar-community-page .chat-avatar .chat-profile-trigger img,
+.lunar-community-page .chat-avatar img,
+.lunar-community-page .friends-profile-avatar img,
+.lunar-community-page .profile-avatar img,
+.lunar-community-page .profile-public-avatar img,
+.lunar-community-page .global-profile-avatar img{
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:auto!important;
+}
+.lunar-community-page .chat-sticker-attachment{
+  position:relative!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:230px!important;
+  max-height:230px!important;
+  overflow:visible!important;
+  display:inline-block!important;
+}
+.lunar-community-page .chat-sticker-attachment img{
+  width:auto!important;
+  height:auto!important;
+  max-width:230px!important;
+  max-height:230px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  display:block!important;
+}
+.lunar-community-page .sticker-save-badge{
+  opacity:0!important;
+  visibility:hidden!important;
+  background:#090b10!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.28)!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.45)!important;
+}
+.lunar-community-page .chat-sticker-attachment:hover .sticker-save-badge,
+.lunar-community-page .sticker-save-badge:focus-visible,
+.lunar-community-page .sticker-save-badge.is-saving{
+  opacity:1!important;
+  visibility:visible!important;
+}
+.lunar-community-page .sticker-save-badge.is-saved{
+  color:#fff!important;
+  background:#050609!important;
+  border-color:rgba(255,255,255,.5)!important;
+}
+.lunar-community-page .sticker-save-badge.is-saved:hover{
+  color:#fff!important;
+  background:#000!important;
+}
+.lunar-community-page .reaction-pill{
+  min-width:32px!important;
+  min-height:30px!important;
+  padding:3px 7px!important;
+}
+.lunar-community-page .reaction-pill .reaction-sticker{
+  width:22px!important;
+  height:22px!important;
+  max-width:22px!important;
+  max-height:22px!important;
+  object-fit:contain!important;
+  display:block!important;
+  flex:0 0 22px!important;
+}
+.lunar-community-page .sticker-picker-tab{
+  width:34px!important;
+  padding:0!important;
+}
+.lunar-community-page .sticker-picker-tab i{font-size:13px!important;}
+
