@@ -1,4 +1,4 @@
-**Join the [Lunar Lounge](https://discord.gg/lunarslounge) for support, updates, and community help!**
+**Join the [Lunar Studios](https://discord.gg/lunarstudio) for support, updates, and community help!**
 
 ## Features
 
@@ -16,4 +16,4 @@
 If you encounter problems, open an issue on GitHub, and we'll address it promptly.
 
 > [!TIP]
-> If you're having trouble, please contact us and create a ticket at [Discord](https://discord.gg/lunarslounge) for support.
+> If you're having trouble, please contact us and create a ticket at [Discord](https://discord.gg/lunarstudio) for support.
