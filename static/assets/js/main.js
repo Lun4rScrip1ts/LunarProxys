@@ -135,6 +135,16 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(() => {});
   }
 
+  if (window.location.pathname !== "/account" && window.location.pathname !== "/account.html") {
+    fetch("/api/auth/me", {credentials:"same-origin", cache:"no-store"}).then(response => response.ok ? response.json() : {user:null}).then(data => {
+      if (data?.user || document.getElementById("lunar-auth-gate")) return;
+      const gate=document.createElement("div");
+      gate.id="lunar-auth-gate";
+      gate.innerHTML='<div class="lunar-auth-backdrop"></div><section class="lunar-auth-panel" role="dialog" aria-modal="true" aria-labelledby="lunar-auth-title"><div class="lunar-auth-orb"><i class="fa-solid fa-moon"></i></div><span class="lunar-auth-kicker">LUNAR MEMBERS</span><h2 id="lunar-auth-title">Create your Lunar account</h2><p>Register to unlock the proxy, chats, games, apps, settings, and the rest of Lunar.</p><div class="lunar-auth-actions"><a class="lunar-auth-primary" href="/account?mode=register&returnTo='+encodeURIComponent(location.pathname+location.search)+'">Register</a><a class="lunar-auth-secondary" href="/account?returnTo='+encodeURIComponent(location.pathname+location.search)+'">Log In</a></div><small>Your account keeps your profile, chat features, and preferences connected across Lunar.</small></section>';
+      document.body.appendChild(gate); document.body.classList.add("lunar-auth-locked");
+    }).catch(()=>{});
+  }
+
   // Re-apply the background after account settings finish loading. This matters when
   // the saved custom background exists on the account but not in localStorage yet.
   const applyLunarBackground = () => {
@@ -482,3 +492,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 300);
 })();
+
+const lunarAuthGateStyle=document.createElement("style");lunarAuthGateStyle.textContent=`
+.lunar-auth-locked{overflow:hidden!important}#lunar-auth-gate{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:22px;isolation:isolate}#lunar-auth-gate .lunar-auth-backdrop{position:absolute;inset:0;background:rgba(4,7,13,.56);backdrop-filter:blur(15px) saturate(120%);-webkit-backdrop-filter:blur(15px) saturate(120%)}#lunar-auth-gate .lunar-auth-panel{position:relative;width:min(430px,100%);padding:34px 30px 28px;text-align:center;border:1px solid rgba(255,255,255,.15);border-radius:28px;background:linear-gradient(145deg,rgba(25,29,42,.88),rgba(9,12,19,.8));box-shadow:0 30px 100px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1);color:var(--text);animation:lunarAuthIn .45s cubic-bezier(.16,1,.3,1)}#lunar-auth-gate .lunar-auth-orb{width:62px;height:62px;margin:0 auto 13px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,rgba(180,190,255,.72) 20%,rgba(110,115,255,.18) 58%,transparent 72%);box-shadow:0 0 45px rgba(130,130,255,.28);color:#fff;font-size:22px}#lunar-auth-gate .lunar-auth-kicker{font-size:9px;font-weight:900;letter-spacing:.18em;color:#aaa1ff}#lunar-auth-gate h2{margin:7px 0 8px;font-size:27px;letter-spacing:-.7px}#lunar-auth-gate p{margin:0 auto;color:var(--text-faint);font-size:12px;line-height:1.65;max-width:340px}#lunar-auth-gate .lunar-auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 14px}#lunar-auth-gate .lunar-auth-actions a{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:13px;text-decoration:none;font-weight:800;font-size:12px;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.lunar-auth-primary{background:linear-gradient(135deg,#8f86ff,#655cff);color:#fff;box-shadow:0 12px 28px rgba(100,90,255,.28)}.lunar-auth-primary:hover{transform:translateY(-2px)}.lunar-auth-secondary{border:1px solid var(--border-strong);background:var(--surface);color:var(--text)}.lunar-auth-secondary:hover{transform:translateY(-2px);background:var(--surface-hover)}#lunar-auth-gate small{display:block;color:var(--text-faint);font-size:9px;line-height:1.5}@keyframes lunarAuthIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}@media(max-width:560px){#lunar-auth-gate{padding:14px}#lunar-auth-gate .lunar-auth-panel{padding:28px 20px 23px;border-radius:22px}#lunar-auth-gate .lunar-auth-actions{grid-template-columns:1fr}}`;document.head.appendChild(lunarAuthGateStyle);
