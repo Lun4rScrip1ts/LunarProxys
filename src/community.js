@@ -458,6 +458,8 @@ router.post("/chat/messages", requireUser, async (req, res) => {
       displayName: replied.displayName, message: replied.message || "[attachment]",
     } : null,
     reactions: [],
+    deletedAt: "",
+    deletedBy: "",
     createdAt: new Date(now).toISOString(),
     editedAt: "",
   };
@@ -472,6 +474,7 @@ router.patch("/chat/messages/:id", requireUser, async (req, res) => {
   const message = findMessage(req.params.id);
   if (!message) return res.status(404).json({ error: "Message not found." });
   if (message.userId !== req.user.id) return res.status(403).json({ error: "You can only edit your own messages." });
+  if (message.deletedAt) return res.status(400).json({ error: "Deleted messages cannot be edited." });
   const text = cleanText(req.body?.message, MAX_MESSAGE_LENGTH);
   if (!text && !(message.attachments || []).length) return res.status(400).json({ error: "Message cannot be empty." });
   message.message = text;
@@ -480,9 +483,26 @@ router.patch("/chat/messages/:id", requireUser, async (req, res) => {
   res.json({ message });
 });
 
+router.delete("/chat/messages/:id", requireUser, async (req, res) => {
+  const message = findMessage(req.params.id);
+  if (!message || message.userId !== req.user.id) return res.status(404).json({ error: "Message not found." });
+  if (!message.deletedAt) {
+    message.deletedAt = new Date().toISOString();
+    message.deletedBy = req.user.id;
+    message.message = "";
+    message.attachments = [];
+    message.replyTo = null;
+    message.reactions = [];
+    message.editedAt = "";
+    await persist();
+  }
+  res.json({ ok: true });
+});
+
 router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
   const message = findMessage(req.params.id);
   if (!message) return res.status(404).json({ error: "Message not found." });
+  if (message.deletedAt) return res.status(400).json({ error: "Deleted messages cannot receive reactions." });
 
   const kind = req.body?.kind === "sticker" ? "sticker" : "emoji";
   const emoji = cleanText(req.body?.emoji, 8);
@@ -527,6 +547,7 @@ router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
 router.post("/chat/messages/:id/forward", requireUser, async (req, res) => {
   const source = findMessage(req.params.id);
   if (!source) return res.status(404).json({ error: "Message not found." });
+  if (source.deletedAt) return res.status(400).json({ error: "Deleted messages cannot be forwarded." });
 
   const targetType = cleanText(req.body?.targetType, 20) || "friend";
   if (targetType === "global") {
@@ -672,17 +693,36 @@ function getDmThread(a, b, create = true) {
 }
 
 function publicDmMessage(message, viewerId) {
-  const hidden = Array.isArray(message.deletedFor) && message.deletedFor.includes(viewerId);
-  if (hidden) return null;
-  return {
+  const base = {
     ...message,
     reactions: (message.reactions || []).map(reaction => ({
-      emoji: reaction.emoji,
+      kind: reaction.kind === "sticker" ? "sticker" : "emoji",
+      emoji: reaction.emoji || "",
+      stickerUrl: reaction.stickerUrl || "",
+      stickerName: reaction.stickerName || "",
       users: (reaction.users || []).map(user => ({ userId: user.userId, username: user.username })),
     })),
   };
+  if (message.deletedAt) {
+    return {
+      id: message.id,
+      threadId: message.threadId,
+      senderId: message.senderId,
+      recipientId: message.recipientId,
+      sender: message.sender,
+      message: "",
+      attachment: null,
+      replyTo: null,
+      reactions: [],
+      deletedAt: message.deletedAt,
+      deletedBy: message.deletedBy || "",
+      forwarded: Boolean(message.forwarded),
+      createdAt: message.createdAt,
+      editedAt: "",
+    };
+  }
+  return base;
 }
-
 function publicGifFavorite(gif) {
   return {
     id: cleanText(gif.id, 100),
@@ -864,6 +904,8 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
     replyTo: replied ? { id: replied.id, sender: publicFriendUser(findUser(replied.senderId)), message: replied.message || "[GIF]" } : null,
     reactions: [],
     deletedFor: [],
+    deletedAt: "",
+    deletedBy: "",
     createdAt: new Date().toISOString(),
     editedAt: "",
   };
@@ -876,6 +918,7 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
 router.patch("/friends/dms/messages/:id", requireUser, async (req, res) => {
   const message = state.dmMessages.find(item => item.id === req.params.id);
   if (!message || message.senderId !== req.user.id) return res.status(404).json({ error: "Message not found." });
+  if (message.deletedAt) return res.status(400).json({ error: "Deleted messages cannot be edited." });
   const text = cleanText(req.body?.message, MAX_MESSAGE_LENGTH);
   if (!text && !message.attachment) return res.status(400).json({ error: "Message cannot be empty." });
   message.message = text;
@@ -886,16 +929,24 @@ router.patch("/friends/dms/messages/:id", requireUser, async (req, res) => {
 
 router.delete("/friends/dms/messages/:id", requireUser, async (req, res) => {
   const message = state.dmMessages.find(item => item.id === req.params.id);
-  if (!message || ![message.senderId, message.recipientId].includes(req.user.id)) return res.status(404).json({ error: "Message not found." });
-  if (!Array.isArray(message.deletedFor)) message.deletedFor = [];
-  if (!message.deletedFor.includes(req.user.id)) message.deletedFor.push(req.user.id);
-  await persist();
+  if (!message || message.senderId !== req.user.id) return res.status(404).json({ error: "Message not found." });
+  if (!message.deletedAt) {
+    message.deletedAt = new Date().toISOString();
+    message.deletedBy = req.user.id;
+    message.message = "";
+    message.attachment = null;
+    message.replyTo = null;
+    message.reactions = [];
+    message.editedAt = "";
+    await persist();
+  }
   res.json({ ok: true });
 });
 
 router.patch("/friends/dms/messages/:id/reactions", requireUser, async (req, res) => {
   const message = state.dmMessages.find(item => item.id === req.params.id);
   if (!message || ![message.senderId, message.recipientId].includes(req.user.id)) return res.status(404).json({ error: "Message not found." });
+  if (message.deletedAt) return res.status(400).json({ error: "Deleted messages cannot receive reactions." });
 
   const kind = req.body?.kind === "sticker" ? "sticker" : "emoji";
   const emoji = cleanText(req.body?.emoji, 8);
