@@ -586,7 +586,7 @@
 
   function setPickerTab(tab) {
     const stickerTab = document.querySelector("#reaction-picker [data-picker-tab=\"stickers\"]");
-    const stickersAllowed = pickerContext.type === "reaction";
+    const stickersAllowed = pickerContext.type === "reaction" || pickerContext.type === "browse";
     if (stickerTab) stickerTab.hidden = !stickersAllowed;
     if (!stickersAllowed && tab === "stickers") tab = "emoji";
     document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(button => button.classList.toggle("active", button.dataset.pickerTab === tab));
@@ -686,6 +686,8 @@
         url: sticker.dataset.sendSticker,
         name: sticker.dataset.stickerName
       });
+    } else if (sticker && pickerContext.type === "browse") {
+      showToast("Sticker collection opened. Use a message's reaction button to send a sticker reaction.");
     }
   });
   function showReactionUsers(button, reaction) {
@@ -834,6 +836,10 @@
   document.getElementById("chat-emoji-button")?.addEventListener("click", event => {
     event.preventDefault(); event.stopPropagation();
     openUnifiedPicker("emoji", event.currentTarget, {type:"compose"});
+  });
+  document.getElementById("chat-sticker-button")?.addEventListener("click", event => {
+    event.preventDefault(); event.stopPropagation();
+    openUnifiedPicker("stickers", event.currentTarget, {type:"browse"});
   });
   giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true});
   giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
