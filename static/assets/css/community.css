@@ -801,3 +801,76 @@ body.interface-glass .lunar-community-page .friends-profile-card{
   background:#181a1e!important;
   z-index:2!important;
 }
+
+/* Direct sticker creator */
+.sticker-head-actions{display:flex;align-items:center;gap:6px}
+.sticker-create-button{display:inline-flex!important;align-items:center;gap:6px;width:auto!important;height:30px!important;margin:0!important;padding:0 10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:9px!important;background:rgba(255,255,255,.055)!important;color:#dfe3ec!important;font-size:10px!important;font-weight:800!important}
+.sticker-create-button:hover{background:rgba(145,117,255,.14)!important;border-color:rgba(168,143,255,.35)!important;color:#fff!important}
+.sticker-create-modal{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:16px;background:rgba(2,4,8,.68);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.sticker-create-modal[hidden]{display:none!important}
+.sticker-create-card{width:min(470px,calc(100vw - 24px));max-height:calc(100vh - 28px);overflow:auto;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(15,18,25,.94);box-shadow:0 30px 100px rgba(0,0,0,.6);color:#f5f7fb}
+.sticker-create-head{display:flex;align-items:center;justify-content:space-between;padding:16px 17px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sticker-create-head strong{display:block;font-size:14px}.sticker-create-head span{display:block;margin-top:3px;color:#7f8899;font-size:10px}
+.sticker-create-head button{width:30px!important;height:30px!important;margin:0!important;border:0!important;border-radius:8px!important;background:rgba(255,255,255,.05)!important;color:#9aa2b1!important}
+#sticker-create-form,.sticker-create-card form{padding:15px 17px 17px;display:flex;flex-direction:column;gap:12px}
+.sticker-upload-zone{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:11px;padding:11px;border:1px dashed rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.035);cursor:pointer}
+.sticker-create-preview{width:64px;height:64px;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:rgba(0,0,0,.22);color:#737c8e;font-size:20px}
+.sticker-create-preview img{width:100%;height:100%;object-fit:contain}
+.sticker-upload-zone strong{display:block;font-size:11px}.sticker-upload-zone span{display:block;margin-top:4px;color:#747e90;font-size:9px}
+.sticker-upload-zone>button{width:auto!important;height:32px!important;margin:0!important;padding:0 9px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:8px!important;background:rgba(255,255,255,.055)!important;color:#dce0e8!important;font-size:9px!important;font-weight:800!important}
+.sticker-create-card label{display:flex;flex-direction:column;gap:6px;color:#9fa7b6;font-size:10px;font-weight:800}
+.sticker-create-card input,.sticker-create-card select{box-sizing:border-box;width:100%;height:40px;margin:0;padding:0 11px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.045);color:#f5f7fb;outline:none;font:inherit;font-size:11px}
+.sticker-create-card input:focus,.sticker-create-card select:focus{border-color:rgba(157,132,255,.55);box-shadow:0 0 0 3px rgba(145,117,255,.08)}
+.sticker-create-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sticker-create-check{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important;padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:11px;background:rgba(255,255,255,.025)}
+.sticker-create-check input{width:17px!important;height:17px!important;accent-color:#8f76ff}
+.sticker-create-check span{display:flex;flex-direction:column;gap:3px}.sticker-create-check small{color:#70798a;font-size:9px;font-weight:500}
+.sticker-create-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:3px}
+.sticker-create-actions button{width:auto!important;height:38px!important;margin:0!important;padding:0 14px!important;border-radius:10px!important;font-size:10px!important;font-weight:850!important}
+.sticker-create-actions button:first-child{background:rgba(255,255,255,.045)!important;color:#aeb6c5!important}
+.sticker-create-actions button:last-child{background:linear-gradient(135deg,#9b7cff,#6e5aff)!important;border-color:transparent!important;color:#fff!important}
+.sticker-create-actions button:disabled{opacity:.55!important;cursor:wait!important}
+.sticker-create-actions button.is-loading{animation:lunar-pulse 1s ease-in-out infinite}
+@keyframes lunar-pulse{50%{filter:brightness(1.25)}}
+
+/* Glass surfaces across Friends/Chat, including controls while retaining readable text. */
+body.interface-glass .lunar-community-page .community-shell,
+body.interface-glass .lunar-community-page .chat-panel,
+body.interface-glass .lunar-community-page .chat-card,
+body.interface-glass .lunar-community-page .chat-form,
+body.interface-glass .lunar-community-page .chat-compose-row,
+body.interface-glass .lunar-community-page .chat-tool,
+body.interface-glass .lunar-community-page .chat-send,
+body.interface-glass .lunar-community-page .compose-tool,
+body.interface-glass .lunar-community-page .chat-reply-bar,
+body.interface-glass .lunar-community-page .attachment-draft,
+body.interface-glass .lunar-community-page .reaction-chip,
+body.interface-glass .lunar-community-page .reaction-picker,
+body.interface-glass .lunar-community-page .reaction-users,
+body.interface-glass .lunar-community-page .sticker-drawer,
+body.interface-glass .lunar-community-page .sticker-card,
+body.interface-glass .lunar-community-page .global-gif-panel,
+body.interface-glass .lunar-community-page .global-gif-panel .gif-search,
+body.interface-glass .lunar-community-page .global-gif-panel .gif-tab,
+body.interface-glass .lunar-community-page .sticker-create-card{
+  -webkit-backdrop-filter:blur(var(--interface-glass-blur,19px)) saturate(140%)!important;
+  backdrop-filter:blur(var(--interface-glass-blur,19px)) saturate(140%)!important;
+}
+body.interface-glass .lunar-community-page .chat-tool,
+body.interface-glass .lunar-community-page .chat-send,
+body.interface-glass .lunar-community-page .compose-tool,
+body.interface-glass .lunar-community-page .sticker-card,
+body.interface-glass .lunar-community-page .gif-card,
+body.interface-glass .lunar-community-page .gif-tab{
+  background:rgba(255,255,255,.055)!important;
+  color:#f0f2f7!important;
+  border-color:rgba(255,255,255,.1)!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+body.interface-glass .lunar-community-page .chat-form input,
+body.interface-glass .lunar-community-page .chat-edit-box textarea{
+  background:rgba(8,11,17,.38)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+@media(max-width:600px){.sticker-upload-zone{grid-template-columns:56px 1fr}.sticker-upload-zone>button{grid-column:2}.sticker-create-row{grid-template-columns:1fr}}
