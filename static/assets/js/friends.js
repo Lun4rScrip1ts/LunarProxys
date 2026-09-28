@@ -76,7 +76,11 @@ $("dm-emoji-button")?.addEventListener("click",e=>openUnifiedPicker("emoji",e.cu
 $("friend-close-sticker-drawer")?.addEventListener("click",()=>closeReactionPopups());
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeReactionPopups();}});
 document.addEventListener("click",e=>{if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(e.target)&&!e.target.closest("#dm-emoji-button")&&!e.target.closest("[data-action=\"react\"]"))closeReactionPopups();});
-$("friend-open-sticker-create")?.addEventListener("click",async()=>{await openUnifiedPicker("stickers",$("dm-emoji-button"),{type:"compose"});openFriendStickerCreator();});
+$("friend-open-sticker-create")?.addEventListener("click",async()=>{
+  const context=pickerContext.type==="reaction"?pickerContext:{type:"reaction",messageId:"",anchor:$("dm-emoji-button")};
+  await openUnifiedPicker("stickers",context.anchor||$("dm-emoji-button"),context);
+  openFriendStickerCreator();
+});
 $("friend-close-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-cancel-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
@@ -99,15 +103,7 @@ $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
   }catch(error){toast(error.message)}
   finally{button.disabled=false}
 });
-$("friend-sticker-grid")?.addEventListener("click",async e=>{
-  const card=e.target.closest("[data-friend-send-sticker]");
-  if(!card||!active)return;
-  try{
-    await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"",attachment:{kind:"sticker",url:card.dataset.friendSendSticker,name:card.dataset.stickerName}})});
-    closeReactionPopups();
-    await loadMessages();
-  }catch(error){toast(error.message)}
-});
+
 
 function openModal(id){$(id).hidden=false}
 function closeModals(){["friend-modal","forward-modal"].forEach(id=>$(id).hidden=true);$("message-menu").hidden=true}
@@ -203,16 +199,33 @@ $("profile-friend").disabled=true;
 $("profile-friend").textContent="Friends";
 }
 async function loadMessages(forceBottom=false){if(!active)return;try{const e=$("dm-messages");const wasAtBottom=e.scrollHeight-e.scrollTop-e.clientHeight<40;const oldTop=e.scrollTop;const oldHeight=e.scrollHeight;const d=await api("/api/friends/dms/"+active.id+"/messages?limit=100");messages=d.messages||[];renderMessages();if(forceBottom||wasAtBottom)e.scrollTop=e.scrollHeight;else e.scrollTop=Math.max(0,oldTop+(e.scrollHeight-oldHeight))}catch(e){toast(e.message)}}
-function reactionHtml(m){return(m.reactions||[]).map(r=>'<button class="dm-reaction '+(r.users.some(u=>u.userId===me.id)?"mine":"")+'" data-react="'+m.id+'" data-emoji="'+esc(r.emoji)+'">'+esc(r.emoji)+" "+r.users.length+"</button>").join("")}
+function reactionHtml(m){return(m.reactions||[]).map(r=>{
+  const kind=r.kind==="sticker"?"sticker":"emoji";
+  const visual=kind==="sticker"
+    ? '<img class="dm-reaction-sticker" src="'+esc(r.stickerUrl)+'" alt="'+esc(r.stickerName||"Sticker")+'">'
+    : esc(r.emoji||"");
+  return '<button class="dm-reaction '+(r.users.some(u=>u.userId===me.id)?"mine":"")+'" data-react="'+m.id+'" data-reaction-kind="'+kind+'" data-emoji="'+esc(r.emoji||"")+'" data-sticker-url="'+esc(r.stickerUrl||"")+'">'+visual+'<b>'+r.users.length+'</b></button>';
+}).join("")}
 function renderMessages(){const e=$("dm-messages");e.innerHTML=messages.map(m=>'<article class="dm-message" data-mid="'+m.id+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+(m.attachment?'<img class="'+(m.attachment.kind==="sticker"?"dm-sticker":"dm-gif")+'" src="'+esc(m.attachment.url)+'" alt="'+(m.attachment.kind==="sticker"?"Sticker":"GIF")+'" loading="lazy">':"")+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div></div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button><button data-action="delete"><i class="fa-regular fa-trash-can"></i></button>'+(m.senderId===me.id?'<button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>').join("");}
 function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button><button data-mm="delete">Delete for me</button>'+(m.senderId===me.id?'<button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
 let pickerContext={type:"compose",messageId:"",anchor:null};
+function closeReactionPopups(){
+  const picker=$("reaction-picker");if(picker)picker.hidden=true;
+  const users=$("reaction-users");if(users)users.hidden=true;
+  document.querySelectorAll(".dm-reaction-users").forEach(el=>el.remove());
+  $("friend-sticker-drawer")?.setAttribute("aria-hidden","true");
+}
+
 let emojiPickerElement=null;
 let emojiPickerLoading=null;
 function setPickerTab(tab){
+  const stickerTab=document.querySelector("#reaction-picker [data-picker-tab=\"stickers\"]");
+  const stickersAllowed=pickerContext.type==="reaction";
+  if(stickerTab)stickerTab.hidden=!stickersAllowed;
+  if(!stickersAllowed&&tab==="stickers")tab="emoji";
   document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(b=>b.classList.toggle("active",b.dataset.pickerTab===tab));
   document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(p=>p.classList.toggle("active",p.dataset.pickerPane===tab));
-  if(tab==="stickers") renderFriendStickers(me?.stickers||[]); else renderRecentEmojis();
+  if(tab==="stickers")renderFriendStickers(me?.stickers||[]);else renderRecentEmojis();
 }
 function renderRecentEmojis(){
   const wrap=$("friends-emoji-recent");if(!wrap)return;let recent=[];try{recent=JSON.parse(localStorage.getItem("lunar-recent-emojis")||"[]")}catch{}
@@ -248,8 +261,18 @@ async function openUnifiedPicker(tab="emoji",anchor=null,context={type:"compose"
   const slot=$("friends-sticker-slot"),drawer=$("friend-sticker-drawer");if(drawer&&slot&&drawer.parentElement!==slot)slot.appendChild(drawer);
   renderFriendStickers(me.stickers||[]);setPickerTab(tab);$("reaction-picker").hidden=false;positionUnifiedPicker(anchor);
 }
+async function reactToMessage(id,payload){
+  try{
+    await api("/api/friends/dms/messages/"+id+"/reactions",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    closeReactionPopups();
+    await loadMessages();
+  }catch(e){toast(e.message)}
+}
 async function reactToMessageByPicker(id,emoji){
-  try{await api("/api/friends/dms/messages/"+id+"/reactions",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});closeReactionPopups();await loadMessages()}catch(e){toast(e.message)}
+  await reactToMessage(id,{kind:"emoji",emoji});
+}
+async function reactToStickerByPicker(id,sticker){
+  await reactToMessage(id,{kind:"sticker",stickerUrl:sticker.url,stickerName:sticker.name||"Sticker"});
 }
 $("friends-emoji-recent")?.addEventListener("click",e=>{const b=e.target.closest("[data-recent-emoji]");if(!b)return;const emoji=b.dataset.recentEmoji;if(pickerContext.type==="reaction")reactToMessageByPicker(pickerContext.messageId,emoji);else{const input=$("dm-input");const start=input.selectionStart??input.value.length;const end=input.selectionEnd??start;input.setRangeText(emoji,start,end,"end");input.focus();closeReactionPopups()}});
 function showReactionPicker(m,anchor){openUnifiedPicker("emoji",anchor,{type:"reaction",messageId:m.id})}
@@ -258,11 +281,42 @@ $("reaction-picker").onclick=async e=>{
   if(e.target.closest("#emoji-sticker-close")){closeReactionPopups();return;}
   const sticker=e.target.closest("[data-friend-send-sticker]");
   if(sticker&&pickerContext.type==="reaction"){
-    try{await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"",attachment:{kind:"sticker",url:sticker.dataset.friendSendSticker,name:sticker.dataset.stickerName}})});closeReactionPopups();await loadMessages()}catch(x){toast(x.message)}
+    await reactToStickerByPicker(pickerContext.messageId,{url:sticker.dataset.friendSendSticker,name:sticker.dataset.stickerName});
   }
 }
-function showReactionUsers(m,anchor){closeReactionPopups();const p=document.createElement("div");p.className="dm-reaction-users";const users=(m.reactions||[]).flatMap(r=>(r.users||[]).map(u=>({emoji:r.emoji,username:u.username})));p.innerHTML="<strong>Reactions</strong>"+(users.length?users.map(u=>"<div>"+esc(u.emoji)+" @"+esc(u.username)+"</div>").join(""):"<div>No reactions yet.</div>");document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180)}
-$("dm-messages").onclick=async e=>{const profile=e.target.closest("[data-profile-user]");if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser,profile);return}const reaction=e.target.closest("[data-react]");if(reaction){const m=messages.find(x=>x.id===reaction.dataset.react);if(m)await reactToMessage(m,reaction.dataset.emoji);return}const action=e.target.closest("[data-action]");if(!action)return;const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);if(!m)return;if(action.dataset.action==="react"){showReactionPicker(m,action);return}showMenu(m,action)};
+function showReactionUsers(m,anchor){
+  closeReactionPopups();
+  const p=document.createElement("div");p.className="dm-reaction-users";
+  const users=(m.reactions||[]).flatMap(r=>(r.users||[]).map(u=>({reaction:r,username:u.username})));
+  p.innerHTML="<strong>Reactions</strong>"+(users.length?users.map(x=>{
+    const r=x.reaction;
+    const visual=r.kind==="sticker"?"<img class=\"dm-reaction-user-sticker\" src=\""+esc(r.stickerUrl)+"\" alt=\"Sticker\">":esc(r.emoji||"");
+    return "<div>"+visual+" @"+esc(x.username)+"</div>";
+  }).join(""):"<div>No reactions yet.</div>");
+  document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180);
+}
+$("dm-messages").onclick=async e=>{
+  const profile=e.target.closest("[data-profile-user]");
+  if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser,profile);return}
+  const reaction=e.target.closest("[data-react]");
+  if(reaction){
+    const m=messages.find(x=>x.id===reaction.dataset.react);
+    if(m){
+      const kind=reaction.dataset.reactionKind==="sticker"?"sticker":"emoji";
+      const payload=kind==="sticker"
+        ? {kind:"sticker",stickerUrl:reaction.dataset.stickerUrl,stickerName:"Sticker"}
+        : {kind:"emoji",emoji:reaction.dataset.emoji};
+      await reactToMessage(m.id,payload);
+    }
+    return;
+  }
+  const action=e.target.closest("[data-action]");
+  if(!action)return;
+  const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);
+  if(!m)return;
+  if(action.dataset.action==="react"){showReactionPicker(m,action);return}
+  showMenu(m,action)
+};
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
 $("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||m.attachment?.url||"");toast("Copied.")}else if(b.dataset.mm==="delete"){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
 let forwardContext={sourceType:"dm",messageId:"",excludeId:""};
@@ -320,7 +374,7 @@ $("gif-search-clear").onclick=()=>{$("gif-search-input").value="";loadGifs();$("
 $("gif-grid").onclick=async e=>{const card=e.target.closest(".gif-card");if(!card)return;const g=$("gif-grid")._gifs.find(x=>x.id===card.dataset.gifId);if(!g)return;const favorite=e.target.closest(".gif-fav");if(favorite){try{await api("/api/friends/gifs/favorites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gif:g})});favorite.classList.add("is-saved");favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';favorite.title="Saved GIF";toast("GIF saved to favourites.")}catch(x){toast(x.message)}return}gifDraft=g;$("gif-preview-image").src=g.preview||g.url;$("gif-preview").hidden=false;$("gif-panel").hidden=true;if(!$("dm-input").value.trim())$("dm-form").requestSubmit()};
 $("gif-preview-remove").onclick=()=>{gifDraft=null;$("gif-preview").hidden=true};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=closeModals);document.querySelector("[data-close-forward]").onclick=closeModals;
-document.addEventListener("click",e=>{if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest(".dm-reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}if(!$("gif-panel").hidden&&!e.target.closest("#gif-panel")&&!e.target.closest("#dm-gif"))$("gif-panel").hidden=true});
+document.addEventListener("click",e=>{if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest("#reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}if(!$("gif-panel").hidden&&!e.target.closest("#gif-panel")&&!e.target.closest("#dm-gif"))$("gif-panel").hidden=true});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("gif-panel").hidden=true;closeReactionPopups()}});
 setupGifs();bootstrap();setInterval(()=>{bootstrap();if(active)loadMessages()},5000);
 
