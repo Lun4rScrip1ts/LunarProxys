@@ -478,7 +478,7 @@
       currentUser.stickers = data.stickers || [];
       renderStickers(currentUser.stickers);
       closeStickerCreator();
-      stickerDrawer?.classList.add("open");
+      await openUnifiedPicker("stickers", document.getElementById("chat-emoji-button"), {type:"compose"});
       showToast("Sticker created and added to your collection.");
     } catch (error) {
       showToast(error.message);
