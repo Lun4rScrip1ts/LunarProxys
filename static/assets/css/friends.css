@@ -228,3 +228,9 @@ body.lunar-friends-page > #message-menu{
   max-width:calc(100vw - 16px)!important;
 }
 .lunar-friends-page .friends-app{z-index:10!important;}
+
+/* Unified anchored chat interactions */
+.lunar-friends-page .friends-profile-modal{background:transparent!important;padding:0!important;pointer-events:none!important;display:block!important;}
+.lunar-friends-page .friends-profile-card{position:fixed!important;left:12px;top:12px;width:min(380px,calc(100vw - 24px))!important;max-height:min(620px,calc(100vh - 24px));overflow:auto!important;pointer-events:auto!important;z-index:2147483640!important;}
+.lunar-friends-page .friends-profile-mutuals{margin-top:14px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07);color:#dfe2e7;font-size:12px}.friends-profile-mutuals>div{display:flex;gap:6px;margin-top:8px}.friends-profile-mutuals img,.friends-profile-mutuals span{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#292d35;color:#dfe2e7;font-size:9px;font-weight:800}
+.lunar-friends-page .dm-reaction-picker,.lunar-friends-page .dm-reaction-users{z-index:2147483647!important;}
