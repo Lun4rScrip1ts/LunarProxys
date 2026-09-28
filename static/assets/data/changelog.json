@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-09-28T17:00:00-04:00",
+  "updatedAt": "2026-09-28T19:30:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-compose-menu-auth-gate",
+      "timestamp": "2026-09-28T19:30:00-04:00",
+      "title": "Chat Tools & Lunar Access Gate",
+      "tag": "Major Update",
+      "items": [
+        "Moved GIFs, Emoji, and Stickers into a single + menu in Global Chat and Friends.",
+        "Repositioned the GIF and Emoji/Sticker panels around the new + button.",
+        "Fixed the Emoji panel so clicks inside it no longer close it unexpectedly.",
+        "Added a blurred glass registration prompt for visitors who are not logged in.",
+        "Added Register and Log In return flows so authentication sends you back to the page you opened."
+      ]
+    },
     {
       "id": "2026-09-28-friends-glass-compact",
       "timestamp": "2026-09-28T17:00:00-04:00",
