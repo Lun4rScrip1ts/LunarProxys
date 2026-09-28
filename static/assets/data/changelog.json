@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T19:01:00-04:00",
+  "updatedAt": "2026-09-28T17:00:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-glass-compact",
+      "timestamp": "2026-09-28T17:00:00-04:00",
+      "title": "Friends Glass & Layout Polish",
+      "tag": "UI",
+      "items": [
+        "Added a subtle glass surface across the Friends page and its panels.",
+        "Added a small gap below the top navigation so the Friends frame no longer touches it.",
+        "Tightened spacing across the sidebar, profile, messages, and composer.",
+        "Kept buttons lightly glassy with stronger contrast for important actions."
+      ]
+    },
     {
       "id": "2026-09-28-chat-stability",
       "timestamp": "2026-09-28T19:01:00-04:00",
