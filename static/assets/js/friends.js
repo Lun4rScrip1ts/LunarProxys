@@ -40,19 +40,20 @@ function closeFriendStickerDrawer(){
   drawer?.classList.remove("open");
   drawer?.setAttribute("aria-hidden","true");
 }
-const friendStickerCreateModal=$("friend-sticker-create-modal");
+const friendStickerCreateInline=$("friend-sticker-create-inline");
 const friendStickerCreateFile=$("friend-sticker-create-file");
 let friendStickerCreateData="";
 const openFriendStickerCreator=()=>{
-  friendStickerCreateModal.hidden=false;
-  friendStickerCreateModal.classList.add("open");
+  if(!friendStickerCreateInline)return;
+  friendStickerCreateInline.hidden=false;
   $("friend-sticker-create-form")?.reset();
   friendStickerCreateData="";
   $("friend-sticker-create-preview").innerHTML='<i class="fa-regular fa-image"></i>';
 };
 const closeFriendStickerCreator=()=>{
-  friendStickerCreateModal.hidden=true;
-  friendStickerCreateModal.classList.remove("open");
+  if(!friendStickerCreateInline)return;
+  friendStickerCreateInline.hidden=true;
+  friendStickerCreateData="";
 };
 const readFriendStickerFile=file=>new Promise((resolve,reject)=>{
   if(!file)return reject(new Error("Choose an image first."));
