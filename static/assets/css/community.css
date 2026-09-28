@@ -1108,3 +1108,26 @@ body.interface-glass .lunar-community-page .chat-form{
   opacity:1!important;
   visibility:visible!important;
 }
+
+
+/* Final Global Chat deletion and sticker-button polish */
+.lunar-community-page .chat-deleted{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  padding:5px 9px!important;
+  color:#777f8d!important;
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(255,255,255,.06)!important;
+  border-radius:8px!important;
+  font-size:11px!important;
+  font-style:italic!important;
+}
+.lunar-community-page .chat-message.is-deleted .chat-avatar{opacity:.7!important}
+.lunar-community-page .sticker-collection-button{
+  color:#b9b0ff!important;
+}
+.lunar-community-page .sticker-collection-button:hover{
+  background:rgba(145,117,255,.14)!important;
+  color:#fff!important;
+}
