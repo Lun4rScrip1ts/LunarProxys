@@ -379,3 +379,129 @@ body.lunar-community-page > .reaction-users{
 .lunar-community-page .profile-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.lunar-community-page .profile-actions button{border:0;border-radius:9px;padding:9px 15px;font-weight:800;color:#fff;cursor:pointer;transition:.16s ease;min-width:86px}.lunar-community-page .profile-actions button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}.lunar-community-page .profile-actions button:disabled{opacity:.55;cursor:default}.lunar-community-page .message-action{background:#5865f2}.lunar-community-page .friend-action{background:#248046}.lunar-community-page .block-action{background:#3a3d44}
 .lunar-community-page > #sticker-drawer{position:fixed!important;right:auto!important;bottom:auto!important;z-index:2147483646!important;margin:0!important;}
 @media(max-width:800px){.lunar-community-page .friends-profile-stickers{grid-template-columns:repeat(4,1fr)}.lunar-community-page .friends-profile-body{padding:0 20px 22px;}}
+
+
+/* Lunar Global Chat refinement */
+.lunar-community-page .chat-card{
+  overflow:visible!important;
+  border-radius:18px!important;
+}
+.lunar-community-page .chat-messages{
+  padding:12px 20px 16px!important;
+}
+.lunar-community-page .chat-message{
+  padding:8px 7px!important;
+  gap:9px!important;
+  border-radius:8px!important;
+}
+.lunar-community-page .chat-avatar,
+.lunar-community-page .chat-avatar .chat-profile-trigger{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+}
+.lunar-community-page .chat-message-body{
+  max-width:min(760px,84%)!important;
+}
+.lunar-community-page .chat-text{
+  font-size:13px!important;
+  line-height:1.42!important;
+}
+.lunar-community-page .chat-meta{
+  gap:6px!important;
+}
+.lunar-community-page .chat-name.chat-profile-trigger{
+  font-size:12px!important;
+}
+.lunar-community-page .chat-username,
+.lunar-community-page .chat-time{
+  font-size:9px!important;
+}
+.lunar-community-page .chat-form{
+  gap:6px!important;
+  padding:8px 10px!important;
+}
+.lunar-community-page .chat-tool,
+.lunar-community-page .chat-send{
+  width:34px!important;
+  height:34px!important;
+}
+.lunar-community-page .global-gif-panel{
+  position:fixed!important;
+  right:18px!important;
+  bottom:70px!important;
+  z-index:2147483000!important;
+  width:min(390px,calc(100vw - 24px))!important;
+  height:min(470px,calc(100vh - 92px))!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:16px!important;
+  background:rgba(24,26,30,.98)!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.58)!important;
+}
+.lunar-community-page .global-gif-panel[hidden]{
+  display:none!important;
+}
+.lunar-community-page .global-gif-panel .gif-head{
+  flex:0 0 auto!important;
+  padding:11px 12px!important;
+}
+.lunar-community-page .global-gif-panel .gif-search{
+  flex:0 0 auto!important;
+  margin:0 11px!important;
+}
+.lunar-community-page .global-gif-panel .gif-tabs{
+  flex:0 0 auto!important;
+  padding:7px 11px 5px!important;
+}
+.lunar-community-page .global-gif-panel .gif-grid{
+  min-height:0!important;
+  flex:1 1 auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+  padding:7px 11px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  align-content:start!important;
+}
+.lunar-community-page .global-gif-panel .gif-card{
+  position:relative!important;
+  width:100%!important;
+  min-width:0!important;
+  aspect-ratio:1.28!important;
+  border:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:8px!important;
+}
+.lunar-community-page .global-gif-panel .gif-card img{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+}
+.lunar-community-page .global-gif-panel .gif-status{
+  flex:0 0 auto!important;
+  min-height:18px!important;
+  padding:4px 11px 7px!important;
+}
+.lunar-community-page .friends-profile-card{
+  background-color:#181a1e!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  background-position:center!important;
+}
+@media(max-width:700px){
+  .lunar-community-page .chat-messages{padding:9px 7px 12px!important}
+  .lunar-community-page .chat-message{padding:7px 4px!important}
+  .lunar-community-page .global-gif-panel{
+    right:8px!important;
+    bottom:58px!important;
+    width:calc(100vw - 16px)!important;
+    height:min(430px,calc(100vh - 72px))!important;
+  }
+}
