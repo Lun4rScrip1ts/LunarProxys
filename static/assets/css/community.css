@@ -343,3 +343,15 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
   position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
   transform:none!important;margin:0!important;
 }
+
+/* Reaction overlays must sit above the entire Global Chat frame and composer. */
+body.lunar-community-page > .reaction-picker,
+body.lunar-community-page > .reaction-users{
+  position:fixed!important;
+  z-index:2147483647!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+  transform:none!important;
+  max-width:calc(100vw - 16px)!important;
+}
+.lunar-community-page .chat-card{z-index:10!important;}
