@@ -857,10 +857,38 @@ router.patch("/friends/dms/messages/:id/reactions", requireUser, async (req, res
 
 router.post("/friends/dms/messages/:id/forward", requireUser, async (req, res) => {
   const source = state.dmMessages.find(item => item.id === req.params.id);
-  const target = findUser(cleanText(req.body?.recipientId, 80));
-  if (!source || !target || source.senderId === target.id && target.id === req.user.id) return res.status(404).json({ error: "Message not found." });
+  if (!source) return res.status(404).json({ error: "Message not found." });
   if (![source.senderId, source.recipientId].includes(req.user.id)) return res.status(403).json({ error: "You cannot forward this message." });
-  if (target.id === req.user.id || !areFriends(req.user.id, target.id) || isBlocked(req.user.id, target.id)) return res.status(403).json({ error: "You can only forward to a friend." });
+
+  const targetType = cleanText(req.body?.targetType, 20) || "friend";
+  if (targetType === "global") {
+    const message = {
+      id: randomUUID(),
+      userId: req.user.id,
+      username: req.user.username,
+      displayName: req.user.displayName,
+      avatarUrl: req.user.avatarUrl || "",
+      message: source.message || "",
+      attachments: source.attachment ? [{...source.attachment}] : [],
+      replyTo: null,
+      reactions: [],
+      forwarded: true,
+      createdAt: new Date().toISOString(),
+      editedAt: "",
+    };
+    state.messages.push(message);
+    if (state.messages.length > MAX_MESSAGES) state.messages = state.messages.slice(-MAX_MESSAGES);
+    await persist();
+    return res.status(201).json({ message });
+  }
+
+  const target = findUser(cleanText(req.body?.recipientId, 80));
+  if (!target || target.id === req.user.id || target.id === source.senderId || target.id === source.recipientId) {
+    return res.status(400).json({ error: "You cannot forward a message to the same conversation." });
+  }
+  if (!areFriends(req.user.id, target.id) || isBlocked(req.user.id, target.id)) {
+    return res.status(403).json({ error: "You can only forward to a friend." });
+  }
 
   const thread = getDmThread(req.user.id, target.id, true);
   const message = {
