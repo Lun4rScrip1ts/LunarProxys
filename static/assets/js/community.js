@@ -482,7 +482,10 @@
       currentUser.stickers = data.stickers || [];
       renderStickers(currentUser.stickers);
       closeStickerCreator();
-      await openUnifiedPicker("stickers", document.getElementById("chat-emoji-button"), {type:"compose"});
+      const context = pickerContext.type === "reaction"
+        ? pickerContext
+        : {type:"reaction",messageId:"",anchor:document.getElementById("chat-emoji-button")};
+      await openUnifiedPicker("stickers", context.anchor || document.getElementById("chat-emoji-button"), context);
       showToast("Sticker created and added to your collection.");
     } catch (error) {
       showToast(error.message);
