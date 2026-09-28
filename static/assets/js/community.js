@@ -198,42 +198,107 @@
   async function openChatProfile(username, anchor = null) {
     try {
       const data = await api("/api/users/" + encodeURIComponent(username));
-      const user = data.user || data;
-      let modal = document.getElementById("global-profile-modal");
-      if (!modal) { modal = document.createElement("div"); modal.id = "global-profile-modal"; modal.className = "global-profile-modal"; document.body.appendChild(modal); }
-      const mutuals = Array.isArray(user.mutualFriends) ? user.mutualFriends : [];
-      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><button class="global-profile-menu-button" type="button" aria-label="More profile options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="global-profile-menu" hidden><a href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+`<div class="global-profile-mutuals"><strong>${mutuals.length ? mutuals.length+" Mutual Friend"+(mutuals.length===1?"":"s") : "No Mutual Friends"}</strong>${mutuals.length?`<div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${escapeAttr(m.avatarUrl)}" alt="@${escapeAttr(m.username)}" title="@${escapeAttr(m.username)}">`:`<span title="@${escapeAttr(m.username)}">${escape(initials(m.displayName||m.username))}</span>`).join("")}</div>`:""}</div>`+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'<div class="global-profile-actions" '+(user.isSelf || !currentUser?'hidden':'')+'><button type="button" class="global-profile-message">Message</button><button type="button" class="global-profile-friend">'+(user.isFriend?'Added':(user.friendRequestPending?'Pending':'Friend'))+'</button><button type="button" class="global-profile-block">'+(user.isBlocked?'Blocked':'Block')+'</button></div></div></div>';
-      const menuButton = modal.querySelector(".global-profile-menu-button");
-      const menu = modal.querySelector(".global-profile-menu");
-      menuButton.onclick = event => { event.stopPropagation(); menu.hidden = !menu.hidden; menuButton.setAttribute("aria-expanded", String(!menu.hidden)); };
-      modal.querySelector(".global-profile-close").onclick=()=>modal.remove();
-      modal.onclick=e=>{if(e.target===modal)modal.remove()};
-      const card=modal.querySelector(".global-profile-card");
-      if(anchor&&card){const r=anchor.getBoundingClientRect(),w=card.offsetWidth||360,h=card.offsetHeight||420;let left=r.right+12,top=r.top;if(left+w>innerWidth-12)left=Math.max(12,r.left-w-12);if(top+h>innerHeight-12)top=Math.max(12,innerHeight-h-12);card.style.left=left+"px";card.style.top=top+"px";}
-      const messageButton=modal.querySelector(".global-profile-message");
-      const friendButton=modal.querySelector(".global-profile-friend");
-      const blockButton=modal.querySelector(".global-profile-block");
-      messageButton?.addEventListener("click",()=>{location.href="/friends?user="+encodeURIComponent(user.username)});
-      if(friendButton){
-        friendButton.disabled=!!user.isFriend||!!user.friendRequestPending;
-        friendButton.addEventListener("click",async()=>{
-          try{
-            await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user.username})});
-            friendButton.textContent="Pending"; friendButton.disabled=true; showToast("Friend request sent.");
-          }catch(e){showToast(e.message)}
-        });
+      const u = data.user;
+      if (!u) return;
+
+      let modal = document.getElementById("friends-profile-modal");
+      if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "friends-profile-modal";
+        modal.className = "friends-profile-modal";
+        modal.hidden = true;
+        modal.innerHTML = '<div class="friends-profile-card"><button id="friends-profile-close" class="friends-profile-close" type="button" aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button><div id="friends-profile-banner" class="friends-profile-banner"></div><div class="friends-profile-body"><div id="friends-profile-avatar" class="friends-profile-avatar"></div><div class="friends-profile-name"><h2 id="friends-profile-display"></h2><span id="friends-profile-owner" hidden>Owner</span></div><div id="friends-profile-username" class="friends-profile-username"></div><div id="friends-profile-status" class="friends-profile-status"></div><p id="friends-profile-bio" class="friends-profile-bio"></p><div id="friends-profile-actions" class="profile-actions"><button id="friends-profile-message" type="button" class="message-action">Message</button><button id="friends-profile-friend" type="button" class="friend-action">Friend</button><button id="friends-profile-block" type="button" class="block-action">Block</button></div><div id="friends-profile-roles" class="friends-profile-roles"></div><div id="friends-profile-stickers" class="friends-profile-stickers"></div></div></div>';
+        document.body.appendChild(modal);
       }
-      if(blockButton){
-        blockButton.disabled=!!user.isBlocked;
-        blockButton.addEventListener("click",async()=>{
-          if(!confirm("Block @"+user.username+"?"))return;
-          try{
-            await api("/api/friends/block/"+encodeURIComponent(user.id),{method:"POST"});
-            blockButton.textContent="Blocked"; blockButton.disabled=true; showToast("User blocked."); modal.remove();
-          }catch(e){showToast(e.message)}
-        });
+
+      const avatarHtml = user => user && user.avatarUrl
+        ? '<img src="' + escapeAttr(user.avatarUrl) + '" alt="" onerror="this.style.display=\\'none\\'">'
+        : escape(initials(user && (user.displayName || user.username)));
+
+      document.getElementById("friends-profile-avatar").innerHTML = avatarHtml(u);
+      document.getElementById("friends-profile-display").textContent = u.displayName || u.username;
+      document.getElementById("friends-profile-username").textContent = "@" + u.username;
+      document.getElementById("friends-profile-status").textContent = u.status || "Online";
+      document.getElementById("friends-profile-bio").textContent = u.bio || "No bio yet.";
+      document.getElementById("friends-profile-owner").hidden = !u.isOwner;
+      document.getElementById("friends-profile-roles").innerHTML = (u.roles || []).map(r => "<span>" + escape(r) + "</span>").join("");
+      document.getElementById("friends-profile-stickers").innerHTML = (u.stickers || []).slice(0, 12).map(s => '<img src="' + escapeAttr(s.url) + '" alt="' + escapeAttr(s.name || "Sticker") + '" loading="lazy">').join("");
+
+      const banner = document.getElementById("friends-profile-banner");
+      banner.style.backgroundImage = u.bannerUrl ? 'url("' + String(u.bannerUrl).replace(/"/g, '\\\"') + '")' : "none";
+
+      const card = modal.querySelector(".friends-profile-card");
+      const bg = u.backgroundUrl || "";
+      card.style.backgroundImage = bg
+        ? 'linear-gradient(180deg,rgba(10,12,17,.18),rgba(10,12,17,.94) 62%),url("' + String(bg).replace(/"/g, '\\\"') + '")'
+        : "linear-gradient(180deg,#20242d,#17191e)";
+      card.style.backgroundSize = bg ? "cover" : "auto";
+      card.style.backgroundPosition = "center";
+
+      const actions = document.getElementById("friends-profile-actions");
+      const mutuals = Array.isArray(u.mutualFriends) ? u.mutualFriends : [];
+      let mutualBox = document.getElementById("friends-profile-mutuals");
+      if (!mutualBox) {
+        mutualBox = document.createElement("div");
+        mutualBox.id = "friends-profile-mutuals";
+        mutualBox.className = "friends-profile-mutuals";
+        actions.before(mutualBox);
       }
-    } catch(e) { showToast(e.message); }
+      mutualBox.innerHTML = mutuals.length
+        ? '<strong>' + mutuals.length + ' Mutual Friend' + (mutuals.length === 1 ? "" : "s") + '</strong><div>' +
+          mutuals.slice(0, 6).map(m => m.avatarUrl
+            ? '<img src="' + escapeAttr(m.avatarUrl) + '" alt="@' + escapeAttr(m.username) + '" title="@' + escapeAttr(m.username) + '">'
+            : '<span title="@' + escapeAttr(m.username) + '">' + escape(initials(m.displayName || m.username)) + '</span>').join("") +
+          '</div>'
+        : "<strong>No Mutual Friends</strong>";
+
+      actions.hidden = !!u.isSelf;
+      const message = document.getElementById("friends-profile-message");
+      const friend = document.getElementById("friends-profile-friend");
+      const block = document.getElementById("friends-profile-block");
+
+      message.onclick = () => { location.href = "/friends?user=" + encodeURIComponent(u.username); };
+      friend.textContent = u.isFriend ? "Added" : (u.friendRequestPending ? "Pending" : "Friend");
+      friend.disabled = !!u.isFriend || !!u.friendRequestPending;
+      friend.onclick = async () => {
+        try {
+          await api("/api/friends/requests", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
+          friend.textContent = "Pending";
+          friend.disabled = true;
+          showToast("Friend request sent.");
+        } catch (e) { showToast(e.message); }
+      };
+      block.textContent = u.isBlocked ? "Blocked" : "Block";
+      block.disabled = !!u.isBlocked;
+      block.onclick = async () => {
+        if (!confirm("Block @" + u.username + "?")) return;
+        try {
+          await api("/api/friends/block/" + encodeURIComponent(u.id), {method:"POST"});
+          block.textContent = "Blocked";
+          block.disabled = true;
+          showToast("User blocked.");
+          modal.hidden = true;
+        } catch (e) { showToast(e.message); }
+      };
+
+      modal.hidden = false;
+      modal.onclick = e => { if (e.target === modal) modal.hidden = true; };
+      document.getElementById("friends-profile-close").onclick = () => { modal.hidden = true; };
+
+      if (anchor) {
+        const r = anchor.getBoundingClientRect();
+        const w = card.offsetWidth || 380;
+        const h = card.offsetHeight || 520;
+        let left = r.right + 12;
+        let top = r.top;
+        if (left + w > innerWidth - 12) left = Math.max(12, r.left - w - 12);
+        if (top + h > innerHeight - 12) top = Math.max(12, innerHeight - h - 12);
+        card.style.left = left + "px";
+        card.style.top = top + "px";
+      }
+    } catch (e) {
+      showToast(e.message);
+    }
   }
 
   function renderStickers(stickers) {
@@ -555,7 +620,7 @@
     renderStickers(currentUser.stickers || []);
     stickerDrawer.classList.add("open");
     stickerDrawer.setAttribute("aria-hidden","false");
-    if(anchor){const r=anchor.getBoundingClientRect();const w=Math.min(390,innerWidth-32);const h=Math.min(520,Math.floor(innerHeight*.7));let left=Math.max(16,Math.min(innerWidth-w-16,r.left+w>innerWidth-16?r.right-w:r.left));let top=r.top-h-10;if(top<16)top=Math.min(innerHeight-h-16,r.bottom+10);stickerDrawer.style.left=left+"px";stickerDrawer.style.right="auto";stickerDrawer.style.top=top+"px";stickerDrawer.style.bottom="auto";}
+    if(anchor){const r=anchor.getBoundingClientRect();const w=Math.min(390,innerWidth-24);const h=Math.min(520,Math.floor(innerHeight*.7));const gap=8;let left=Math.max(12,Math.min(innerWidth-w-12,r.left+r.width/2-w/2));const above=r.top-gap-h;const below=r.bottom+gap;let top=above>=12?above:(below+h<=innerHeight-12?below:Math.max(12,Math.min(innerHeight-h-12,above)));stickerDrawer.style.left=left+"px";stickerDrawer.style.right="auto";stickerDrawer.style.top=top+"px";stickerDrawer.style.bottom="auto";}
   }
   function closeStickerDrawer() {
     stickerDrawer.classList.remove("open");
