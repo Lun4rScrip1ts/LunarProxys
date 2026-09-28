@@ -5,7 +5,7 @@
     const logo = document.querySelector(".lunar-nav-logo");
     const brand = document.querySelector(".lunar-brand");
     if (brand) brand.remove();
-    if (logo) { logo.textContent = "LS"; logo.setAttribute("aria-label", "LS"); }
+    if (logo) { logo.setAttribute("aria-label", "Lunar Studios"); }
     document.body.classList.add("ls-ready");
     if (title) title.textContent = "Lunar Proxy";
     if (splash) splash.textContent = "A cleaner way to explore the web.";
