@@ -172,7 +172,7 @@
     lastSignature = signature;
 
     messagesEl.innerHTML = messagesList.map(message => `
-      <article class="chat-message" data-message-id="${message.id}">
+      <article class="chat-message ${message.deletedAt ? "is-deleted" : ""}" data-message-id="${message.id}" data-own-message="${message.userId === currentUser?.id ? "true" : "false"}">
         <div class="chat-avatar"><button type="button" class="chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${avatar(message)}</button></div>
         <div class="chat-message-body">
           <div class="chat-meta">
@@ -182,16 +182,16 @@
           </div>
           ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
           ${message.replyTo ? `<button type="button" class="chat-reply-preview" data-jump-to="${escapeAttr(message.replyTo.id)}"><i class="fa-solid fa-reply"></i><span>Replying to <b>@${escape(message.replyTo.username)}</b>: ${escape((message.replyTo.message || "[attachment]").slice(0, 90))}</span></button>` : ""}
-          <div class="chat-text">${escape(message.message)}</div>
+          ${message.deletedAt ? `<div class="chat-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>` : `<div class="chat-text">${escape(message.message)}</div>
           ${attachmentHtml(message)}
           ${message.editedAt ? `<div class="chat-edited" title="${escapeAttr("Edited " + time(message.editedAt))}">Edited</div>` : ""}
-          <div class="reaction-row">${reactionHtml(message)}</div>
+          <div class="reaction-row">${reactionHtml(message)}</div>`}
         </div>
         <div class="message-actions" aria-label="Message actions">
           <button type="button" data-action="react" title="Add reaction"><i class="fa-regular fa-face-smile"></i></button>
           <button type="button" data-action="reply" title="Reply"><i class="fa-solid fa-reply"></i></button>
           <button type="button" data-action="forward" title="Forward"><i class="fa-solid fa-share"></i></button>
-          ${message.userId === currentUser?.id ? `<button type="button" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>` : ""}
+          ${message.userId === currentUser?.id && !message.deletedAt ? `<button type="button" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button><button type="button" data-action="delete" title="Delete"><i class="fa-regular fa-trash-can"></i></button>` : ""}
         </div>
       </article>
     `).join("");
@@ -707,6 +707,16 @@
   });
 
   messagesEl.addEventListener("click", async event => {
+    const messageArticle = event.target.closest("[data-message-id]");
+    if (event.shiftKey && messageArticle?.dataset.ownMessage === "true" && !event.target.closest("button, a, input, textarea")) {
+      try {
+        await api("/api/chat/messages/" + encodeURIComponent(messageArticle.dataset.messageId), {method:"DELETE"});
+        showToast("Message deleted.");
+        await refresh();
+      } catch (error) { showToast(error.message); }
+      return;
+    }
+
     const reactionButton = event.target.closest("[data-reaction-message]");
     if (reactionButton) {
       const id = reactionButton.dataset.reactionMessage;
@@ -733,6 +743,10 @@
       if (action.dataset.action === "reply") openReply(message);
       if (action.dataset.action === "edit") openEdit(message);
       if (action.dataset.action === "forward") openForwardGlobal(message);
+      if (action.dataset.action === "delete" && message.userId === currentUser?.id && !message.deletedAt) {
+        try { await api("/api/chat/messages/" + encodeURIComponent(message.id), {method:"DELETE"}); showToast("Message deleted."); await refresh(); }
+        catch (error) { showToast(error.message); }
+      }
       return;
     }
 
