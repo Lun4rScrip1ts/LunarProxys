@@ -215,3 +215,16 @@
   margin:0!important;
   z-index:2147483000!important;
 }
+
+/* Reaction overlays must sit above the entire DM frame and composer. */
+body.lunar-friends-page > .dm-reaction-picker,
+body.lunar-friends-page > .dm-reaction-users,
+body.lunar-friends-page > #message-menu{
+  position:fixed!important;
+  z-index:2147483647!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+  transform:none!important;
+  max-width:calc(100vw - 16px)!important;
+}
+.lunar-friends-page .friends-app{z-index:10!important;}
