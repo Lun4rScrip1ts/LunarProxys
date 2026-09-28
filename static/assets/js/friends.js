@@ -72,14 +72,11 @@ friendStickerCreateFile?.addEventListener("change",async e=>{
 });
 $("friend-sticker-browse")?.addEventListener("click",()=>friendStickerCreateFile?.click());
 $("friend-sticker-upload-zone")?.addEventListener("click",e=>{if(!e.target.closest("button"))friendStickerCreateFile?.click()});
-$("dm-sticker")?.addEventListener("click",openFriendStickerDrawer);
-$("friend-close-sticker-drawer")?.addEventListener("click",closeFriendStickerDrawer);
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeFriendStickerDrawer();}});
-document.addEventListener("click",e=>{
-  const drawer=$("friend-sticker-drawer");
-  if(drawer?.classList.contains("open")&&!drawer.contains(e.target)&&!e.target.closest("#dm-sticker"))closeFriendStickerDrawer();
-});
-$("friend-open-sticker-create")?.addEventListener("click",openFriendStickerCreator);
+$("dm-emoji-button")?.addEventListener("click",e=>openUnifiedPicker("emoji",e.currentTarget,{type:"compose"}));
+$("friend-close-sticker-drawer")?.addEventListener("click",()=>closeReactionPopups());
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeReactionPopups();}});
+document.addEventListener("click",e=>{if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(e.target)&&!e.target.closest("#dm-emoji-button")&&!e.target.closest("[data-action=\"react\"]"))closeReactionPopups();});
+$("friend-open-sticker-create")?.addEventListener("click",async()=>{await openUnifiedPicker("stickers",$("dm-emoji-button"),{type:"compose"});openFriendStickerCreator();});
 $("friend-close-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-cancel-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
@@ -97,7 +94,7 @@ $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
     me.stickers=data.stickers||[];
     renderFriendStickers(me.stickers);
     closeFriendStickerCreator();
-    openFriendStickerDrawer();
+    await openUnifiedPicker("stickers",$("dm-emoji-button"),{type:"compose"});
     toast("Sticker created and added to your collection.");
   }catch(error){toast(error.message)}
   finally{button.disabled=false}
@@ -107,7 +104,7 @@ $("friend-sticker-grid")?.addEventListener("click",async e=>{
   if(!card||!active)return;
   try{
     await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"",attachment:{kind:"sticker",url:card.dataset.friendSendSticker,name:card.dataset.stickerName}})});
-    closeFriendStickerDrawer();
+    closeReactionPopups();
     await loadMessages();
   }catch(error){toast(error.message)}
 });
@@ -209,11 +206,55 @@ async function loadMessages(forceBottom=false){if(!active)return;try{const e=$("
 function reactionHtml(m){return(m.reactions||[]).map(r=>'<button class="dm-reaction '+(r.users.some(u=>u.userId===me.id)?"mine":"")+'" data-react="'+m.id+'" data-emoji="'+esc(r.emoji)+'">'+esc(r.emoji)+" "+r.users.length+"</button>").join("")}
 function renderMessages(){const e=$("dm-messages");e.innerHTML=messages.map(m=>'<article class="dm-message" data-mid="'+m.id+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+(m.attachment?'<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">':"")+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div></div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button><button data-action="delete"><i class="fa-regular fa-trash-can"></i></button>'+(m.senderId===me.id?'<button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>').join("");}
 function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button><button data-mm="delete">Delete for me</button>'+(m.senderId===me.id?'<button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
-const REACTION_EMOJIS=["👍","❤️","😂","😮","😢","🎉","🔥","👎"];
-function closeReactionPopups(){document.querySelectorAll(".dm-reaction-picker,.dm-reaction-users").forEach(x=>x.remove())}
-function positionPopup(el,rect,width,height){let left=Math.max(8,Math.min(innerWidth-width-8,rect.left));let top=rect.bottom+6;if(top+height>innerHeight-8)top=Math.max(8,rect.top-height-6);el.style.left=left+"px";el.style.top=top+"px"}
-async function reactToMessage(m,emoji){try{await api("/api/friends/dms/messages/"+m.id+"/reactions",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});closeReactionPopups();await loadMessages()}catch(x){toast(x.message)}}
-function showReactionPicker(m,anchor){closeReactionPopups();const p=document.createElement("div");p.className="dm-reaction-picker";p.innerHTML=REACTION_EMOJIS.map(x=>'<button type="button" data-emoji="'+esc(x)+'">'+x+'</button>').join("");document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),300,46);p.onclick=async e=>{const b=e.target.closest("[data-emoji]");if(b)await reactToMessage(m,b.dataset.emoji)}}
+let pickerContext={type:"compose",messageId:"",anchor:null};
+let emojiPickerElement=null;
+let emojiPickerLoading=null;
+function setPickerTab(tab){
+  document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(b=>b.classList.toggle("active",b.dataset.pickerTab===tab));
+  document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(p=>p.classList.toggle("active",p.dataset.pickerPane===tab));
+  if(tab==="stickers") renderFriendStickers(me?.stickers||[]);
+}
+async function ensureEmojiPicker(){
+  if(emojiPickerElement)return emojiPickerElement;
+  if(emojiPickerLoading)return emojiPickerLoading;
+  emojiPickerLoading=(async()=>{
+    if(!customElements.get("emoji-picker"))await import("https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js");
+    await customElements.whenDefined("emoji-picker");
+    const host=$("friends-emoji-picker-host");if(!host)return null;
+    emojiPickerElement=document.createElement("emoji-picker");emojiPickerElement.className="dark";emojiPickerElement.setAttribute("locale","en");
+    host.replaceChildren(emojiPickerElement);
+    emojiPickerElement.addEventListener("emoji-click",async e=>{
+      const emoji=e.detail?.unicode;if(!emoji)return;
+      if(pickerContext.type==="reaction"){await reactToMessageByPicker(pickerContext.messageId,emoji);return;}
+      const input=$("dm-input");const start=input.selectionStart??input.value.length;const end=input.selectionEnd??start;input.setRangeText(emoji,start,end,"end");input.focus();closeReactionPopups();
+    });
+    return emojiPickerElement;
+  })().catch(e=>{emojiPickerLoading=null;toast("Emoji picker could not load. Please try again.");throw e});
+  return emojiPickerLoading;
+}
+function positionUnifiedPicker(anchor){
+  const rect=(anchor||$("dm-emoji-button"))?.getBoundingClientRect();const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
+  let left=rect?rect.left+rect.width/2-width/2:(innerWidth-width)/2,top=rect?rect.top-height-8:80;if(top<8)top=rect?rect.bottom+8:80;
+  const p=$("reaction-picker");p.style.width=width+"px";p.style.left=Math.max(8,Math.min(innerWidth-width-8,left))+"px";p.style.top=Math.max(8,Math.min(innerHeight-height-8,top))+"px";
+}
+async function openUnifiedPicker(tab="emoji",anchor=null,context={type:"compose"}){
+  if(!me){location.href="/account";return;}
+  pickerContext=context;await ensureEmojiPicker();
+  const slot=$("friends-sticker-slot"),drawer=$("friend-sticker-drawer");if(drawer&&slot&&drawer.parentElement!==slot)slot.appendChild(drawer);
+  renderFriendStickers(me.stickers||[]);setPickerTab(tab);$("reaction-picker").hidden=false;positionUnifiedPicker(anchor);
+}
+async function reactToMessageByPicker(id,emoji){
+  try{await api("/api/friends/dms/messages/"+id+"/reactions",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});closeReactionPopups();await loadMessages()}catch(e){toast(e.message)}
+}
+function showReactionPicker(m,anchor){openUnifiedPicker("emoji",anchor,{type:"reaction",messageId:m.id})}
+$("reaction-picker").onclick=async e=>{
+  const tab=e.target.closest("[data-picker-tab]");if(tab){setPickerTab(tab.dataset.pickerTab);return;}
+  if(e.target.closest("#emoji-sticker-close")){closeReactionPopups();return;}
+  const sticker=e.target.closest("[data-friend-send-sticker]");
+  if(sticker&&pickerContext.type==="reaction"){
+    try{await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"",attachment:{kind:"sticker",url:sticker.dataset.friendSendSticker,name:sticker.dataset.stickerName}})});closeReactionPopups();await loadMessages()}catch(x){toast(x.message)}
+  }
+}
 function showReactionUsers(m,anchor){closeReactionPopups();const p=document.createElement("div");p.className="dm-reaction-users";const users=(m.reactions||[]).flatMap(r=>(r.users||[]).map(u=>({emoji:r.emoji,username:u.username})));p.innerHTML="<strong>Reactions</strong>"+(users.length?users.map(u=>"<div>"+esc(u.emoji)+" @"+esc(u.username)+"</div>").join(""):"<div>No reactions yet.</div>");document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180)}
 $("dm-messages").onclick=async e=>{const profile=e.target.closest("[data-profile-user]");if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser,profile);return}const reaction=e.target.closest("[data-react]");if(reaction){const m=messages.find(x=>x.id===reaction.dataset.react);if(m)await reactToMessage(m,reaction.dataset.emoji);return}const action=e.target.closest("[data-action]");if(!action)return;const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);if(!m)return;if(action.dataset.action==="react"){showReactionPicker(m,action);return}showMenu(m,action)};
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
