@@ -790,3 +790,40 @@ body.interface-glass .lunar-friends-page input{
   color:#fff!important;
 }
 @media(max-width:600px){.lunar-friends-page .sticker-upload-zone{grid-template-columns:56px 1fr}.lunar-friends-page .sticker-upload-zone>button{grid-column:2}.lunar-friends-page .sticker-create-row{grid-template-columns:1fr}}
+
+body.interface-glass .lunar-friends-page .friends-app,
+body.interface-glass .lunar-friends-page .friends-server-rail,
+body.interface-glass .lunar-friends-page .friends-sidebar,
+body.interface-glass .lunar-friends-page .friends-sidebar-head,
+body.interface-glass .lunar-friends-page .friends-tabs,
+body.interface-glass .lunar-friends-page .friends-search-bar,
+body.interface-glass .lunar-friends-page .friends-list,
+body.interface-glass .lunar-friends-page .dm-panel,
+body.interface-glass .lunar-friends-page .dm-empty,
+body.interface-glass .lunar-friends-page .dm-view,
+body.interface-glass .lunar-friends-page .dm-topbar,
+body.interface-glass .lunar-friends-page .dm-profile-intro,
+body.interface-glass .lunar-friends-page .dm-messages,
+body.interface-glass .lunar-friends-page .dm-context,
+body.interface-glass .lunar-friends-page .dm-composer,
+body.interface-glass .lunar-friends-page .friends-head-actions button,
+body.interface-glass .lunar-friends-page .icon-button,
+body.interface-glass .lunar-friends-page .primary-button,
+body.interface-glass .lunar-friends-page .profile-actions button,
+body.interface-glass .lunar-friends-page .composer-icon,
+body.interface-glass .lunar-friends-page .dm-send{
+  background-color:rgba(17,21,29,var(--interface-glass-alpha,.54))!important;
+  border-color:rgba(255,255,255,.1)!important;
+  color:#f2f4f8!important;
+}
+body.interface-glass .lunar-friends-page .friends-sidebar,
+body.interface-glass .lunar-friends-page .dm-panel,
+body.interface-glass .lunar-friends-page .dm-view,
+body.interface-glass .lunar-friends-page .dm-messages{
+  -webkit-backdrop-filter:blur(var(--interface-glass-blur,19px)) saturate(145%)!important;
+  backdrop-filter:blur(var(--interface-glass-blur,19px)) saturate(145%)!important;
+}
+body.interface-glass .lunar-friends-page .friends-list,
+body.interface-glass .lunar-friends-page .dm-messages{
+  color:#f2f4f8!important;
+}
