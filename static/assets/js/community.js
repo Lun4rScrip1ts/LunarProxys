@@ -847,15 +847,6 @@
     if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(event.target) && !event.target.closest("#chat-emoji-button") && !event.target.closest("[data-action=\"react\"]")) closePopovers();
     if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(event.target) && !event.target.closest("#chat-gif-button")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
   });
-  stickerGrid.addEventListener("click", async event => {
-    const sticker = event.target.closest("[data-send-sticker]");
-    if (!sticker) return;
-    try {
-      await sendMessage("", {url:sticker.dataset.sendSticker, kind:"sticker", name:sticker.dataset.stickerName});
-      closeStickerDrawer();
-    } catch (error) { showToast(error.message); }
-  });
-
   document.addEventListener("click", event => {
     if (!event.target.closest(".reaction-picker") && !event.target.closest("[data-action='react']")) reactionPicker.hidden = true;
     if (!event.target.closest(".reaction-users") && !event.target.closest("[data-reaction-message]")) reactionUsers.hidden = true;
