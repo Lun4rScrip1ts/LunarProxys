@@ -1,0 +1,42 @@
+{
+  "updatedAt": "2026-09-28T19:01:00-04:00",
+  "entries": [
+    {
+      "id": "2026-09-28-chat-stability",
+      "timestamp": "2026-09-28T19:01:00-04:00",
+      "title": "Chat & Friends Stability Update",
+      "tag": "Major Update",
+      "items": [
+        "Added shared message deletion with a visible Message deleted state.",
+        "Added Shift + left-click deletion for your own messages.",
+        "Unified sticker reactions with emoji reactions.",
+        "Improved sticker sizing, bookmarks, avatars, and reaction controls.",
+        "Fixed Friends chat layout and viewport sizing.",
+        "Improved picker and navigation behavior across Global Chat and Friends."
+      ]
+    },
+    {
+      "id": "2026-09-28-stickers-emojis",
+      "timestamp": "2026-09-28T18:15:00-04:00",
+      "title": "Emoji & Sticker Collection",
+      "tag": "Feature",
+      "items": [
+        "Added full emoji browsing with search and recently used emojis.",
+        "Added sticker creation and upload directly into your collection.",
+        "Added sticker reaction support for Global Chat and Friends.",
+        "Added hover-only sticker collection bookmarks."
+      ]
+    },
+    {
+      "id": "2026-09-28-glass-ui",
+      "timestamp": "2026-09-28T17:30:00-04:00",
+      "title": "Lunar Glass UI",
+      "tag": "UI",
+      "items": [
+        "Expanded the glass interface styling across chat surfaces.",
+        "Improved theme customization and cursor persistence.",
+        "Added richer picker, reaction, and profile surfaces."
+      ]
+    }
+  ]
+}
