@@ -151,8 +151,12 @@
   function reactionHtml(message) {
     return (message.reactions || []).map(reaction => {
       const mine = (reaction.users || []).some(user => user.userId === currentUser?.id);
-      return `<button type="button" class="reaction-pill ${mine ? "mine" : ""}" data-reaction-message="${message.id}" data-reaction-emoji="${escapeAttr(reaction.emoji)}" title="Click to react • Right-click to see who reacted">
-        <span>${escape(reaction.emoji)}</span><b>${reaction.users?.length || 0}</b>
+      const kind = reaction.kind === "sticker" ? "sticker" : "emoji";
+      const visual = kind === "sticker"
+        ? `<img class="reaction-sticker" src="${escapeAttr(reaction.stickerUrl)}" alt="${escapeAttr(reaction.stickerName || "Sticker")}">`
+        : `<span>${escape(reaction.emoji || "")}</span>`;
+      return `<button type="button" class="reaction-pill ${mine ? "mine" : ""}" data-reaction-message="${message.id}" data-reaction-kind="${kind}" data-reaction-emoji="${escapeAttr(reaction.emoji || "")}" data-reaction-sticker-url="${escapeAttr(reaction.stickerUrl || "")}" title="Click to react • Right-click to see who reacted">
+        ${visual}<b>${reaction.users?.length || 0}</b>
       </button>`;
     }).join("");
   }
@@ -578,6 +582,10 @@
   let emojiPickerLoading = null;
 
   function setPickerTab(tab) {
+    const stickerTab = document.querySelector("#reaction-picker [data-picker-tab=\"stickers\"]");
+    const stickersAllowed = pickerContext.type === "reaction";
+    if (stickerTab) stickerTab.hidden = !stickersAllowed;
+    if (!stickersAllowed && tab === "stickers") tab = "emoji";
     document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(button => button.classList.toggle("active", button.dataset.pickerTab === tab));
     document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(pane => pane.classList.toggle("active", pane.dataset.pickerPane === tab));
     if (tab === "stickers") renderStickers(currentUser?.stickers || []); else renderRecentEmojis();
@@ -644,7 +652,19 @@
 
   async function reactWithPickerEmoji(messageId, emoji) {
     try {
-      await api("/api/chat/messages/" + encodeURIComponent(messageId) + "/reactions", {method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({emoji})});
+      await api("/api/chat/messages/" + encodeURIComponent(messageId) + "/reactions", {method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"emoji",emoji})});
+      closePopovers();
+      await refresh();
+    } catch (error) { showToast(error.message); }
+  }
+
+  async function reactWithPickerSticker(messageId, sticker) {
+    try {
+      await api("/api/chat/messages/" + encodeURIComponent(messageId) + "/reactions", {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({kind:"sticker",stickerUrl:sticker.url,stickerName:sticker.name || "Sticker"})
+      });
       closePopovers();
       await refresh();
     } catch (error) { showToast(error.message); }
@@ -659,8 +679,10 @@
     if (event.target.closest("#emoji-sticker-close")) { closePopovers(); return; }
     const sticker = event.target.closest("[data-send-sticker]");
     if (sticker && pickerContext.type === "reaction") {
-      try { await sendMessage("", {url:sticker.dataset.sendSticker, kind:"sticker", name:sticker.dataset.stickerName}); closePopovers(); }
-      catch (error) { showToast(error.message); }
+      await reactWithPickerSticker(pickerContext.messageId, {
+        url: sticker.dataset.sendSticker,
+        name: sticker.dataset.stickerName
+      });
     }
   });
   function showReactionUsers(button, reaction) {
@@ -685,11 +707,14 @@
     const reactionButton = event.target.closest("[data-reaction-message]");
     if (reactionButton) {
       const id = reactionButton.dataset.reactionMessage;
-      const emoji = reactionButton.dataset.reactionEmoji;
       if (!currentUser) { location.href="/account"; return; }
+      const kind = reactionButton.dataset.reactionKind === "sticker" ? "sticker" : "emoji";
       try {
+        const body = kind === "sticker"
+          ? {kind:"sticker",stickerUrl:reactionButton.dataset.reactionStickerUrl,stickerName:"Sticker"}
+          : {kind:"emoji",emoji:reactionButton.dataset.reactionEmoji};
         await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
-          method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({emoji})
+          method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
         });
         await refresh();
       } catch (error) { showToast(error.message); }
@@ -719,12 +744,6 @@
       return;
     }
 
-    const save = event.target.closest(".sticker-save-badge");
-    if (save) {
-      const attachment = save.closest(".chat-sticker-attachment");
-      await saveSticker(attachment?.dataset.stickerUrl, attachment?.dataset.stickerName);
-      showToast("Sticker saved to your collection.");
-    }
   });
 
   messagesEl.addEventListener("contextmenu", event => {
@@ -732,7 +751,12 @@
     if (!reactionButton) return;
     event.preventDefault();
     const message = messages.find(item => item.id === reactionButton.dataset.reactionMessage);
-    const reaction = message?.reactions?.find(item => item.emoji === reactionButton.dataset.reactionEmoji);
+    const reaction = message?.reactions?.find(item => {
+      const kind = item.kind === "sticker" ? "sticker" : "emoji";
+      return kind === "sticker"
+        ? item.stickerUrl === reactionButton.dataset.reactionStickerUrl
+        : item.emoji === reactionButton.dataset.reactionEmoji;
+    });
     showReactionUsers(reactionButton, reaction);
   });
 
