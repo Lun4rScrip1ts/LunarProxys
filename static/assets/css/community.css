@@ -1131,3 +1131,6 @@ body.interface-glass .lunar-community-page .chat-form{
   background:rgba(145,117,255,.14)!important;
   color:#fff!important;
 }
+
+
+.chat-plus-button{position:relative;}.chat-compose-tools{position:relative;}.chat-compose-menu{position:absolute;right:46px;bottom:calc(100% + 10px);z-index:1200;min-width:210px;padding:8px;border:1px solid var(--border);border-radius:16px;background:rgba(18,20,27,.88);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);box-shadow:0 18px 45px rgba(0,0,0,.28);}.chat-compose-menu[hidden]{display:none!important;}.chat-compose-menu-item{width:100%;display:flex;align-items:center;gap:11px;padding:10px;border:0;border-radius:11px;background:transparent;color:var(--text);cursor:pointer;text-align:left;}.chat-compose-menu-item:hover{background:var(--surface-hover);}.chat-compose-menu-item>i,.chat-compose-menu-item>.gif-tool{width:24px;text-align:center;flex:0 0 24px;}.chat-compose-menu-item span:last-child{display:flex;flex-direction:column;gap:2px;}.chat-compose-menu-item strong{font-size:12px;}.chat-compose-menu-item small{font-size:10px;color:var(--text-faint);}@media(max-width:600px){.chat-compose-menu{right:0;bottom:calc(100% + 8px);min-width:190px;}}
