@@ -482,14 +482,30 @@ router.patch("/chat/messages/:id", requireUser, async (req, res) => {
 
 router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
   const message = findMessage(req.params.id);
-  const emoji = cleanText(req.body?.emoji, 8);
   if (!message) return res.status(404).json({ error: "Message not found." });
-  if (!ALLOWED_REACTIONS.includes(emoji)) return res.status(400).json({ error: "Reaction is not available." });
-  if (!Array.isArray(message.reactions)) message.reactions = [];
 
-  let reaction = message.reactions.find(item => item.emoji === emoji);
+  const kind = req.body?.kind === "sticker" ? "sticker" : "emoji";
+  const emoji = cleanText(req.body?.emoji, 8);
+  const stickerUrl = cleanText(req.body?.stickerUrl, 1000);
+  const stickerName = cleanText(req.body?.stickerName, 80) || "Sticker";
+
+  if (kind === "emoji" && !ALLOWED_REACTIONS.includes(emoji)) {
+    return res.status(400).json({ error: "Reaction is not available." });
+  }
+  if (kind === "sticker" && !stickerUrl.startsWith("/uploads/")) {
+    return res.status(400).json({ error: "Invalid sticker reaction." });
+  }
+
+  if (!Array.isArray(message.reactions)) message.reactions = [];
+  let reaction = message.reactions.find(item => {
+    const itemKind = item.kind === "sticker" ? "sticker" : "emoji";
+    return itemKind === kind && (kind === "sticker" ? item.stickerUrl === stickerUrl : item.emoji === emoji);
+  });
+
   if (!reaction) {
-    reaction = { emoji, users: [] };
+    reaction = kind === "sticker"
+      ? { kind, stickerUrl, stickerName, users: [] }
+      : { kind, emoji, users: [] };
     message.reactions.push(reaction);
   }
 
@@ -497,7 +513,13 @@ router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
   if (index >= 0) reaction.users.splice(index, 1);
   else reaction.users.push({ userId: req.user.id, username: req.user.username });
 
-  if (!reaction.users.length) message.reactions = message.reactions.filter(item => item.emoji !== emoji);
+  if (!reaction.users.length) {
+    message.reactions = message.reactions.filter(item => {
+      const itemKind = item.kind === "sticker" ? "sticker" : "emoji";
+      return itemKind !== kind || (kind === "sticker" ? item.stickerUrl !== stickerUrl : item.emoji !== emoji);
+    });
+  }
+
   await persist();
   res.json({ reactions: message.reactions });
 });
@@ -873,19 +895,44 @@ router.delete("/friends/dms/messages/:id", requireUser, async (req, res) => {
 
 router.patch("/friends/dms/messages/:id/reactions", requireUser, async (req, res) => {
   const message = state.dmMessages.find(item => item.id === req.params.id);
-  const emoji = cleanText(req.body?.emoji, 8);
   if (!message || ![message.senderId, message.recipientId].includes(req.user.id)) return res.status(404).json({ error: "Message not found." });
-  if (!ALLOWED_REACTIONS.includes(emoji)) return res.status(400).json({ error: "Reaction is not available." });
+
+  const kind = req.body?.kind === "sticker" ? "sticker" : "emoji";
+  const emoji = cleanText(req.body?.emoji, 8);
+  const stickerUrl = cleanText(req.body?.stickerUrl, 1000);
+  const stickerName = cleanText(req.body?.stickerName, 80) || "Sticker";
+
+  if (kind === "emoji" && !ALLOWED_REACTIONS.includes(emoji)) {
+    return res.status(400).json({ error: "Reaction is not available." });
+  }
+  if (kind === "sticker" && !stickerUrl.startsWith("/uploads/")) {
+    return res.status(400).json({ error: "Invalid sticker reaction." });
+  }
+
   if (!Array.isArray(message.reactions)) message.reactions = [];
-  let reaction = message.reactions.find(item => item.emoji === emoji);
+  let reaction = message.reactions.find(item => {
+    const itemKind = item.kind === "sticker" ? "sticker" : "emoji";
+    return itemKind === kind && (kind === "sticker" ? item.stickerUrl === stickerUrl : item.emoji === emoji);
+  });
+
   if (!reaction) {
-    reaction = { emoji, users: [] };
+    reaction = kind === "sticker"
+      ? { kind, stickerUrl, stickerName, users: [] }
+      : { kind, emoji, users: [] };
     message.reactions.push(reaction);
   }
+
   const index = reaction.users.findIndex(user => user.userId === req.user.id);
   if (index >= 0) reaction.users.splice(index, 1);
   else reaction.users.push({ userId: req.user.id, username: req.user.username });
-  if (!reaction.users.length) message.reactions = message.reactions.filter(item => item.emoji !== emoji);
+
+  if (!reaction.users.length) {
+    message.reactions = message.reactions.filter(item => {
+      const itemKind = item.kind === "sticker" ? "sticker" : "emoji";
+      return itemKind !== kind || (kind === "sticker" ? item.stickerUrl !== stickerUrl : item.emoji !== emoji);
+    });
+  }
+
   await persist();
   res.json({ reactions: message.reactions });
 });
