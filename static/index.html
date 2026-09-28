@@ -9,10 +9,10 @@
   <link rel="icon" type="image/png" id="tab-favicon" href="/icons/LunarStudios.png" />
   <title id="t">Home</title>
   <link rel="stylesheet" href="/assets/css/global.css" />
-  <link rel="stylesheet" href="/assets/css/home.css" />
+  <link rel="stylesheet" href="/assets/css/home.css?v=lunar2" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=lunar7" />
   <script src="/assets/js/storage.js?v=lunar7"></script>
-  <script src="/assets/js/main.js?v=lunar7"></script>
+  <script src="/assets/js/main.js?v=lunar12"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar7">
 </head>
@@ -34,6 +34,20 @@
       </form>
     </div>
     <div class="lunar-quick"><a href="/apps"><i class="fa-solid fa-table-cells"></i>Apps</a><a href="/games"><i class="fa-solid fa-gamepad"></i>Games</a><a href="/settings"><i class="fa-solid fa-sliders"></i>Settings</a><a href="https://discord.gg/lunarstudio" target="_blank" rel="noopener"><i class="fa-brands fa-discord"></i>Discord</a></div>
+    <section class="lunar-changelog" id="lunar-changelog" aria-label="Lunar changelog">
+      <div class="lunar-changelog-glow"></div>
+      <div class="lunar-changelog-head">
+        <div>
+          <span class="lunar-changelog-kicker"><i class="fa-solid fa-sparkles"></i> LUNAR UPDATE LOG</span>
+          <h2>What's new</h2>
+          <p>Recent improvements, features, and fixes across Lunar.</p>
+        </div>
+        <span class="lunar-changelog-live"><i></i> Live</span>
+      </div>
+      <div class="lunar-changelog-list" id="lunar-changelog-list">
+        <div class="lunar-changelog-loading"><i class="fa-solid fa-circle-notch fa-spin"></i><span>Loading updates...</span></div>
+      </div>
+    </section>
   </div>
   <script src="/assets/js/vendor.js"></script>
   <script src="assets/js/search.js"></script>
@@ -54,7 +68,7 @@
   </script>
   <!-- DO NOT REMOVE-->
   <script src="/assets/js/lunar.js"></script>
-  <script src="/assets/js/lunar-home.js"></script>
+  <script src="/assets/js/lunar-home.js?v=lunar2"></script>
 </body>
 
 </html>
