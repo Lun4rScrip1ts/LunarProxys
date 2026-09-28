@@ -77,7 +77,6 @@ $("friend-close-sticker-drawer")?.addEventListener("click",closeFriendStickerDra
 $("friend-open-sticker-create")?.addEventListener("click",openFriendStickerCreator);
 $("friend-close-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-cancel-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
-friendStickerCreateModal?.addEventListener("click",e=>{if(e.target===friendStickerCreateModal)closeFriendStickerCreator()});
 $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
   e.preventDefault();
   if(!friendStickerCreateData)return toast("Upload a sticker image first.");
