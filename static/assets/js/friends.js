@@ -98,7 +98,8 @@ $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
     me.stickers=data.stickers||[];
     renderFriendStickers(me.stickers);
     closeFriendStickerCreator();
-    await openUnifiedPicker("stickers",$("dm-emoji-button"),{type:"compose"});
+    const context = pickerContext.type === "reaction" ? pickerContext : {type:"reaction",messageId:"",anchor:$("dm-emoji-button")};
+    await openUnifiedPicker("stickers",context.anchor||$("dm-emoji-button"),context);
     toast("Sticker created and added to your collection.");
   }catch(error){toast(error.message)}
   finally{button.disabled=false}
