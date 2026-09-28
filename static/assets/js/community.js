@@ -286,17 +286,11 @@
       modal.onclick = e => { if (e.target === modal) modal.hidden = true; };
       document.getElementById("friends-profile-close").onclick = () => { modal.hidden = true; };
 
-      if (anchor) {
-        const r = anchor.getBoundingClientRect();
-        const w = card.offsetWidth || 380;
-        const h = card.offsetHeight || 520;
-        let left = r.right + 12;
-        let top = r.top;
-        if (left + w > innerWidth - 12) left = Math.max(12, r.left - w - 12);
-        if (top + h > innerHeight - 12) top = Math.max(12, innerHeight - h - 12);
-        card.style.left = left + "px";
-        card.style.top = top + "px";
-      }
+      card.style.left = "50%";
+      card.style.top = "50%";
+      card.style.right = "auto";
+      card.style.bottom = "auto";
+      card.style.transform = "translate(-50%, -50%)";
     } catch (e) {
       showToast(e.message);
     }
@@ -662,9 +656,29 @@
   document.getElementById("cancel-edit-top").addEventListener("click", cancelEdit);
 
   document.getElementById("chat-image-button").addEventListener("click", () => document.getElementById("chat-image-file").click());
-  document.getElementById("chat-gif-button").addEventListener("click", () => {if(giphyPanel){if(!currentUser){location.href="/account";return}giphyPanel.hidden=false;loadGlobalGifs()}else document.getElementById("chat-gif-file").click()});
+  document.getElementById("chat-gif-button")?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!giphyPanel) {
+      document.getElementById("chat-gif-file")?.click();
+      return;
+    }
+    if (!currentUser) {
+      location.href="/account";
+      return;
+    }
+    giphyPanel.hidden = false;
+    giphyPanel.removeAttribute("hidden");
+    giphyPanel.style.display = "flex";
+    loadGlobalGifs();
+  });
   giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true});
   giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
+  giphyClose?.addEventListener("click", () => {
+    if (!giphyPanel) return;
+    giphyPanel.hidden = true;
+    giphyPanel.style.display = "";
+  });
   document.getElementById("global-gif-search-clear")?.addEventListener("click",()=>{if(!giphySearch)return;giphySearch.value="";loadGlobalGifs();giphySearch.focus();});
   document.querySelectorAll("[data-global-gif-tab]").forEach(tab=>tab.addEventListener("click",()=>{document.querySelectorAll("[data-global-gif-tab]").forEach(x=>x.classList.remove("active"));tab.classList.add("active");giphyTab=tab.dataset.globalGifTab;loadGlobalGifs()}));
   giphyGrid?.addEventListener("click",async event=>{const card=event.target.closest("[data-global-gif-id]");if(!card)return;const gif=giphyItems.find(x=>x.id===card.dataset.globalGifId);if(!gif)return;const favorite=event.target.closest(".gif-fav");if(favorite){try{await api("/api/friends/gifs/favorites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gif})});favorite.classList.add("is-saved");favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';favorite.title="Saved GIF";showToast("GIF saved to favourites.")}catch(e){showToast(e.message)}return}try{await sendMessage("",{url:gif.url,kind:"gif",name:gif.title});giphyPanel.hidden=true}catch(e){showToast(e.message)}});
