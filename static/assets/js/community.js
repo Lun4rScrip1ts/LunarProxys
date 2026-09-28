@@ -310,7 +310,10 @@
 
   function gifObject(g){return{id:g.id,title:g.title||"GIF",url:g.images?.original?.url||g.images?.fixed_width?.url,preview:g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url}}
   async function loadGlobalGifs(){if(!giphyPanel)return;if(giphyTab==="favorites"){try{const d=await api("/api/friends/bootstrap");giphyItems=d.gifFavorites||[];renderGlobalGifs(giphyItems)}catch(e){giphyStatus.textContent=e.message}return}if(!giphyKey)return;const q=giphySearch?.value.trim()||"";const url=q?"https://api.giphy.com/v1/gifs/search?api_key="+encodeURIComponent(giphyKey)+"&q="+encodeURIComponent(q)+"&limit=30&rating=g&bundle=messaging_non_clips":"https://api.giphy.com/v1/gifs/trending?api_key="+encodeURIComponent(giphyKey)+"&limit=30&rating=g&bundle=messaging_non_clips";try{const r=await fetch(url);const d=await r.json();if(!r.ok)throw Error(d.message||"GIF search failed.");giphyItems=(d.data||[]).map(gifObject);renderGlobalGifs(giphyItems)}catch(e){giphyStatus.textContent=e.message}}
-  function renderGlobalGifs(list){giphyGrid.innerHTML=(list||[]).map(g=>'<button class="gif-card" data-global-gif-id="'+escapeAttr(g.id)+'"><img src="'+escapeAttr(g.preview||g.url)+'" alt=""><span class="gif-fav">★</span></button>').join("");giphyStatus.textContent=list?.length?"":"No GIFs found."}
+  function renderGlobalGifs(list){
+    giphyGrid.innerHTML=(list||[]).map(g=>'<button class="gif-card" data-global-gif-id="'+escapeAttr(g.id)+'"><img src="'+escapeAttr(g.preview||g.url)+'" alt=""><span class="gif-fav '+(giphyTab==="favorites"?"is-saved":"")+'" title="'+(giphyTab==="favorites"?"Saved GIF":"Save GIF")+'"><i class="fa-'+(giphyTab==="favorites"?"solid":"regular")+' fa-bookmark"></i></span></button>').join("");
+    giphyStatus.textContent=list?.length?"":"No GIFs found.";
+  }
   async function setupGlobalGifs(){if(!giphyPanel)return;try{const d=await api("/api/friends/gifs/config");giphyKey=d.apiKey;loadGlobalGifs()}catch(e){giphyStatus.textContent=e.message}}
 
   async function refresh() {
