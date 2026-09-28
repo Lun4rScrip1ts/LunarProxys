@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/assets/css/global.css"><link rel="stylesheet" href="/assets/css/nav.css?v=lunar13">
   <link rel="stylesheet" href="/assets/css/nav.css?v=lunar13">
   <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar8">
-  <link rel="stylesheet" href="/assets/css/community.css?v=lunar20">
+  <link rel="stylesheet" href="/assets/css/community.css?v=lunar21">
   <script src="/assets/js/storage.js?v=lunar8"></script>
   <script src="/assets/js/main.js?v=lunar11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><script src="/assets/js/lunar.js?v=lunar10"></script>
@@ -62,8 +62,12 @@
 
         <div class="chat-compose-tools" aria-label="Message attachments">
           <button type="button" class="chat-tool" id="chat-image-button" title="Upload image" aria-label="Upload image"><i class="fa-regular fa-image"></i></button>
-          <button type="button" class="chat-tool" id="chat-gif-button" title="GIFs" aria-label="GIFs"><span class="gif-tool">GIF</span></button>
-          <button type="button" class="chat-tool" id="chat-emoji-button" title="Emoji & stickers" aria-label="Emoji & stickers"><i class="fa-regular fa-face-smile"></i></button><button type="button" class="chat-tool sticker-collection-button" id="chat-sticker-button" title="Sticker collection" aria-label="Sticker collection"><i class="fa-regular fa-note-sticky"></i></button>
+          <button type="button" class="chat-tool chat-plus-button" id="chat-plus" title="More message tools" aria-label="More message tools" aria-expanded="false"><i class="fa-solid fa-plus"></i></button>
+          <div id="chat-compose-menu" class="chat-compose-menu" hidden>
+            <button type="button" class="chat-compose-menu-item" data-compose-tool="gif"><span class="gif-tool">GIF</span><span><strong>GIF</strong><small>Choose a GIF</small></span></button>
+            <button type="button" class="chat-compose-menu-item" data-compose-tool="emoji"><i class="fa-regular fa-face-smile"></i><span><strong>Emoji</strong><small>Open the emoji picker</small></span></button>
+            <button type="button" class="chat-compose-menu-item" data-compose-tool="sticker"><i class="fa-regular fa-note-sticky"></i><span><strong>Stickers</strong><small>Open your sticker collection</small></span></button>
+          </div>
         </div>
         <button type="submit" class="chat-send" title="Send message" aria-label="Send message"><i class="fa-solid fa-paper-plane"></i></button>
       </form>
