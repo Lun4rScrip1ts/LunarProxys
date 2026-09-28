@@ -719,6 +719,16 @@ function initLunarGlassDropdowns() {
       item.className = "lunar-select-option";
       item.dataset.value = option.value;
       item.textContent = option.textContent.trim();
+      if (select.id === "theme-dropdown") {
+        item.classList.add("theme-option");
+        const swatch = document.createElement("span");
+        swatch.className = "theme-swatch theme-" + option.value;
+        const text = document.createElement("span");
+        text.className = "theme-option-label";
+        text.textContent = option.textContent.trim();
+        item.textContent = "";
+        item.append(swatch, text);
+      }
       item.setAttribute("role", "option");
       item.addEventListener("click", event => {
         event.stopPropagation();
