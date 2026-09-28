@@ -325,23 +325,21 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
 .lunar-community-page .global-chat-view .chat-message{padding:10px 8px;gap:10px}
 .lunar-community-page .global-chat-view .chat-message-body{font-size:13px}
 
-/* Global Chat overlays: anchor to viewport coordinates, never to the bottom of the page */
+
+/* Global Chat overlays: keep viewport positioning while preserving JS-calculated coordinates */
+.lunar-community-page .reaction-picker[hidden],
+.lunar-community-page .reaction-users[hidden],
+.chat-forward-modal[hidden]{display:none!important}
 .lunar-community-page .reaction-picker,
-.lunar-community-page .reaction-users,
-.chat-forward-modal{
+.lunar-community-page .reaction-users{
   position:fixed!important;
-  top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
   transform:none!important;
   margin:0!important;
 }
 .chat-forward-modal{
-  inset:0!important;
-  display:grid!important;
-  place-items:center!important;
+  position:fixed!important;inset:0!important;display:grid!important;place-items:center!important;
 }
 .chat-forward-modal .forward-modal{
-  position:relative!important;
-  top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
-  transform:none!important;
-  margin:0!important;
+  position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+  transform:none!important;margin:0!important;
 }
