@@ -942,3 +942,31 @@ body.interface-glass .lunar-friends-page .dm-messages{
   .lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone>button{grid-column:2}
   .lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-row{grid-template-columns:1fr}
 }
+
+
+/* Unified emoji + sticker picker for DMs and message reactions */
+.lunar-friends-page .emoji-sticker-picker{
+  position:fixed!important;z-index:2147483647!important;
+  width:min(420px,calc(100vw - 20px))!important;height:min(500px,calc(100vh - 100px))!important;
+  display:flex!important;flex-direction:column!important;overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.13)!important;border-radius:17px!important;
+  background:rgba(13,16,22,.96)!important;box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.06)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(145%)!important;backdrop-filter:blur(22px) saturate(145%)!important;
+}
+.lunar-friends-page .emoji-sticker-picker[hidden]{display:none!important}
+.lunar-friends-page .emoji-sticker-picker-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid rgba(255,255,255,.08)}
+.lunar-friends-page .emoji-sticker-tabs{display:flex;gap:4px}
+.lunar-friends-page .emoji-sticker-tab{display:flex!important;align-items:center;gap:6px;width:auto!important;height:32px!important;margin:0!important;padding:0 11px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:#858d9e!important;font-size:10px!important;font-weight:850!important}
+.lunar-friends-page .emoji-sticker-tab.active{background:rgba(145,117,255,.16)!important;color:#fff!important}
+.lunar-friends-page .emoji-sticker-close{width:32px!important;height:32px!important;margin:0!important;border:0!important;border-radius:9px!important;background:rgba(255,255,255,.045)!important;color:#929aaa!important}
+.lunar-friends-page .emoji-sticker-pane{display:none;flex:1;min-height:0;overflow:hidden}
+.lunar-friends-page .emoji-sticker-pane.active{display:flex!important;flex-direction:column!important}
+.lunar-friends-page .emoji-sticker-pane emoji-picker{width:100%!important;height:100%!important;--background:transparent;--border-color:rgba(255,255,255,.08);--button-active-background:rgba(145,117,255,.18);--button-hover-background:rgba(255,255,255,.08);--input-border-color:rgba(255,255,255,.12);--input-font-color:#f4f6fa;--input-placeholder-color:#7b8392;--category-font-color:#dce1e9;--indicator-color:#9278ff;--outline-color:#a98dff;--emoji-size:1.35rem;--emoji-padding:.42rem;--num-columns:8}
+.lunar-friends-page #friends-sticker-slot{display:flex;flex:1;min-height:0}
+.lunar-friends-page #friends-sticker-slot>.friend-sticker-drawer{position:static!important;inset:auto!important;transform:none!important;opacity:1!important;pointer-events:auto!important;width:100%!important;max-width:none!important;max-height:none!important;display:flex!important;flex:1;min-height:0;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important}
+.lunar-friends-page #friends-sticker-slot>.friend-sticker-drawer .sticker-drawer-head{flex:none}
+.lunar-friends-page #friends-sticker-slot>.friend-sticker-drawer .sticker-grid{flex:1;min-height:0;max-height:none!important;overflow:auto!important}
+.lunar-friends-page #friends-sticker-slot>.friend-sticker-drawer .sticker-create-inline{flex:none;max-height:370px;overflow:auto}
+.lunar-friends-page .dm-sticker{width:78px!important;height:78px!important;max-width:78px!important;max-height:78px!important;object-fit:contain!important;display:block!important;margin-top:6px!important;border-radius:8px!important}
+.lunar-friends-page .dm-gif{max-width:260px!important;max-height:220px!important;object-fit:cover!important}
+@media(max-width:600px){.lunar-friends-page .emoji-sticker-picker{width:calc(100vw - 16px)!important;height:min(480px,calc(100vh - 90px))!important}.lunar-friends-page .emoji-sticker-pane emoji-picker{--num-columns:7}}
