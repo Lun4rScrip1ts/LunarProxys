@@ -1134,3 +1134,80 @@ body.interface-glass .lunar-community-page .chat-form{
 
 
 .chat-plus-button{position:relative;}.chat-compose-tools{position:relative;}.chat-compose-menu{position:absolute;right:46px;bottom:calc(100% + 10px);z-index:1200;min-width:210px;padding:8px;border:1px solid var(--border);border-radius:16px;background:rgba(18,20,27,.88);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);box-shadow:0 18px 45px rgba(0,0,0,.28);}.chat-compose-menu[hidden]{display:none!important;}.chat-compose-menu-item{width:100%;display:flex;align-items:center;gap:11px;padding:10px;border:0;border-radius:11px;background:transparent;color:var(--text);cursor:pointer;text-align:left;}.chat-compose-menu-item:hover{background:var(--surface-hover);}.chat-compose-menu-item>i,.chat-compose-menu-item>.gif-tool{width:24px;text-align:center;flex:0 0 24px;}.chat-compose-menu-item span:last-child{display:flex;flex-direction:column;gap:2px;}.chat-compose-menu-item strong{font-size:12px;}.chat-compose-menu-item small{font-size:10px;color:var(--text-faint);}@media(max-width:600px){.chat-compose-menu{right:0;bottom:calc(100% + 8px);min-width:190px;}}
+
+
+/* Final Global Chat avatar parity with Friends chat. */
+.lunar-community-page .chat-message{
+  display:flex!important;
+  align-items:flex-start!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.lunar-community-page .chat-avatar{
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  margin:0!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+  display:grid!important;
+  place-items:center!important;
+  background:#fff!important;
+  color:#111!important;
+}
+.lunar-community-page .chat-avatar .chat-profile-trigger{
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+  display:grid!important;
+  place-items:center!important;
+  background:#fff!important;
+  color:#111!important;
+}
+.lunar-community-page .chat-avatar img,
+.lunar-community-page .chat-avatar .chat-profile-trigger img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border-radius:50%!important;
+}
+.lunar-community-page .chat-message-body{
+  flex:1 1 auto!important;
+  width:0!important;
+  min-width:0!important;
+  max-width:none!important;
+  overflow:hidden!important;
+}
+.lunar-community-page .chat-meta{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.lunar-community-page .chat-name.chat-profile-trigger{
+  min-width:0!important;
+  max-width:45%!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+.lunar-community-page .chat-username,
+.lunar-community-page .chat-time{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+}
+.lunar-community-page .chat-text{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
