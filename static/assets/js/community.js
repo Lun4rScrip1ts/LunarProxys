@@ -629,7 +629,7 @@
   }
 
   function positionPicker(anchor) {
-    const rect = (anchor || document.getElementById("chat-emoji-button"))?.getBoundingClientRect();
+    const rect = (anchor || document.getElementById("chat-plus"))?.getBoundingClientRect();
     const width = Math.min(420, window.innerWidth - 20);
     const height = Math.min(500, window.innerHeight - 100);
     let left = rect ? rect.left + rect.width / 2 - width / 2 : (window.innerWidth - width) / 2;
@@ -826,22 +826,53 @@
   document.getElementById("cancel-edit-top").addEventListener("click", cancelEdit);
 
   document.getElementById("chat-image-button").addEventListener("click", () => document.getElementById("chat-image-file").click());
-  document.getElementById("chat-gif-button")?.addEventListener("click", event => {
-    event.preventDefault(); event.stopPropagation();
+  const chatPlus = document.getElementById("chat-plus");
+  const chatComposeMenu = document.getElementById("chat-compose-menu");
+  function closeChatComposeMenu() {
+    if (!chatComposeMenu) return;
+    chatComposeMenu.hidden = true;
+    chatPlus?.setAttribute("aria-expanded","false");
+  }
+  function positionChatToolPanel(panel, anchor) {
+    if (!panel || !anchor) return;
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(420, window.innerWidth - 20);
+    const height = Math.min(500, window.innerHeight - 100);
+    let left = rect.left + rect.width / 2 - width / 2;
+    let top = rect.top - height - 10;
+    if (top < 8) top = rect.bottom + 8;
+    panel.style.width = width + "px";
+    panel.style.left = Math.max(8, Math.min(window.innerWidth - width - 8, left)) + "px";
+    panel.style.top = Math.max(8, Math.min(window.innerHeight - height - 8, top)) + "px";
+  }
+  function openChatGifs() {
     if (!currentUser) { location.href="/account"; return; }
-    closePopovers();
+    closePopovers(); closeChatComposeMenu();
+    if (!giphyPanel) return;
     giphyPanel.hidden = false; giphyPanel.removeAttribute("hidden"); giphyPanel.style.display = "flex";
+    positionChatToolPanel(giphyPanel, chatPlus);
     loadGlobalGifs(); giphySearch?.focus();
-  });
-  document.getElementById("chat-emoji-button")?.addEventListener("click", event => {
+  }
+  function openChatEmoji() { closeChatComposeMenu(); openUnifiedPicker("emoji", chatPlus, {type:"compose"}); }
+  function openChatStickers() { closeChatComposeMenu(); openUnifiedPicker("stickers", chatPlus, {type:"browse"}); }
+  chatPlus?.addEventListener("click", event => {
     event.preventDefault(); event.stopPropagation();
-    openUnifiedPicker("emoji", event.currentTarget, {type:"compose"});
+    const open = chatComposeMenu && !chatComposeMenu.hidden;
+    closePopovers();
+    if (giphyPanel) { giphyPanel.hidden = true; giphyPanel.style.display = ""; }
+    if (open) closeChatComposeMenu();
+    else { chatComposeMenu.hidden = false; chatPlus.setAttribute("aria-expanded","true"); }
   });
-  document.getElementById("chat-sticker-button")?.addEventListener("click", event => {
+  chatComposeMenu?.addEventListener("click", event => {
+    const item = event.target.closest("[data-compose-tool]");
+    if (!item) return;
     event.preventDefault(); event.stopPropagation();
-    openUnifiedPicker("stickers", event.currentTarget, {type:"browse"});
+    const tool = item.dataset.composeTool;
+    if (tool === "gif") openChatGifs();
+    else if (tool === "emoji") openChatEmoji();
+    else if (tool === "sticker") openChatStickers();
   });
-  giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true});
+  giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true;giphyPanel.style.display="";});
   giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
   giphyClose?.addEventListener("click", () => {
     if (!giphyPanel) return;
@@ -864,12 +895,12 @@
     }
   });
   document.addEventListener("click", event => {
-    if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(event.target) && !event.target.closest("#chat-emoji-button") && !event.target.closest("[data-action=\"react\"]")) closePopovers();
-    if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(event.target) && !event.target.closest("#chat-gif-button")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
-  });
-  document.addEventListener("click", event => {
-    if (!event.target.closest(".reaction-picker") && !event.target.closest("[data-action='react']")) reactionPicker.hidden = true;
-    if (!event.target.closest(".reaction-users") && !event.target.closest("[data-reaction-message]")) reactionUsers.hidden = true;
+    const target = event.target;
+    if (chatComposeMenu && !chatComposeMenu.hidden && !chatComposeMenu.contains(target) && !target.closest("#chat-plus")) closeChatComposeMenu();
+    if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(target) && !target.closest("#chat-plus") && !target.closest("[data-action=\"react\"]")) closePopovers();
+    if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(target) && !target.closest("#chat-plus")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
+    if (reactionPicker && !reactionPicker.contains(target) && !target.closest("[data-action='react']")) reactionPicker.hidden = true;
+    if (reactionUsers && !reactionUsers.contains(target) && !target.closest("[data-reaction-message]")) reactionUsers.hidden = true;
   });
 
   setupGlobalGifs();
