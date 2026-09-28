@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   applyStaticCursor();
   let activePointer = store.get("pointer");
-  const allowedPointers = new Set(["default","crosshair-cursor","normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"]);
+  const allowedPointers = new Set([...CURSOR_EFFECTS, ...STATIC_CURSORS, "default"]);
   if (!allowedPointers.has(activePointer)) {
     store.remove("pointer");
     activePointer = "default";
