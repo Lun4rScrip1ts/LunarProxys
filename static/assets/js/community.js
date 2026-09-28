@@ -59,6 +59,44 @@
     toast.classList.add("show");
     toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
   }
+  function ensureForwardModal(){
+    let modal=document.getElementById("chat-forward-modal");
+    if(modal)return modal;
+    modal=document.createElement("div");
+    modal.id="chat-forward-modal";
+    modal.className="modal-backdrop chat-forward-modal";
+    modal.hidden=true;
+    modal.innerHTML='<div class="forward-modal"><div class="modal-head"><strong>Forward message</strong><button type="button" data-close-chat-forward><i class="fa-solid fa-xmark"></i></button></div><p class="forward-question">Where would you like to forward this message?</p><div class="friend-search forward-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="chat-forward-search" placeholder="Search friends..."></div><div id="chat-forward-friends" class="forward-friends"></div></div>';
+    document.body.appendChild(modal);
+    modal.querySelector("[data-close-chat-forward]").onclick=()=>{modal.hidden=true};
+    modal.addEventListener("click",e=>{if(e.target===modal)modal.hidden=true});
+    return modal;
+  }
+  async function openForwardGlobal(message){
+    if(!currentUser)return;
+    const modal=ensureForwardModal();
+    const data=await api("/api/friends/bootstrap");
+    const friends=data.friends||[];
+    const search=modal.querySelector("#chat-forward-search");
+    const list=modal.querySelector("#chat-forward-friends");
+    const render=()=>{
+      const q=(search.value||"").trim().toLowerCase();
+      const filtered=friends.filter(f=>((f.displayName||"")+" "+(f.username||"")).toLowerCase().includes(q));
+      list.innerHTML=filtered.map(f=>'<button data-chat-forward="'+escapeAttr(f.id)+'">'+(f.avatarUrl?'<img src="'+escapeAttr(f.avatarUrl)+'" alt="">':'<span class="forward-initials">'+escape(initials(f.displayName))+'</span>')+'<span><strong>'+escape(f.displayName)+'</strong><small>@'+escape(f.username)+'</small></span></button>').join("")||'<div class="friends-empty">No matching friends.</div>';
+    };
+    search.value="";
+    search.oninput=render;
+    list.onclick=async e=>{
+      const b=e.target.closest("[data-chat-forward]"); if(!b)return;
+      try{
+        await api("/api/chat/messages/"+encodeURIComponent(message.id)+"/forward",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({targetType:"friend",recipientId:b.dataset.chatForward})});
+        modal.hidden=true; showToast("Message forwarded.");
+      }catch(err){showToast(err.message)}
+    };
+    render();
+    modal.hidden=false;
+    search.focus();
+  }
 
   function closePopovers() {
     reactionPicker.hidden = true;
@@ -138,6 +176,7 @@
             <span class="chat-username">@${escape(message.username)}</span>
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
           </div>
+          ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
           ${message.replyTo ? `<button type="button" class="chat-reply-preview" data-jump-to="${escapeAttr(message.replyTo.id)}"><i class="fa-solid fa-reply"></i><span>Replying to <b>@${escape(message.replyTo.username)}</b>: ${escape((message.replyTo.message || "[attachment]").slice(0, 90))}</span></button>` : ""}
           <div class="chat-text">${escape(message.message)}</div>
           ${attachmentHtml(message)}
@@ -147,6 +186,7 @@
         <div class="message-actions" aria-label="Message actions">
           <button type="button" data-action="react" title="Add reaction"><i class="fa-regular fa-face-smile"></i></button>
           <button type="button" data-action="reply" title="Reply"><i class="fa-solid fa-reply"></i></button>
+          <button type="button" data-action="forward" title="Forward"><i class="fa-solid fa-share"></i></button>
           ${message.userId === currentUser?.id ? `<button type="button" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button>` : ""}
         </div>
       </article>
@@ -420,6 +460,7 @@
       if (action.dataset.action === "react") showReactionPicker(action, message.id);
       if (action.dataset.action === "reply") openReply(message);
       if (action.dataset.action === "edit") openEdit(message);
+      if (action.dataset.action === "forward") openForwardGlobal(message);
       return;
     }
 
