@@ -140,9 +140,10 @@
     if (!attachment) return "";
     const url = escapeAttr(attachment.url);
     if (attachment.kind === "sticker") {
-      return `<div class="chat-attachment chat-sticker-attachment" data-sticker-url="${url}" data-sticker-name="${escapeAttr(attachment.name || "Saved sticker")}">
+      const savedSticker = (currentUser?.stickers || []).find(sticker => sticker.url === attachment.url);
+      return `<div class="chat-attachment chat-sticker-attachment" data-sticker-url="${url}" data-sticker-name="${escapeAttr(attachment.name || "Saved sticker")}" data-sticker-id="${escapeAttr(savedSticker?.id || "")}">
         <img src="${url}" alt="${escapeAttr(attachment.name || "Sticker")}" loading="lazy">
-        <button class="sticker-save-badge" type="button" title="Save sticker"><i class="fa-regular fa-bookmark"></i></button>
+        <button class="sticker-save-badge ${savedSticker ? "is-saved" : ""}" type="button" title="${savedSticker ? "Remove from sticker collection" : "Save sticker"}" aria-label="${savedSticker ? "Remove from sticker collection" : "Save sticker"}"><i class="fa-${savedSticker ? "solid" : "regular"} fa-bookmark"></i></button>
       </div>`;
     }
     return `<div class="chat-attachment ${attachment.kind === "gif" ? "chat-gif" : "chat-image"}"><img src="${url}" alt="${escapeAttr(attachment.name || attachment.kind)}" loading="lazy"></div>`;
@@ -420,7 +421,7 @@
   }
 
   async function saveSticker(url, name) {
-    if (!currentUser || !url) return;
+    if (!currentUser || !url) return null;
     try {
       const data = await api("/api/stickers/save", {
         method:"POST",
@@ -429,7 +430,61 @@
       });
       currentUser.stickers = data.stickers || [];
       renderStickers(currentUser.stickers);
-    } catch {}
+      return currentUser.stickers.find(sticker => sticker.url === url) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function removeSticker(url) {
+    if (!currentUser || !url) return false;
+    const saved = (currentUser.stickers || []).find(sticker => sticker.url === url);
+    if (!saved?.id) return false;
+    try {
+      const data = await api("/api/stickers/" + encodeURIComponent(saved.id), {method:"DELETE"});
+      currentUser.stickers = data.stickers || [];
+      renderStickers(currentUser.stickers);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function toggleStickerSave(attachment) {
+    if (!currentUser || !attachment?.url) return;
+    const saved = (currentUser.stickers || []).find(sticker => sticker.url === attachment.url);
+    const badge = attachment.querySelector(".sticker-save-badge");
+    if (badge) {
+      badge.disabled = true;
+      badge.classList.toggle("is-saving", true);
+    }
+
+    try {
+      if (saved) {
+        const removed = await removeSticker(attachment.url);
+        if (removed && badge) {
+          badge.classList.remove("is-saved");
+          badge.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+          badge.title = "Save sticker";
+          badge.setAttribute("aria-label", "Save sticker");
+        }
+        if (removed) showToast("Sticker removed from your collection.");
+      } else {
+        const added = await saveSticker(attachment.url, attachment.dataset.stickerName);
+        if (added && badge) {
+          badge.classList.add("is-saved");
+          badge.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+          badge.title = "Remove from sticker collection";
+          badge.setAttribute("aria-label", "Remove from sticker collection");
+        }
+        if (added) showToast("Sticker saved to your collection.");
+      }
+    } finally {
+      if (badge) {
+        badge.disabled = false;
+        badge.classList.remove("is-saving");
+      }
+    }
   }
 
   async function sendMessage(text, attachment = null) {
@@ -560,11 +615,14 @@
     showReactionUsers(reactionButton, reaction);
   });
 
-  messagesEl.addEventListener("mouseover", event => {
-    const sticker = event.target.closest(".chat-sticker-attachment");
-    if (sticker && currentUser && !sticker.dataset.saved) {
-      sticker.dataset.saved = "1";
-      saveSticker(sticker.dataset.stickerUrl, sticker.dataset.stickerName);
+  messagesEl.addEventListener("click", event => {
+    const save = event.target.closest(".sticker-save-badge");
+    if (!save) return;
+    const attachment = save.closest(".chat-sticker-attachment");
+    if (attachment) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleStickerSave(attachment);
     }
   });
 
