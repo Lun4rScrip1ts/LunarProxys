@@ -817,8 +817,10 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
   const text = cleanText(req.body?.message, MAX_MESSAGE_LENGTH);
   const attachment = req.body?.attachment && typeof req.body.attachment === "object" ? req.body.attachment : null;
   if (!text && !attachment) return res.status(400).json({ error: "Message cannot be empty." });
-  if (attachment && (attachment.kind !== "gif" || typeof attachment.url !== "string" || !/^https:\/\//i.test(attachment.url))) {
-    return res.status(400).json({ error: "Invalid GIF attachment." });
+  if (attachment) {
+    const validGif = attachment.kind === "gif" && typeof attachment.url === "string" && /^https:\/\//i.test(attachment.url);
+    const validSticker = attachment.kind === "sticker" && typeof attachment.url === "string" && attachment.url.startsWith("/uploads/");
+    if (!validGif && !validSticker) return res.status(400).json({ error: "Invalid attachment." });
   }
 
   const thread = getDmThread(req.user.id, friend.id, true);
@@ -831,7 +833,12 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
     recipientId: friend.id,
     sender: publicFriendUser(req.user),
     message: text,
-    attachment: attachment ? { kind: "gif", url: cleanText(attachment.url, 1000), title: cleanText(attachment.title, 120) } : null,
+    attachment: attachment ? {
+      kind: attachment.kind === "sticker" ? "sticker" : "gif",
+      url: cleanText(attachment.url, 1000),
+      title: cleanText(attachment.title, 120),
+      name: cleanText(attachment.name, 80)
+    } : null,
     replyTo: replied ? { id: replied.id, sender: publicFriendUser(findUser(replied.senderId)), message: replied.message || "[GIF]" } : null,
     reactions: [],
     deletedFor: [],
