@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T19:29:20-04:00",
+  "updatedAt": "2026-09-28T19:45:25-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-avatar-layout",
+      "timestamp": "2026-09-28T19:45:25-04:00",
+      "title": "Friends & Chat Avatar Layout Fix",
+      "tag": "Fix",
+      "items": [
+        "Fixed Friends sidebar/profile layout so profile pictures stay in their own column and names and usernames no longer overlap them.",
+        "Added stronger text wrapping and ellipsis handling for narrow Friends layouts.",
+        "Fixed the Friends profile header so its text stays inside the profile area instead of bleeding into the message list.",
+        "Matched Global Chat profile pictures to the Friends chat avatar treatment with consistent circular sizing, clipping, and image positioning."
+      ]
+    },
     {
       "id": "2026-09-28-friends-reactions-auth-fix",
       "timestamp": "2026-09-28T19:29:20-04:00",
