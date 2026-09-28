@@ -212,7 +212,7 @@
       }
 
       const avatarHtml = user => user && user.avatarUrl
-        ? '<img src="' + escapeAttr(user.avatarUrl) + '" alt="" onerror="this.style.display=\\'none\\'">'
+        ? '<img src="' + escapeAttr(user.avatarUrl) + '" alt="" onerror="this.remove()">'
         : escape(initials(user && (user.displayName || user.username)));
 
       document.getElementById("friends-profile-avatar").innerHTML = avatarHtml(u);
