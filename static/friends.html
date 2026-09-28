@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="referrer" content="no-referrer"><title>Lunar Friends</title><link rel="stylesheet" href="/assets/css/global.css"><link rel="stylesheet" href="/assets/css/nav.css?v=lunar12"><link rel="stylesheet" href="/assets/css/nav.css?v=lunar7"><link rel="stylesheet" href="/assets/css/lunar.css?v=lunar5"><link rel="stylesheet" href="/assets/css/friends.css?v=lunar8"><link rel="stylesheet"><script src="/assets/js/storage.js?v=lunar7"></script><script src="/assets/js/main.js?v=lunar7"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="referrer" content="no-referrer"><title>Lunar Friends</title><link rel="stylesheet" href="/assets/css/global.css"><link rel="stylesheet" href="/assets/css/nav.css?v=lunar12"><link rel="stylesheet" href="/assets/css/nav.css?v=lunar7"><link rel="stylesheet" href="/assets/css/lunar.css?v=lunar5"><link rel="stylesheet" href="/assets/css/friends.css?v=lunar9"><link rel="stylesheet"><script src="/assets/js/storage.js?v=lunar7"></script><script src="/assets/js/main.js?v=lunar7"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head>
 <body class="lunar-friends-page"><div class="nav-bar"></div><main class="friends-app"><aside class="friends-server-rail"><button class="server-icon active" id="friends-server-button" title="Friends"><i class="fa-solid fa-user-group"></i></button><div class="server-divider"></div></aside><aside class="friends-sidebar"><div class="friends-sidebar-head"><div><strong>Friends</strong><span>Private messages & connections</span></div><div class="friends-head-actions"><button id="friends-refresh-button" title="Refresh"><i class="fa-solid fa-rotate"></i></button><button id="friends-search-button" title="Find a friend"><i class="fa-solid fa-magnifying-glass"></i></button><button id="add-friend-button" title="Add Friend"><i class="fa-solid fa-user-plus"></i></button></div></div>
 <div class="friends-search-bar" id="friends-filter-wrap" hidden><i class="fa-solid fa-magnifying-glass"></i><input id="friends-filter" placeholder="Search friends..."><button id="friends-filter-clear"><i class="fa-solid fa-xmark"></i></button></div>
 <div class="friends-tabs">
@@ -18,63 +18,7 @@
 <div id="dm-reply-bar" class="dm-context" hidden><span><i class="fa-solid fa-reply"></i> <b id="dm-reply-label"></b></span><button id="dm-cancel-reply"><i class="fa-solid fa-xmark"></i></button></div><div id="dm-edit-bar" class="dm-context" hidden><span><i class="fa-solid fa-pen"></i> Editing message</span><button id="dm-cancel-edit"><i class="fa-solid fa-xmark"></i></button></div>
 <div id="gif-preview" class="gif-preview" hidden><img id="gif-preview-image" alt="GIF preview"><div><strong>GIF attached</strong><span>Send your message to include it.</span></div><button id="gif-preview-remove"><i class="fa-solid fa-xmark"></i></button></div>
 <form id="dm-form" class="dm-composer"><button type="button" id="dm-plus" class="composer-icon"><i class="fa-solid fa-plus"></i></button><input id="dm-input" maxlength="500" autocomplete="off" placeholder="Message"><button type="button" id="dm-gif" class="composer-icon gif-button">GIF</button><button type="button" class="composer-icon"><i class="fa-regular fa-face-smile"></i></button><button type="button" class="composer-icon"><i class="fa-solid fa-microphone"></i></button><button type="submit" class="dm-send"><i class="fa-solid fa-paper-plane"></i></button></form></div></section>
-
-    <section class="chat-card">
-      <div class="chat-toolbar">
-        <span><i class="fa-solid fa-comments"></i> Global Chat</span>
-        <span id="chat-status">Connecting...</span>
-      </div>
-
-      <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
-
-      <div id="chat-login-note" class="chat-login-note" hidden>
-        <i class="fa-solid fa-lock"></i>
-        <span>You need an account to send messages.</span>
-        <a href="/account">Log in or register</a>
-      </div>
-
-      <div id="reply-bar" class="chat-compose-context" hidden>
-        <div><i class="fa-solid fa-reply"></i><span id="reply-label">Replying to message</span></div>
-        <button type="button" id="cancel-reply" aria-label="Cancel reply"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div id="edit-bar" class="chat-compose-context edit-context" hidden>
-        <div><i class="fa-solid fa-pen"></i><span>Editing message</span></div>
-        <button type="button" id="cancel-edit-top" aria-label="Cancel edit"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <form id="chat-form" class="chat-form">
-        <div id="attachment-draft" class="attachment-draft" hidden>
-          <div id="attachment-preview" aria-label="Attachment preview"></div>
-          <div class="attachment-draft-info">
-            <strong id="attachment-name">Attachment</strong>
-            <span id="attachment-kind">Ready to send</span>
-          </div>
-          <button type="button" id="cancel-attachment" title="Remove attachment" aria-label="Remove attachment"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <input id="chat-input" maxlength="500" autocomplete="off" placeholder="Write a message..." aria-label="Message">
-        <input id="chat-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
-        <input id="chat-gif-file" type="file" accept="image/gif" hidden>
-        <input id="chat-sticker-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
-
-        <div class="chat-compose-tools" aria-label="Message attachments">
-          <button type="button" class="chat-tool" id="chat-image-button" title="Upload image" aria-label="Upload image"><i class="fa-regular fa-image"></i></button>
-          <button type="button" class="chat-tool" id="chat-gif-button" title="Upload GIF" aria-label="Upload GIF"><span class="gif-tool">GIF</span></button>
-          <button type="button" class="chat-tool" id="chat-sticker-button" title="Create sticker" aria-label="Create sticker"><i class="fa-regular fa-note-sticky"></i></button>
-          <button type="button" class="chat-tool" id="chat-sticker-catalog" title="Sticker collection" aria-label="Sticker collection"><i class="fa-regular fa-face-smile"></i></button>
-        </div>
-        <button type="submit" class="chat-send" title="Send message" aria-label="Send message"><i class="fa-solid fa-paper-plane"></i></button>
-      </form>
-    </section>
-  </main>
-<aside id="sticker-drawer" class="sticker-drawer" aria-hidden="true">
-    <div class="sticker-drawer-head">
-      <div><strong>Sticker collection</strong><span id="sticker-count">Your saved stickers</span></div>
-      <button type="button" id="close-sticker-drawer" aria-label="Close stickers"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div id="sticker-grid" class="sticker-grid"></div>
-    <div id="sticker-empty" class="sticker-empty">Save stickers from chat and they will appear here.</div>
-  </aside><div id="global-gif-panel" class="gif-panel global-gif-panel" hidden><div class="gif-head"><div><strong>GIFs</strong><span>Powered by GIPHY</span></div><button id="global-gif-close" type="button"><i class="fa-solid fa-xmark"></i></button></div><div class="gif-search"><i class="fa-solid fa-magnifying-glass"></i><input id="global-gif-search-input" placeholder="Search GIFs"></div><div class="gif-tabs"><button class="gif-tab active" data-global-gif-tab="trending">Trending</button><button class="gif-tab" data-global-gif-tab="favorites">Favourites</button></div><div id="global-gif-grid" class="gif-grid"></div><div id="global-gif-status" class="gif-status"></div></div></section></main>
+</main>n>
 <div id="reaction-picker" class="reaction-picker" hidden></div><div id="reaction-users" class="reaction-users" hidden></div><div id="chat-toast" class="chat-toast" role="status" aria-live="polite"></div>
 <div id="friend-modal" class="modal-backdrop" hidden><div class="friend-modal"><div class="modal-head"><strong>Add a Friend</strong><button data-close-modal><i class="fa-solid fa-xmark"></i></button></div><p>Search for a username and send a friend request.</p><div class="friend-search"><i class="fa-solid fa-magnifying-glass"></i><input id="friend-search-input" placeholder="Search username..."></div><div id="friend-search-results" class="friend-search-results"></div></div></div>
 <div id="gif-panel" class="gif-panel" hidden><div class="gif-head"><div><strong>GIFs</strong><span>Powered by GIPHY</span></div><button id="gif-close"><i class="fa-solid fa-xmark"></i></button></div><div class="gif-search"><i class="fa-solid fa-magnifying-glass"></i><input id="gif-search-input" placeholder="Search GIFs"></div><div class="gif-tabs"><button class="gif-tab active" data-gif-tab="trending">Trending</button><button class="gif-tab" data-gif-tab="favorites">Favourites</button></div><div id="gif-grid" class="gif-grid"></div><div id="gif-status" class="gif-status"></div></div>
