@@ -207,7 +207,41 @@ function reactionHtml(m){return(m.reactions||[]).map(r=>{
     : esc(r.emoji||"");
   return '<button class="dm-reaction '+(r.users.some(u=>u.userId===me.id)?"mine":"")+'" data-react="'+m.id+'" data-reaction-kind="'+kind+'" data-emoji="'+esc(r.emoji||"")+'" data-sticker-url="'+esc(r.stickerUrl||"")+'">'+visual+'<b>'+r.users.length+'</b></button>';
 }).join("")}
-function renderMessages(){const e=$("dm-messages");e.innerHTML=messages.map(m=>'<article class="dm-message" data-mid="'+m.id+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+(m.attachment?'<img class="'+(m.attachment.kind==="sticker"?"dm-sticker":"dm-gif")+'" src="'+esc(m.attachment.url)+'" alt="'+(m.attachment.kind==="sticker"?"Sticker":"GIF")+'" loading="lazy">':"")+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div></div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button><button data-action="delete"><i class="fa-regular fa-trash-can"></i></button>'+(m.senderId===me.id?'<button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>').join("");}
+function renderMessages(){const e=$("dm-messages");e.innerHTML=messages.map(m=>'<article class="dm-message" data-mid="'+m.id+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\\'none\\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+(m.attachment?(m.attachment.kind==="sticker"
+    ? '<div class="dm-sticker-attachment" data-sticker-url="'+esc(m.attachment.url)+'" data-sticker-name="'+esc(m.attachment.name||"Sticker")+'"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"><button type="button" class="sticker-save-badge '+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"is-saved":"")+'" title="Sticker collection" aria-label="Sticker collection"><i class="fa-'+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"solid":"regular")+' fa-bookmark"></i></button></div>'
+    : '<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">'):"")+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div></div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button><button data-action="delete"><i class="fa-regular fa-trash-can"></i></button>'+(m.senderId===me.id?'<button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>').join("");}
+function saveSticker(url,name){
+  if(!me||!url)return Promise.resolve(null);
+  return api("/api/stickers/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url,name:name||"Saved sticker"})})
+    .then(d=>{me.stickers=d.stickers||[];renderFriendStickers(me.stickers);return me.stickers.find(s=>s.url===url)||null})
+    .catch(()=>null);
+}
+function removeSticker(url){
+  const saved=(me?.stickers||[]).find(s=>s.url===url);
+  if(!saved?.id)return Promise.resolve(false);
+  return api("/api/stickers/"+encodeURIComponent(saved.id),{method:"DELETE"})
+    .then(d=>{me.stickers=d.stickers||[];renderFriendStickers(me.stickers);return true})
+    .catch(()=>false);
+}
+async function toggleStickerSave(attachment){
+  if(!attachment?.dataset.stickerUrl)return;
+  const url=attachment.dataset.stickerUrl;
+  const name=attachment.dataset.stickerName||"Saved sticker";
+  const saved=(me?.stickers||[]).find(s=>s.url===url);
+  const badge=attachment.querySelector(".sticker-save-badge");
+  if(badge){badge.disabled=true;badge.classList.add("is-saving");}
+  try{
+    if(saved){
+      const removed=await removeSticker(url);
+      if(removed&&badge){badge.classList.remove("is-saved");badge.innerHTML='<i class="fa-regular fa-bookmark"></i>';}
+      if(removed)toast("Sticker removed from your collection.");
+    }else{
+      const added=await saveSticker(url,name);
+      if(added&&badge){badge.classList.add("is-saved");badge.innerHTML='<i class="fa-solid fa-bookmark"></i>';}
+      if(added)toast("Sticker saved to your collection.");
+    }
+  }finally{if(badge){badge.disabled=false;badge.classList.remove("is-saving");}}
+}
 function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button><button data-mm="delete">Delete for me</button>'+(m.senderId===me.id?'<button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
 let pickerContext={type:"compose",messageId:"",anchor:null};
 function closeReactionPopups(){
@@ -297,6 +331,9 @@ function showReactionUsers(m,anchor){
   document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180);
 }
 $("dm-messages").onclick=async e=>{
+  const save=e.target.closest(".sticker-save-badge");
+  if(save){e.preventDefault();e.stopPropagation();const attachment=save.closest(".dm-sticker-attachment");if(attachment)await toggleStickerSave(attachment);return}
+
   const profile=e.target.closest("[data-profile-user]");
   if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser,profile);return}
   const reaction=e.target.closest("[data-react]");
