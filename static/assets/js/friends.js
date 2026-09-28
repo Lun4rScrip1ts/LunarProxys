@@ -207,9 +207,19 @@ function reactionHtml(m){return(m.reactions||[]).map(r=>{
     : esc(r.emoji||"");
   return '<button class="dm-reaction '+(r.users.some(u=>u.userId===me.id)?"mine":"")+'" data-react="'+m.id+'" data-reaction-kind="'+kind+'" data-emoji="'+esc(r.emoji||"")+'" data-sticker-url="'+esc(r.stickerUrl||"")+'">'+visual+'<b>'+r.users.length+'</b></button>';
 }).join("")}
-function renderMessages(){const e=$("dm-messages");e.innerHTML=messages.map(m=>'<article class="dm-message" data-mid="'+m.id+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+(m.attachment?(m.attachment.kind==="sticker"
-    ? '<div class="dm-sticker-attachment" data-sticker-url="'+esc(m.attachment.url)+'" data-sticker-name="'+esc(m.attachment.name||"Sticker")+'"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"><button type="button" class="sticker-save-badge '+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"is-saved":"")+'" title="Sticker collection" aria-label="Sticker collection"><i class="fa-'+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"solid":"regular")+' fa-bookmark"></i></button></div>'
-    : '<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">'):"")+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div></div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button><button data-action="delete"><i class="fa-regular fa-trash-can"></i></button>'+(m.senderId===me.id?'<button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>').join("");}
+function renderMessages(){
+  const e=$("dm-messages");
+  e.innerHTML=messages.map(m=>{
+    const deleted=Boolean(m.deletedAt);
+    const own=m.senderId===me.id;
+    const attachment=deleted?"":(m.attachment
+      ? (m.attachment.kind==="sticker"
+        ? '<div class="dm-sticker-attachment" data-sticker-url="'+esc(m.attachment.url)+'" data-sticker-name="'+esc(m.attachment.name||"Sticker")+'"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"><button type="button" class="sticker-save-badge '+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"is-saved":"")+'" title="Sticker collection" aria-label="Sticker collection"><i class="fa-'+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"solid":"regular")+' fa-bookmark"></i></button></div>'
+        : '<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">')
+      : "");
+    return '<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>';
+  }).join("");
+}
 function saveSticker(url,name){
   if(!me||!url)return Promise.resolve(null);
   return api("/api/stickers/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url,name:name||"Saved sticker"})})
@@ -242,7 +252,7 @@ async function toggleStickerSave(attachment){
     }
   }finally{if(badge){badge.disabled=false;badge.classList.remove("is-saving");}}
 }
-function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button><button data-mm="delete">Delete for me</button>'+(m.senderId===me.id?'<button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
+function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button>'+(m.senderId===me.id&&!m.deletedAt?'<button data-mm="delete">Delete</button><button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
 let pickerContext={type:"compose",messageId:"",anchor:null};
 function closeReactionPopups(){
   const picker=$("reaction-picker");if(picker)picker.hidden=true;
@@ -331,6 +341,12 @@ function showReactionUsers(m,anchor){
   document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180);
 }
 $("dm-messages").onclick=async e=>{
+  const messageArticle=e.target.closest("[data-mid]");
+  if(e.shiftKey&&messageArticle?.dataset.ownMessage==="true"&&!e.target.closest("button,a,input,textarea")){
+    try{await api("/api/friends/dms/messages/"+messageArticle.dataset.mid,{method:"DELETE"});toast("Message deleted.");await loadMessages()}catch(x){toast(x.message)}
+    return;
+  }
+
   const save=e.target.closest(".sticker-save-badge");
   if(save){e.preventDefault();e.stopPropagation();const attachment=save.closest(".dm-sticker-attachment");if(attachment)await toggleStickerSave(attachment);return}
 
@@ -352,7 +368,7 @@ $("dm-messages").onclick=async e=>{
   if(!action)return;
   const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);
   if(!m)return;
-  if(action.dataset.action==="react"){showReactionPicker(m,action);return}
+  if(action.dataset.action==="react"){showReactionPicker(m,action);return}if(action.dataset.action==="delete"&&m.senderId===me.id&&!m.deletedAt){try{await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});toast("Message deleted.");await loadMessages()}catch(x){toast(x.message)}return}
   showMenu(m,action)
 };
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
