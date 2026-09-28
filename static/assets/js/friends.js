@@ -84,7 +84,11 @@ try{
   };
   modal.hidden=false;
   const card=modal.querySelector(".friends-profile-card");
-  if(anchor&&card){const r=anchor.getBoundingClientRect(),w=card.offsetWidth||360,h=card.offsetHeight||420;let left=r.right+12,top=r.top;if(left+w>innerWidth-12)left=Math.max(12,r.left-w-12);if(top+h>innerHeight-12)top=Math.max(12,innerHeight-h-12);card.style.left=left+"px";card.style.top=top+"px";}
+  card.style.left="50%";
+  card.style.top="50%";
+  card.style.right="auto";
+  card.style.bottom="auto";
+  card.style.transform="translate(-50%,-50%)";
 }catch(e){toast(e.message)}
 }
 function closeUserProfile(){$("friends-profile-modal").hidden=true}
