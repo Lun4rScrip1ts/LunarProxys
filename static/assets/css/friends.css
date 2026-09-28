@@ -827,3 +827,118 @@ body.interface-glass .lunar-friends-page .friends-list,
 body.interface-glass .lunar-friends-page .dm-messages{
   color:#f2f4f8!important;
 }
+
+/* Friends sticker collection is self-contained on this page. */
+.lunar-friends-page .friend-sticker-drawer{
+  position:fixed!important;right:18px!important;bottom:78px!important;left:auto!important;top:auto!important;
+  width:min(390px,calc(100vw - 32px))!important;
+  max-height:min(620px,72vh)!important;
+  display:flex!important;flex-direction:column!important;
+  border:1px solid rgba(255,255,255,.12)!important;border-radius:18px!important;
+  background:rgba(13,16,22,.96)!important;
+  box-shadow:0 25px 80px rgba(0,0,0,.52)!important;
+  overflow:hidden!important;
+  transform:translateY(18px)!important;opacity:0!important;pointer-events:none!important;
+  transition:opacity .2s ease,transform .2s ease!important;
+}
+.lunar-friends-page .friend-sticker-drawer.open{
+  transform:translateY(0)!important;opacity:1!important;pointer-events:auto!important;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-drawer-head{
+  flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 13px;border-bottom:1px solid rgba(255,255,255,.09);
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-drawer-head strong{display:block;color:#f2f3f7;font-size:13px}
+.lunar-friends-page .friend-sticker-drawer .sticker-drawer-head span{display:block;margin-top:2px;color:#727b8c;font-size:9px}
+.lunar-friends-page .friend-sticker-drawer .sticker-head-actions{display:flex;align-items:center;gap:6px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-button,
+.lunar-friends-page .friend-sticker-drawer .sticker-close-button{
+  display:inline-flex!important;align-items:center;justify-content:center;gap:6px;
+  width:auto!important;height:30px!important;margin:0!important;padding:0 10px!important;
+  border:1px solid rgba(255,255,255,.1)!important;border-radius:9px!important;
+  background:rgba(255,255,255,.055)!important;color:#e8ebf2!important;
+  font-size:10px!important;font-weight:800!important;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-close-button{width:30px!important;padding:0!important}
+.lunar-friends-page .friend-sticker-drawer .sticker-grid{
+  display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px;
+  padding:12px;overflow:auto;min-height:0;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-card{
+  min-width:0;border:1px solid rgba(255,255,255,.08);border-radius:11px;
+  background:rgba(255,255,255,.035);padding:7px;color:#d8dce5;cursor:pointer;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-card:hover{
+  border-color:rgba(157,132,255,.4);background:rgba(145,117,255,.1);color:#fff;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-card img{display:block;width:100%;aspect-ratio:1;object-fit:contain}
+.lunar-friends-page .friend-sticker-drawer .sticker-card span{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:9px;margin-top:4px;color:inherit;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-empty{
+  flex:none;padding:24px 18px;text-align:center;color:#747d8e;font-size:11px;line-height:1.5;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline{
+  flex:none;border-bottom:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.025);
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline-head strong{display:block;color:#f5f7fb;font-size:12px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline-head span{display:block;margin-top:3px;color:#7f8899;font-size:9px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline-head button{
+  width:28px!important;height:28px!important;margin:0!important;border:0!important;
+  border-radius:8px!important;background:rgba(255,255,255,.05)!important;color:#aeb6c5!important;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline form{
+  padding:11px 13px 13px;display:flex;flex-direction:column;gap:9px;
+  max-height:370px;overflow:auto;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline label{
+  display:flex;flex-direction:column;gap:5px;color:#aeb6c5;font-size:9px;font-weight:800;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline input,
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline select{
+  box-sizing:border-box;width:100%;height:34px;margin:0;padding:0 9px;
+  border:1px solid rgba(255,255,255,.09);border-radius:9px;
+  background:rgba(255,255,255,.045);color:#f5f7fb;outline:none;font:inherit;font-size:10px;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone{
+  display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:9px;padding:8px;
+  border:1px dashed rgba(255,255,255,.14);border-radius:11px;background:rgba(255,255,255,.03);cursor:pointer;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-preview{
+  width:54px;height:54px;border-radius:9px;display:grid;place-items:center;overflow:hidden;
+  background:rgba(0,0,0,.22);color:#737c8e;font-size:17px;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-preview img{width:100%;height:100%;object-fit:contain}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone strong{display:block;font-size:10px;color:#e8ebf2}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone span{display:block;margin-top:3px;color:#747e90;font-size:8px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone>button{
+  width:auto!important;height:30px!important;margin:0!important;padding:0 8px!important;
+  border:1px solid rgba(255,255,255,.1)!important;border-radius:8px!important;
+  background:rgba(255,255,255,.055)!important;color:#dce0e8!important;font-size:8px!important;font-weight:800!important;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-check{
+  display:flex!important;flex-direction:row!important;align-items:center;gap:8px!important;padding:8px;
+  border:1px solid rgba(255,255,255,.07);border-radius:9px;background:rgba(255,255,255,.025);
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-check input{width:15px!important;height:15px!important;accent-color:#8f76ff}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-check span{display:flex;flex-direction:column;gap:2px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-check small{color:#70798a;font-size:8px;font-weight:500}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-actions{display:flex;justify-content:flex-end;gap:7px}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-actions button{
+  width:auto!important;height:32px!important;margin:0!important;padding:0 11px!important;border-radius:8px!important;font-size:9px!important;font-weight:850!important;
+}
+.lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-actions button:last-child{
+  background:linear-gradient(135deg,#9b7cff,#6e5aff)!important;border-color:transparent!important;color:#fff!important;
+}
+@media(max-width:600px){
+  .lunar-friends-page .friend-sticker-drawer{right:10px!important;bottom:68px!important;width:calc(100vw - 20px)!important}
+  .lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone{grid-template-columns:50px 1fr}
+  .lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-upload-zone>button{grid-column:2}
+  .lunar-friends-page .friend-sticker-drawer .sticker-create-inline .sticker-create-row{grid-template-columns:1fr}
+}
