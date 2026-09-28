@@ -160,6 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof window.applyLunarSettings === "function") {
         window.applyLunarSettings();
       }
+      // loadAccountSettings() replaces the local store with the account copy.
+      // Re-read the pointer after that replacement so navigation never falls
+      // back to the default cursor when an account has an older saved value.
+      if (typeof window.applyLunarCursorSelection === "function") {
+        window.applyLunarCursorSelection();
+      }
     }).catch(() => {});
   }
 
@@ -282,6 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
   const STATIC_CURSORS = ["normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"];
   const applyStaticCursor = () => {
+    if (!document.body) return;
     document.body.classList.remove("lunar-static-cursor", "lunar-default-cursor");
     STATIC_CURSORS.forEach(name => document.body.classList.remove("lunar-" + name));
     const selected = store.get("pointer") || "default";
@@ -291,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.add("lunar-default-cursor");
     }
   };
+  window.applyLunarCursorSelection = applyStaticCursor;
   applyStaticCursor();
   let activePointer = store.get("pointer");
   const allowedPointers = new Set([...CURSOR_EFFECTS, ...STATIC_CURSORS, "default"]);
