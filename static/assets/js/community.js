@@ -417,24 +417,23 @@
     };
   }
 
-  const stickerCreateModal = document.getElementById("sticker-create-modal");
+  const stickerCreateInline = document.getElementById("sticker-create-inline");
   const stickerCreateForm = document.getElementById("sticker-create-form");
   const stickerCreateFile = document.getElementById("sticker-create-file");
   const stickerCreatePreview = document.getElementById("sticker-create-preview");
   let stickerCreateData = "";
   const openStickerCreator = () => {
-    if (!stickerCreateModal) return;
-    stickerCreateModal.hidden = false;
-    stickerCreateModal.classList.add("open");
+    if (!stickerCreateInline) return;
+    stickerCreateInline.hidden = false;
     stickerCreateForm?.reset();
     stickerCreateData = "";
     if (stickerCreatePreview) stickerCreatePreview.innerHTML = '<i class="fa-regular fa-image"></i>';
     document.getElementById("sticker-create-name")?.focus();
   };
   const closeStickerCreator = () => {
-    if (!stickerCreateModal) return;
-    stickerCreateModal.hidden = true;
-    stickerCreateModal.classList.remove("open");
+    if (!stickerCreateInline) return;
+    stickerCreateInline.hidden = true;
+    stickerCreateData = "";
   };
   const readStickerFile = file => new Promise((resolve, reject) => {
     if (!file) return reject(new Error("Choose an image first."));
@@ -461,7 +460,6 @@
   document.getElementById("open-sticker-create")?.addEventListener("click", openStickerCreator);
   document.getElementById("close-sticker-create")?.addEventListener("click", closeStickerCreator);
   document.getElementById("cancel-sticker-create")?.addEventListener("click", closeStickerCreator);
-  stickerCreateModal?.addEventListener("click", event => { if (event.target === stickerCreateModal) closeStickerCreator(); });
   stickerCreateForm?.addEventListener("submit", async event => {
     event.preventDefault();
     if (!stickerCreateData) return showToast("Upload a sticker image first.");
