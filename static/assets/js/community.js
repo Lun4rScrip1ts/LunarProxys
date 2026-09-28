@@ -775,6 +775,17 @@
   }
   document.getElementById("chat-sticker-catalog").addEventListener("click", e => openStickerDrawer(e.currentTarget));
   document.getElementById("close-sticker-drawer").addEventListener("click", closeStickerDrawer);
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      if (stickerCreateInline && !stickerCreateInline.hidden) closeStickerCreator();
+      else closeStickerDrawer();
+    }
+  });
+  document.addEventListener("click", event => {
+    if (stickerDrawer?.classList.contains("open") && !stickerDrawer.contains(event.target) && !event.target.closest("#chat-sticker-catalog")) {
+      closeStickerDrawer();
+    }
+  });
 
   stickerGrid.addEventListener("click", async event => {
     const sticker = event.target.closest("[data-send-sticker]");
