@@ -22,6 +22,91 @@ else if(!visible.length) $("friends-empty").innerHTML="No friends yet.<br>Send s
 }
 function renderInbox(){const e=$("friends-list");$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length;e.innerHTML=incoming.map(x=>'<div class="search-user">'+avatar(x.from)+'<span class="search-user-info"><strong>'+esc(x.from.displayName)+'</strong><span>@'+esc(x.from.username)+'</span></span><button data-request="accept" data-id="'+x.id+'">Accept</button><button data-request="decline" data-id="'+x.id+'" style="background:#303238">Decline</button></div>').join("")||'<div class="friends-empty">Your inbox is clear.</div>'}
 async function bootstrap(){try{const d=await api("/api/friends/bootstrap");me=d.user;friends=d.friends||[];incoming=d.incoming||[];outgoing=d.outgoing||[];document.querySelector(".friends-tab.active")?.dataset.tab==="inbox"?renderInbox():renderFriends();$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length}catch(e){toast(e.message);location.href="/account"}}
+function renderFriendStickers(stickers){
+  const grid=$("friend-sticker-grid");
+  if(!grid)return;
+  grid.innerHTML=(stickers||[]).map(s=>'<button type="button" class="sticker-card" data-friend-send-sticker="'+esc(s.url)+'" data-sticker-name="'+esc(s.name||"Sticker")+'"><img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'"><span>'+esc((s.emoji?" "+s.emoji:"")+" "+(s.name||"Sticker"))+'</span></button>').join("");
+  $("friend-sticker-empty").hidden=Boolean(stickers?.length);
+  $("friend-sticker-count").textContent=(stickers?.length||0)+" saved sticker"+(stickers?.length===1?"":"s");
+}
+function openFriendStickerDrawer(){
+  renderFriendStickers(me?.stickers||[]);
+  const drawer=$("friend-sticker-drawer");
+  drawer?.classList.add("open");
+  drawer?.setAttribute("aria-hidden","false");
+}
+function closeFriendStickerDrawer(){
+  const drawer=$("friend-sticker-drawer");
+  drawer?.classList.remove("open");
+  drawer?.setAttribute("aria-hidden","true");
+}
+const friendStickerCreateModal=$("friend-sticker-create-modal");
+const friendStickerCreateFile=$("friend-sticker-create-file");
+let friendStickerCreateData="";
+const openFriendStickerCreator=()=>{
+  friendStickerCreateModal.hidden=false;
+  friendStickerCreateModal.classList.add("open");
+  $("friend-sticker-create-form")?.reset();
+  friendStickerCreateData="";
+  $("friend-sticker-create-preview").innerHTML='<i class="fa-regular fa-image"></i>';
+};
+const closeFriendStickerCreator=()=>{
+  friendStickerCreateModal.hidden=true;
+  friendStickerCreateModal.classList.remove("open");
+};
+const readFriendStickerFile=file=>new Promise((resolve,reject)=>{
+  if(!file)return reject(new Error("Choose an image first."));
+  if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type))return reject(new Error("Use PNG, JPG, WEBP, or GIF."));
+  if(file.size>8*1024*1024)return reject(new Error("Sticker images must be smaller than 8 MB."));
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>reject(new Error("Could not read that image."));
+  reader.readAsDataURL(file);
+});
+friendStickerCreateFile?.addEventListener("change",async e=>{
+  try{
+    friendStickerCreateData=await readFriendStickerFile(e.target.files?.[0]);
+    $("friend-sticker-create-preview").innerHTML='<img src="'+esc(friendStickerCreateData)+'" alt="Sticker preview">';
+  }catch(error){friendStickerCreateData="";toast(error.message)}
+});
+$("friend-sticker-browse")?.addEventListener("click",()=>friendStickerCreateFile?.click());
+$("friend-sticker-upload-zone")?.addEventListener("click",e=>{if(!e.target.closest("button"))friendStickerCreateFile?.click()});
+$("dm-sticker")?.addEventListener("click",openFriendStickerDrawer);
+$("friend-close-sticker-drawer")?.addEventListener("click",closeFriendStickerDrawer);
+$("friend-open-sticker-create")?.addEventListener("click",openFriendStickerCreator);
+$("friend-close-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
+$("friend-cancel-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
+friendStickerCreateModal?.addEventListener("click",e=>{if(e.target===friendStickerCreateModal)closeFriendStickerCreator()});
+$("friend-sticker-create-form")?.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!friendStickerCreateData)return toast("Upload a sticker image first.");
+  const button=$("friend-save-sticker-create");
+  button.disabled=true;
+  try{
+    const data=await api("/api/stickers/create",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      data:friendStickerCreateData,
+      name:$("friend-sticker-create-name").value.trim()||"My Sticker",
+      emoji:$("friend-sticker-create-emoji").value.trim(),
+      category:$("friend-sticker-create-category").value||"Custom"
+    })});
+    me.stickers=data.stickers||[];
+    renderFriendStickers(me.stickers);
+    closeFriendStickerCreator();
+    openFriendStickerDrawer();
+    toast("Sticker created and added to your collection.");
+  }catch(error){toast(error.message)}
+  finally{button.disabled=false}
+});
+$("friend-sticker-grid")?.addEventListener("click",async e=>{
+  const card=e.target.closest("[data-friend-send-sticker]");
+  if(!card||!active)return;
+  try{
+    await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"",attachment:{kind:"sticker",url:card.dataset.friendSendSticker,name:card.dataset.stickerName}})});
+    closeFriendStickerDrawer();
+    await loadMessages();
+  }catch(error){toast(error.message)}
+});
+
 function openModal(id){$(id).hidden=false}
 function closeModals(){["friend-modal","forward-modal"].forEach(id=>$(id).hidden=true);$("message-menu").hidden=true}
 function openAdd(){openModal("friend-modal");$("friend-search-input").focus()}
