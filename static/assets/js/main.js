@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const lightThemes = ["Inverted", "light", "gruvboxLight", "solarizedLight"];
     const html = `
       <div id="icon-container">
-        <a class="icon lunar-nav-logo" href="/./" aria-label="Lunar Proxy">LUNAR PROXY</a>
+        <a class="icon lunar-nav-logo" href="/./" aria-label="Lunar Studios"><img src="/icons/LunarStudios.png" alt="Lunar Studios"></a>
       </div>
       <div class="nav-bar-right">
         
