@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-09-28T19:30:00-04:00",
+  "updatedAt": "2026-09-28T19:28:33-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-reactions-auth-fix",
+      "timestamp": "2026-09-28T19:28:33-04:00",
+      "title": "Friends, Reactions & Access Fix",
+      "tag": "Fix",
+      "items": [
+        "Restored existing Friends relationships when older saved friendship data uses legacy formats or accepted requests.",
+        "Fixed emoji reactions being rejected as unavailable by allowing the full emoji picker instead of only the original reaction set.",
+        "Kept sticker reactions supported for both Global Chat and Friends.",
+        "Raised the logged-out registration prompt above Lunar backgrounds, cursor effects, and other visual layers so it is visible and clickable.",
+        "Updated script cache versions so the fixes load immediately."
+      ]
+    },
     {
       "id": "2026-09-28-compose-menu-auth-gate",
       "timestamp": "2026-09-28T19:30:00-04:00",
