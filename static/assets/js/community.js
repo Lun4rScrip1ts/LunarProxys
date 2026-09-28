@@ -417,6 +417,79 @@
     };
   }
 
+  const stickerCreateModal = document.getElementById("sticker-create-modal");
+  const stickerCreateForm = document.getElementById("sticker-create-form");
+  const stickerCreateFile = document.getElementById("sticker-create-file");
+  const stickerCreatePreview = document.getElementById("sticker-create-preview");
+  let stickerCreateData = "";
+  const openStickerCreator = () => {
+    if (!stickerCreateModal) return;
+    stickerCreateModal.hidden = false;
+    stickerCreateModal.classList.add("open");
+    stickerCreateForm?.reset();
+    stickerCreateData = "";
+    if (stickerCreatePreview) stickerCreatePreview.innerHTML = '<i class="fa-regular fa-image"></i>';
+    document.getElementById("sticker-create-name")?.focus();
+  };
+  const closeStickerCreator = () => {
+    if (!stickerCreateModal) return;
+    stickerCreateModal.hidden = true;
+    stickerCreateModal.classList.remove("open");
+  };
+  const readStickerFile = file => new Promise((resolve, reject) => {
+    if (!file) return reject(new Error("Choose an image first."));
+    if (!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type)) return reject(new Error("Use PNG, JPG, WEBP, or GIF."));
+    if (file.size > 8 * 1024 * 1024) return reject(new Error("Sticker images must be smaller than 8 MB."));
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read that image."));
+    reader.readAsDataURL(file);
+  });
+  stickerCreateFile?.addEventListener("change", async event => {
+    try {
+      stickerCreateData = await readStickerFile(event.target.files?.[0]);
+      if (stickerCreatePreview) stickerCreatePreview.innerHTML = '<img src="' + escapeAttr(stickerCreateData) + '" alt="Sticker preview">';
+    } catch (error) {
+      stickerCreateData = "";
+      showToast(error.message);
+    }
+  });
+  document.getElementById("sticker-browse")?.addEventListener("click", () => stickerCreateFile?.click());
+  document.getElementById("sticker-upload-zone")?.addEventListener("click", event => {
+    if (!event.target.closest("button")) stickerCreateFile?.click();
+  });
+  document.getElementById("open-sticker-create")?.addEventListener("click", openStickerCreator);
+  document.getElementById("close-sticker-create")?.addEventListener("click", closeStickerCreator);
+  document.getElementById("cancel-sticker-create")?.addEventListener("click", closeStickerCreator);
+  stickerCreateModal?.addEventListener("click", event => { if (event.target === stickerCreateModal) closeStickerCreator(); });
+  stickerCreateForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!stickerCreateData) return showToast("Upload a sticker image first.");
+    const saveButton = document.getElementById("save-sticker-create");
+    if (saveButton) { saveButton.disabled = true; saveButton.classList.add("is-loading"); }
+    try {
+      const data = await api("/api/stickers/create", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          data: stickerCreateData,
+          name: document.getElementById("sticker-create-name")?.value.trim() || "My Sticker",
+          emoji: document.getElementById("sticker-create-emoji")?.value.trim() || "",
+          category: document.getElementById("sticker-create-category")?.value || "Custom"
+        })
+      });
+      currentUser.stickers = data.stickers || [];
+      renderStickers(currentUser.stickers);
+      closeStickerCreator();
+      stickerDrawer?.classList.add("open");
+      showToast("Sticker created and added to your collection.");
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      if (saveButton) { saveButton.disabled = false; saveButton.classList.remove("is-loading"); }
+    }
+  });
+
   async function saveSticker(url, name) {
     if (!currentUser || !url) return null;
     try {
