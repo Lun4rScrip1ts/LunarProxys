@@ -1095,3 +1095,16 @@ body.interface-glass .lunar-community-page .chat-form{
 }
 .lunar-community-page .sticker-picker-tab i{font-size:13px!important;}
 
+
+
+/* Saved sticker bookmark remains hidden until the sticker is hovered/focused. */
+.lunar-community-page .sticker-save-badge.is-saved{
+  opacity:0!important;
+  visibility:hidden!important;
+}
+.lunar-community-page .chat-sticker-attachment:hover .sticker-save-badge.is-saved,
+.lunar-community-page .sticker-save-badge.is-saved:focus-visible,
+.lunar-community-page .sticker-save-badge.is-saving{
+  opacity:1!important;
+  visibility:visible!important;
+}
