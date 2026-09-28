@@ -76,7 +76,7 @@ $("dm-emoji-button")?.addEventListener("click",e=>openUnifiedPicker("emoji",e.cu
 $("dm-sticker-button")?.addEventListener("click",e=>openUnifiedPicker("stickers",e.currentTarget,{type:"browse"}));
 $("friend-close-sticker-drawer")?.addEventListener("click",()=>closeReactionPopups());
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeReactionPopups();}});
-document.addEventListener("click",e=>{if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(e.target)&&!e.target.closest("#dm-emoji-button")&&!e.target.closest("[data-action=\"react\"]"))closeReactionPopups();});
+document.addEventListener("click",e=>{const t=e.target;if(dmComposeMenu&&!dmComposeMenu.hidden&&!dmComposeMenu.contains(t)&&!t.closest("#dm-plus"))closeDmComposeMenu();if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(t)&&!t.closest("#dm-plus")&&!t.closest("[data-action=\"react\"]"))closeReactionPopups();if($("gif-panel")&&!$("gif-panel").hidden&&!$("gif-panel").contains(t)&&!t.closest("#dm-plus"))$("gif-panel").hidden=true;});
 $("friend-open-sticker-create")?.addEventListener("click",async()=>{
   const context=(pickerContext.type==="reaction"||pickerContext.type==="browse")?pickerContext:{type:"browse",messageId:"",anchor:$("dm-sticker-button")};
   await openUnifiedPicker("stickers",context.anchor||$("dm-emoji-button"),context);
@@ -297,7 +297,7 @@ async function ensureEmojiPicker(){
   return emojiPickerLoading;
 }
 function positionUnifiedPicker(anchor){
-  const rect=(anchor||$("dm-emoji-button"))?.getBoundingClientRect();const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
+  const rect=(anchor||$("dm-plus"))?.getBoundingClientRect();const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
   let left=rect?rect.left+rect.width/2-width/2:(innerWidth-width)/2,top=rect?rect.top-height-8:80;if(top<8)top=rect?rect.bottom+8:80;
   const p=$("reaction-picker");p.style.width=width+"px";p.style.left=Math.max(8,Math.min(innerWidth-width-8,left))+"px";p.style.top=Math.max(8,Math.min(innerHeight-height-8,top))+"px";
 }
@@ -424,7 +424,17 @@ async function setupGifs(){try{const d=await api("/api/friends/gifs/config");gif
 function gifObj(g){return{id:g.id,title:g.title||"GIF",url:g.images?.original?.url||g.images?.fixed_width?.url,preview:g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url}}
 async function loadGifs(){if(gifTab==="favorites"){const d=await api("/api/friends/bootstrap");renderGifs(d.gifFavorites||[]);return}if(!gifKey)return;const q=$("gif-search-input").value.trim();const url=q?"https://api.giphy.com/v1/gifs/search?api_key="+encodeURIComponent(gifKey)+"&q="+encodeURIComponent(q)+"&limit=30&rating=g&bundle=messaging_non_clips":"https://api.giphy.com/v1/gifs/trending?api_key="+encodeURIComponent(gifKey)+"&limit=30&rating=g&bundle=messaging_non_clips";try{const r=await fetch(url);const d=await r.json();if(!r.ok)throw Error(d.message||"GIF search failed.");renderGifs((d.data||[]).map(gifObj))}catch(e){$("gif-status").textContent=e.message}}
 function renderGifs(list){const favorites=gifTab==="favorites";$("gif-grid").innerHTML=(list||[]).map(g=>'<button class="gif-card" data-gif-id="'+esc(g.id)+'"><img src="'+esc(g.preview||g.url)+'" alt=""><span class="gif-fav '+(favorites?"is-saved":"")+'" title="'+(favorites?"Saved GIF":"Save GIF")+'"><i class="fa-'+(favorites?"solid":"regular")+' fa-bookmark"></i></span></button>').join("");$("gif-grid")._gifs=list||[];$("gif-status").textContent=list?.length?"":"No GIFs found."}
-$("dm-gif").onclick=()=>{$("gif-panel").hidden=!$("gif-panel").hidden;if(!$("gif-panel").hidden)loadGifs()};$("gif-close").onclick=()=>$("gif-panel").hidden=true;
+$("dm-gif").remove();
+const dmPlus=$("dm-plus"),dmComposeMenu=$("dm-compose-menu");
+function closeDmComposeMenu(){if(!dmComposeMenu)return;dmComposeMenu.hidden=true;dmPlus?.setAttribute("aria-expanded","false");}
+function positionDmToolPanel(panel,anchor){if(!panel||!anchor)return;const rect=anchor.getBoundingClientRect(),width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);let left=rect.left+rect.width/2-width/2,top=rect.top-height-10;if(top<8)top=rect.bottom+8;panel.style.width=width+"px";panel.style.left=Math.max(8,Math.min(innerWidth-width-8,left))+"px";panel.style.top=Math.max(8,Math.min(innerHeight-height-8,top))+"px";}
+function openDmGifs(){closeReactionPopups();closeDmComposeMenu();$("gif-panel").hidden=false;positionDmToolPanel($("gif-panel"),dmPlus);loadGifs();$("gif-search-input").focus();}
+function openDmEmoji(){closeDmComposeMenu();openUnifiedPicker("emoji",dmPlus,{type:"compose"});}
+function openDmStickers(){closeDmComposeMenu();openUnifiedPicker("stickers",dmPlus,{type:"browse"});}
+dmPlus?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const open=dmComposeMenu&&!dmComposeMenu.hidden;closeReactionPopups();$("gif-panel").hidden=true;if(open)closeDmComposeMenu();else{dmComposeMenu.hidden=false;dmPlus.setAttribute("aria-expanded","true");}});
+dmComposeMenu?.addEventListener("click",e=>{const item=e.target.closest("[data-compose-tool]");if(!item)return;e.preventDefault();e.stopPropagation();const tool=item.dataset.composeTool;if(tool==="gif")openDmGifs();else if(tool==="emoji")openDmEmoji();else if(tool==="sticker")openDmStickers();});
+$("dm-emoji-button")?.remove();$("dm-sticker-button")?.remove();
+$("gif-close").onclick=()=>{$("gif-panel").hidden=true;};
 document.querySelectorAll(".gif-tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".gif-tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");gifTab=t.dataset.gifTab;loadGifs()});
 $("gif-search-input").oninput=()=>{clearTimeout(timer);timer=setTimeout(loadGifs,300)};
 $("gif-search-clear").onclick=()=>{$("gif-search-input").value="";loadGifs();$("gif-search-input").focus()};
