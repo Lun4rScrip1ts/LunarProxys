@@ -53,4 +53,30 @@
 
   updateMemberStatus();
   window.setInterval(updateMemberStatus, 30000);
+
+  const loadChangelog = async () => {
+    const list = document.getElementById("lunar-changelog-list");
+    if (!list) return;
+    try {
+      const response = await fetch("/assets/data/changelog.json?v=lunar1", { cache: "no-store" });
+      if (!response.ok) throw new Error("Could not load updates.");
+      const data = await response.json();
+      const entries = Array.isArray(data.entries) ? data.entries : [];
+      list.innerHTML = entries.map((entry, index) => {
+        const date = new Date(entry.timestamp);
+        const formatted = Number.isNaN(date.getTime()) ? entry.timestamp : date.toLocaleString([], {
+          month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit"
+        });
+        return '<article class="lunar-changelog-entry '+(index===0?"latest":"")+'">' +
+          '<div class="lunar-changelog-entry-head"><div class="lunar-changelog-entry-title"><i class="fa-solid fa-satellite-dish"></i><span>'+String(entry.title||"Lunar Update")+'</span></div><span class="lunar-changelog-tag">'+String(entry.tag||"Update")+'</span></div>' +
+          '<div class="lunar-changelog-time">'+formatted+'</div>' +
+          '<ul class="lunar-changelog-items">'+(entry.items||[]).map(item=>'<li>'+String(item)+'</li>').join("")+'</ul>' +
+          '</article>';
+      }).join("") || '<div class="lunar-changelog-loading">No updates have been posted yet.</div>';
+    } catch {
+      list.innerHTML = '<div class="lunar-changelog-loading"><i class="fa-solid fa-cloud"></i><span>Update log is temporarily unavailable.</span></div>';
+    }
+  };
+  loadChangelog();
+
 })();
