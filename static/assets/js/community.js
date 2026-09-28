@@ -195,18 +195,21 @@
     if (nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  async function openChatProfile(username) {
+  async function openChatProfile(username, anchor = null) {
     try {
       const data = await api("/api/users/" + encodeURIComponent(username));
       const user = data.user || data;
       let modal = document.getElementById("global-profile-modal");
       if (!modal) { modal = document.createElement("div"); modal.id = "global-profile-modal"; modal.className = "global-profile-modal"; document.body.appendChild(modal); }
-      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><button class="global-profile-menu-button" type="button" aria-label="More profile options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="global-profile-menu" hidden><a href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'<div class="global-profile-actions" '+(user.isSelf || !currentUser?'hidden':'')+'><button type="button" class="global-profile-message">Message</button><button type="button" class="global-profile-friend">'+(user.isFriend?'Added':(user.friendRequestPending?'Pending':'Friend'))+'</button><button type="button" class="global-profile-block">'+(user.isBlocked?'Blocked':'Block')+'</button></div></div></div>';
+      const mutuals = Array.isArray(user.mutualFriends) ? user.mutualFriends : [];
+      modal.innerHTML = '<div class="global-profile-card"><button class="global-profile-close" type="button">×</button><button class="global-profile-menu-button" type="button" aria-label="More profile options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="global-profile-menu" hidden><a href="/profile/'+encodeURIComponent(user.username)+'">View full profile ↗</a></div><div class="global-profile-banner" style="background-image:url(&quot;'+escapeAttr(user.bannerUrl || user.backgroundUrl || '')+'&quot;)"></div><div class="global-profile-body"><div class="global-profile-avatar">'+avatar(user)+'</div><div class="global-profile-name"><h2>'+escape(user.displayName || user.username)+'</h2>'+(user.isOwner?'<span class="profile-owner-badge">OWNER</span>':'')+'</div><div class="global-profile-username">@'+escape(user.username)+'</div>'+(user.status?'<div class="global-profile-status">'+escape(user.status)+'</div>':'')+(user.bio?'<p class="global-profile-bio">'+escape(user.bio)+'</p>':'')+`<div class="global-profile-mutuals"><strong>${mutuals.length ? mutuals.length+" Mutual Friend"+(mutuals.length===1?"":"s") : "No Mutual Friends"}</strong>${mutuals.length?`<div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${escapeAttr(m.avatarUrl)}" alt="@${escapeAttr(m.username)}" title="@${escapeAttr(m.username)}">`:`<span title="@${escapeAttr(m.username)}">${escape(initials(m.displayName||m.username))}</span>`).join("")}</div>`:""}</div>`+((user.roles||[]).length?'<div class="profile-role-list">'+(user.roles||[]).map(role=>'<span class="profile-role">'+escape(role)+'</span>').join('')+'</div>':'')+'<div class="global-profile-actions" '+(user.isSelf || !currentUser?'hidden':'')+'><button type="button" class="global-profile-message">Message</button><button type="button" class="global-profile-friend">'+(user.isFriend?'Added':(user.friendRequestPending?'Pending':'Friend'))+'</button><button type="button" class="global-profile-block">'+(user.isBlocked?'Blocked':'Block')+'</button></div></div></div>';
       const menuButton = modal.querySelector(".global-profile-menu-button");
       const menu = modal.querySelector(".global-profile-menu");
       menuButton.onclick = event => { event.stopPropagation(); menu.hidden = !menu.hidden; menuButton.setAttribute("aria-expanded", String(!menu.hidden)); };
       modal.querySelector(".global-profile-close").onclick=()=>modal.remove();
       modal.onclick=e=>{if(e.target===modal)modal.remove()};
+      const card=modal.querySelector(".global-profile-card");
+      if(anchor&&card){const r=anchor.getBoundingClientRect(),w=card.offsetWidth||360,h=card.offsetHeight||420;let left=r.right+12,top=r.top;if(left+w>innerWidth-12)left=Math.max(12,r.left-w-12);if(top+h>innerHeight-12)top=Math.max(12,innerHeight-h-12);card.style.left=left+"px";card.style.top=top+"px";}
       const messageButton=modal.querySelector(".global-profile-message");
       const friendButton=modal.querySelector(".global-profile-friend");
       const blockButton=modal.querySelector(".global-profile-block");
@@ -434,7 +437,7 @@
 
   messagesEl.addEventListener("click", event => {
     const profile = event.target.closest("[data-profile-user]");
-    if (profile) { event.preventDefault(); openChatProfile(profile.dataset.profileUser); }
+    if (profile) { event.preventDefault(); openChatProfile(profile.dataset.profileUser, profile); }
   });
 
   messagesEl.addEventListener("click", async event => {
@@ -547,17 +550,18 @@
   document.getElementById("chat-sticker-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "sticker").finally(() => event.target.value=""));
   cancelAttachmentButton.addEventListener("click", clearAttachmentDraft);
 
-  function openStickerDrawer() {
+  function openStickerDrawer(anchor = document.getElementById("chat-sticker-catalog")) {
     if (!currentUser) { location.href="/account"; return; }
     renderStickers(currentUser.stickers || []);
     stickerDrawer.classList.add("open");
     stickerDrawer.setAttribute("aria-hidden","false");
+    if(anchor){const r=anchor.getBoundingClientRect();const w=Math.min(390,innerWidth-32);const h=Math.min(520,Math.floor(innerHeight*.7));let left=Math.max(16,Math.min(innerWidth-w-16,r.left+w>innerWidth-16?r.right-w:r.left));let top=r.top-h-10;if(top<16)top=Math.min(innerHeight-h-16,r.bottom+10);stickerDrawer.style.left=left+"px";stickerDrawer.style.right="auto";stickerDrawer.style.top=top+"px";stickerDrawer.style.bottom="auto";}
   }
   function closeStickerDrawer() {
     stickerDrawer.classList.remove("open");
     stickerDrawer.setAttribute("aria-hidden","true");
   }
-  document.getElementById("chat-sticker-catalog").addEventListener("click", openStickerDrawer);
+  document.getElementById("chat-sticker-catalog").addEventListener("click", e => openStickerDrawer(e.currentTarget));
   document.getElementById("close-sticker-drawer").addEventListener("click", closeStickerDrawer);
 
   stickerGrid.addEventListener("click", async event => {
