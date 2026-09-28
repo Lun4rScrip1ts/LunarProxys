@@ -49,7 +49,8 @@ async function loadState() {
         dmMessages: Array.isArray(parsed.dmMessages) ? parsed.dmMessages.slice(-5000) : [],
         reports: Array.isArray(parsed.reports) ? parsed.reports : [],
       };
-      state.friendships = normalizeFriendshipEntries(state.friendships, state.friendRequests);\n      for (const user of Object.values(state.users)) {
+      state.friendships = normalizeFriendshipEntries(state.friendships, state.friendRequests);
+      for (const user of Object.values(state.users)) {
         user.username = String(user.username || "").slice(0, USERNAME_MAX);
         user.displayName = String(user.displayName || user.username || "").slice(0, DISPLAY_NAME_MAX);
         user.email = String(user.email || "").toLowerCase();
