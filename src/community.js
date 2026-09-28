@@ -502,6 +502,42 @@ router.patch("/chat/messages/:id/reactions", requireUser, async (req, res) => {
   res.json({ reactions: message.reactions });
 });
 
+router.post("/chat/messages/:id/forward", requireUser, async (req, res) => {
+  const source = findMessage(req.params.id);
+  if (!source) return res.status(404).json({ error: "Message not found." });
+
+  const targetType = cleanText(req.body?.targetType, 20) || "friend";
+  if (targetType === "global") {
+    return res.status(400).json({ error: "You cannot forward a Global Chat message to Global Chat." });
+  }
+
+  const target = findUser(cleanText(req.body?.recipientId, 80));
+  if (!target || target.id === req.user.id) return res.status(400).json({ error: "Choose a friend to forward this message to." });
+  if (!areFriends(req.user.id, target.id) || isBlocked(req.user.id, target.id)) {
+    return res.status(403).json({ error: "You can only forward messages to a friend." });
+  }
+
+  const message = {
+    id: randomUUID(),
+    threadId: getDmThread(req.user.id, target.id, true).id,
+    senderId: req.user.id,
+    recipientId: target.id,
+    sender: publicFriendUser(req.user),
+    message: source.message || "",
+    attachment: source.attachments?.[0] ? {...source.attachments[0]} : null,
+    replyTo: null,
+    reactions: [],
+    deletedFor: [],
+    forwarded: true,
+    createdAt: new Date().toISOString(),
+    editedAt: "",
+  };
+  state.dmMessages.push(message);
+  if (state.dmMessages.length > 5000) state.dmMessages = state.dmMessages.slice(-5000);
+  await persist();
+  res.status(201).json({ message: publicDmMessage(message, req.user.id) });
+});
+
 router.post("/stickers/save", requireUser, async (req, res) => {
   const url = cleanText(req.body?.url, 1000);
   const name = cleanText(req.body?.name, 50) || "Saved sticker";
