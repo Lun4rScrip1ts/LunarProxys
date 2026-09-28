@@ -53,12 +53,12 @@ try{
   $("friends-profile-owner").hidden=!u.isOwner;
   $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
   $("friends-profile-stickers").innerHTML=(u.stickers||[]).slice(0,12).map(s=>'<img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'" loading="lazy">').join("");
-  const mutuals=Array.isArray(u.mutualFriends)?u.mutualFriends:[];
-  let mutualBox=document.getElementById("friends-profile-mutuals");
-  if(!mutualBox){mutualBox=document.createElement("div");mutualBox.id="friends-profile-mutuals";mutualBox.className="friends-profile-mutuals";actions?.before(mutualBox)}
-  mutualBox.innerHTML=mutuals.length?`<strong>${mutuals.length} Mutual Friend${mutuals.length===1?"":"s"}</strong><div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${esc(m.avatarUrl)}" alt="@${esc(m.username)}" title="@${esc(m.username)}">`:`<span title="@${esc(m.username)}">${esc(initials(m.displayName||m.username))}</span>`).join("")}</div>`:"<strong>No Mutual Friends</strong>";
   $("friends-profile-banner").style.backgroundImage=u.bannerUrl?'url("'+esc(u.bannerUrl)+'")':"none";
   const actions=$("friends-profile-actions");
+  const mutuals=Array.isArray(u.mutualFriends)?u.mutualFriends:[];
+  let mutualBox=document.getElementById("friends-profile-mutuals");
+  if(!mutualBox){mutualBox=document.createElement("div");mutualBox.id="friends-profile-mutuals";mutualBox.className="friends-profile-mutuals";actions.before(mutualBox)}
+  mutualBox.innerHTML=mutuals.length?`<strong>${mutuals.length} Mutual Friend${mutuals.length===1?"":"s"}</strong><div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${esc(m.avatarUrl)}" alt="@${esc(m.username)}" title="@${esc(m.username)}">`:`<span title="@${esc(m.username)}">${esc(initials(m.displayName||m.username))}</span>`).join("")}</div>`:"<strong>No Mutual Friends</strong>";
   const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block");
   actions.hidden=!!u.isSelf;
   message.onclick=()=>{ location.href="/friends?user="+encodeURIComponent(u.username); };
