@@ -970,3 +970,11 @@ body.interface-glass .lunar-friends-page .dm-messages{
 .lunar-friends-page .dm-sticker{width:78px!important;height:78px!important;max-width:78px!important;max-height:78px!important;object-fit:contain!important;display:block!important;margin-top:6px!important;border-radius:8px!important}
 .lunar-friends-page .dm-gif{max-width:260px!important;max-height:220px!important;object-fit:cover!important}
 @media(max-width:600px){.lunar-friends-page .emoji-sticker-picker{width:calc(100vw - 16px)!important;height:min(480px,calc(100vh - 90px))!important}.lunar-friends-page .emoji-sticker-pane emoji-picker{--num-columns:7}}
+
+
+.lunar-friends-page .emoji-recent{display:flex;flex:none;gap:3px;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.06);overflow:auto;background:rgba(255,255,255,.018)}
+.lunar-friends-page .emoji-recent[hidden]{display:none!important}
+.lunar-friends-page .emoji-recent button{width:30px!important;height:30px!important;flex:0 0 30px!important;margin:0!important;padding:0!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#fff!important;font-size:20px!important;line-height:1!important}
+.lunar-friends-page .emoji-recent button:hover{background:rgba(145,117,255,.14)!important}
+.lunar-friends-page .emoji-picker-host{flex:1;min-height:0;display:flex}
+.lunar-friends-page .emoji-picker-host emoji-picker{flex:1!important;min-height:0!important}
