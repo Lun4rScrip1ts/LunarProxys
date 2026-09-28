@@ -813,11 +813,12 @@
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       if (stickerCreateInline && !stickerCreateInline.hidden) closeStickerCreator();
-      else closePopovers();
+      else { closePopovers(); if (giphyPanel) { giphyPanel.hidden=true; giphyPanel.style.display=""; } }
     }
   });
   document.addEventListener("click", event => {
     if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(event.target) && !event.target.closest("#chat-emoji-button") && !event.target.closest("[data-action=\"react\"]")) closePopovers();
+    if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(event.target) && !event.target.closest("#chat-gif-button")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
   });
   stickerGrid.addEventListener("click", async event => {
     const sticker = event.target.closest("[data-send-sticker]");
