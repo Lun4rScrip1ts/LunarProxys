@@ -163,3 +163,18 @@
 }
 .lunar-friends-page #message-menu{pointer-events:auto!important}
 .lunar-friends-page .dm-reaction-picker,.lunar-friends-page .dm-reaction-users{pointer-events:auto!important}
+
+/* More breathing room below the fixed navigation */
+.lunar-friends-page .friends-app{
+  top:106px!important;
+  right:18px!important;
+  bottom:18px!important;
+  left:18px!important;
+  inset:106px 18px 18px!important;
+}
+.lunar-friends-page .dm-topbar{flex-basis:64px!important;min-height:64px!important;padding:0 20px!important}
+.lunar-friends-page .friends-sidebar-head{height:64px!important;padding:0 18px!important}
+.lunar-friends-page .dm-profile-intro{padding:32px 34px 20px!important;max-height:270px!important}
+.lunar-friends-page .dm-messages{padding:22px 32px 28px!important}
+.lunar-friends-page .dm-composer{margin:0 18px 18px!important}
+@media(max-width:800px){.lunar-friends-page .friends-app{top:82px!important;right:8px!important;bottom:8px!important;left:8px!important;inset:82px 8px 8px!important}.lunar-friends-page .dm-profile-intro{padding:22px 22px 14px!important}.lunar-friends-page .dm-messages{padding:14px!important}.lunar-friends-page .dm-composer{margin:0 10px 10px!important}}
