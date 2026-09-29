@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:23:00-04:00",
+  "updatedAt": "2026-09-28T20:58:42-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-lunar-movies",
+      "timestamp": "2026-09-28T20:58:42-04:00",
+      "title": "Lunar Movies",
+      "tag": "New",
+      "items": [
+        "Added a new Movies tab with a Netflix-inspired browsing layout, featured hero, search, category filters, movie cards, and detail panels.",
+        "Added saved movie bookmarks and a Surprise Me action.",
+        "Added a starter catalogue using official or rights-cleared Library of Congress film sources rather than unofficial streaming mirrors.",
+        "Added Movies to the global Lunar navigation and refreshed navigation caches."
+      ]
+    },
     {
       "id": "2026-09-28-friends-profile-clearance",
       "timestamp": "2026-09-28T20:23:00-04:00",
