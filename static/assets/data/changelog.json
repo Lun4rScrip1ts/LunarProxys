@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:21:00-04:00",
+  "updatedAt": "2026-09-28T20:23:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-profile-clearance",
+      "timestamp": "2026-09-28T20:23:00-04:00",
+      "title": "Friends Profile Frame Clearance",
+      "tag": "Fix",
+      "items": [
+        "Added extra vertical room to the overlaid mini-profile so the bottom action row has clearance.",
+        "Adjusted the conversation offset to match the larger profile frame.",
+        "Kept the mobile profile slightly more compact while preventing clipping.",
+        "Refreshed the Friends stylesheet cache."
+      ]
+    },
     {
       "id": "2026-09-28-friends-profile-frame-size",
       "timestamp": "2026-09-28T20:21:00-04:00",
