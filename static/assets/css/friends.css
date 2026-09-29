@@ -2012,3 +2012,75 @@ body.interface-glass .lunar-friends-page .dm-messages{
     min-width:0!important;
   }
 }
+
+
+/* Mini-profile actions: keep Friend/Friended and Block visible inside the compact header. */
+.lunar-friends-page .dm-profile-intro{
+  max-height:156px!important;
+  padding:10px 18px 8px!important;
+}
+.lunar-friends-page .large-avatar{
+  width:46px!important;
+  height:46px!important;
+  margin-bottom:4px!important;
+  font-size:17px!important;
+}
+.lunar-friends-page .dm-profile-intro h1{
+  font-size:18px!important;
+  line-height:1.05!important;
+  margin:0!important;
+}
+.lunar-friends-page .dm-profile-handle{
+  font-size:10px!important;
+  line-height:1.1!important;
+}
+.lunar-friends-page .dm-profile-intro p{
+  margin:3px 0 4px!important;
+  font-size:9px!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.lunar-friends-page .mutual-row{
+  min-height:17px!important;
+  line-height:17px!important;
+}
+.lunar-friends-page .profile-actions{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  gap:5px!important;
+  margin-top:4px!important;
+}
+.lunar-friends-page .profile-actions button{
+  flex:0 0 auto!important;
+  min-width:0!important;
+  height:26px!important;
+  padding:4px 10px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  border-radius:8px!important;
+}
+.lunar-friends-page #profile-friend{
+  min-width:68px!important;
+}
+.lunar-friends-page #profile-block{
+  min-width:52px!important;
+}
+.lunar-friends-page #profile-report{
+  min-width:72px!important;
+}
+@media(max-width:800px){
+  .lunar-friends-page .dm-profile-intro{
+    max-height:150px!important;
+    padding:8px 14px 7px!important;
+  }
+  .lunar-friends-page .profile-actions button{
+    height:25px!important;
+    padding:4px 8px!important;
+    font-size:9px!important;
+  }
+  .lunar-friends-page #profile-report{display:none!important}
+}
