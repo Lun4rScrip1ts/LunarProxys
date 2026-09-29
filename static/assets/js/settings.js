@@ -137,9 +137,16 @@ document.addEventListener("DOMContentLoaded", () => {
       store.remove("backgroundImageOpacity");
       store.remove("backgroundImageBlur");
       (async () => {
-        if (typeof store.flushAccountSettings === "function") {
-          await store.flushAccountSettings();
-        }
+        if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
+        window.location.reload();
+      })();
+    } else if (mode === "original") {
+      store.set("backgroundImage", "/assets/media/background/full-main.png");
+      store.set("backgroundImageOpacity", "100");
+      store.set("backgroundImageBlur", "0");
+      syncBackgroundControls();
+      (async () => {
+        if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
         window.location.reload();
       })();
     } else if (mode === "none") {
@@ -147,6 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
       syncBackgroundControls();
       document.body.style.backgroundImage = "none";
       document.getElementById("lunar-background-image")?.remove();
+      (async () => {
+        if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
+        window.location.reload();
+      })();
     } else {
       syncBackgroundControls();
     }
