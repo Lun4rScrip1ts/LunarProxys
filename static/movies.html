@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title id="t">Movies</title><link rel="shortcut icon" id="tab-favicon" href="favicon.png">
+<link rel="stylesheet" href="/assets/css/global.css"><link rel="stylesheet" href="/assets/css/container.css"><link rel="stylesheet" href="/assets/css/nav.css?v=lunar9"><link rel="stylesheet" href="/assets/css/lunar.css?v=lunar9"><link rel="stylesheet" href="/assets/css/movies.css?v=lunar1">
+<script src="/assets/js/storage.js?v=lunar8"></script><script src="/assets/js/main.js?v=lunar14"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="lunar-movies-page">
+<div class="nav-bar"></div>
+<main class="movies-shell">
+<section class="movies-hero"><div class="movies-hero-copy"><span class="movies-kicker"><i class="fa-solid fa-film"></i> LUNAR MOVIES</span><h1>Watch something great.</h1><p>A Netflix-inspired movie shelf for films available from official or rights-cleared sources.</p><div class="movies-hero-actions"><button id="movies-featured-watch" class="movies-primary"><i class="fa-solid fa-play"></i> Watch featured</button><button id="movies-random" class="movies-secondary"><i class="fa-solid fa-shuffle"></i> Surprise me</button></div></div><div class="movies-hero-art"></div></section>
+<section class="movies-toolbar"><div class="movies-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="movies-search" placeholder="Search movies..." autocomplete="off"></div><div class="movies-filters" id="movies-filters"><button class="movie-filter active" data-filter="all">All</button><button class="movie-filter" data-filter="classic">Classics</button><button class="movie-filter" data-filter="animation">Animation</button><button class="movie-filter" data-filter="documentary">Documentary</button><button class="movie-filter" data-filter="silent">Silent</button></div></section>
+<section class="movie-section"><div class="movie-section-head"><div><span>Featured</span><h2>Tonight's picks</h2></div><small id="movies-count"></small></div><div id="movie-grid" class="movie-grid"></div></section>
+</main>
+<div id="movie-modal" class="movie-modal" hidden><div class="movie-modal-backdrop" data-close-movie></div><section class="movie-modal-card" role="dialog" aria-modal="true"><button class="movie-modal-close" data-close-movie aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div id="movie-modal-poster" class="movie-modal-poster"></div><div class="movie-modal-copy"><span id="movie-modal-year"></span><h2 id="movie-modal-title"></h2><p id="movie-modal-description"></p><div id="movie-modal-tags" class="movie-tags"></div><div class="movie-modal-actions"><button id="movie-watch" class="movies-primary"><i class="fa-solid fa-play"></i> Watch film</button><button id="movie-pin" class="movies-secondary"><i class="fa-solid fa-bookmark"></i> Save</button></div><small class="movie-rights-note">Watch opens the film's official or rights-cleared source.</small></div></section></div>
+<script src="/assets/js/movies.js?v=lunar1"></script>
+</body></html>
