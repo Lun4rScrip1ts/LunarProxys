@@ -15,3 +15,10 @@
 - Reworked the DM profile header into a much shorter compact frame so it no longer pushes/clips the conversation.
 - Reduced popup and profile-modal dimensions while preserving their existing functionality.
 - Added responsive compact sizing for tablet and mobile layouts.
+
+### Friends Page Layout Visibility Fix
+- Fixed the Friends DM view being rendered even while its `hidden` attribute was active, which caused the empty profile/action header and conversation controls to appear on top of the page.
+- Added a page-scoped hidden-element guard so `hidden` UI cannot be forced visible by the Friends layout CSS.
+- Fixed the sticker collection drawer appearing at the top-left of the Friends page when it was not open.
+- Kept the sticker drawer available inside the emoji/sticker picker and synchronized its visibility with the active picker tab.
+- Refreshed Friends CSS and JavaScript asset versions.
