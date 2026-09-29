@@ -1,7 +1,43 @@
-const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all";const $=s=>document.querySelector(s);const saved=()=>{try{return JSON.parse(localStorage.getItem(MOVIE_KEY)||"[]")}catch{return[]}};const saveList=v=>localStorage.setItem(MOVIE_KEY,JSON.stringify([...new Set(v)]));const esc=v=>{const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML};const isSaved=id=>saved().includes(id);
-function braveMovieSearch(m){const query=encodeURIComponent(`"${m.title}" full movie official public domain`);window.open(`https://search.brave.com/search?q=${query}`,"_blank","noopener,noreferrer")}
-function openMovie(m){activeMovie=m;const modal=$("#movie-modal"),poster=$("#movie-modal-poster");poster.textContent=m.short;poster.style.setProperty("--poster-a",m.colors[0]);poster.style.setProperty("--poster-b",m.colors[1]);$("#movie-modal-year").textContent=m.year+" • "+m.runtime;$("#movie-modal-title").textContent=m.title;$("#movie-modal-description").textContent=m.description;$("#movie-modal-tags").innerHTML=m.tags.map(t=>"<span>"+esc(t)+"</span>").join("");$("#movie-watch").onclick=()=>braveMovieSearch(m);$("#movie-pin").onclick=()=>toggleSave(m);$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';modal.hidden=false}
-function toggleSave(m){const list=saved(),i=list.indexOf(m.id);if(i>=0)list.splice(i,1);else list.push(m.id);saveList(list);render();if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save'}
+const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all";
+const $=s=>document.querySelector(s);
+const saved=()=>{try{return JSON.parse(localStorage.getItem(MOVIE_KEY)||"[]")}catch{return[]}};
+const saveList=v=>localStorage.setItem(MOVIE_KEY,JSON.stringify([...new Set(v)]));
+const esc=v=>{const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML};
+const isSaved=id=>saved().includes(id);
+
+function closeMovie(){
+  const modal=$("#movie-modal"),video=$("#movie-player");
+  if(video){video.pause();video.removeAttribute("src");video.load()}
+  if(modal)modal.hidden=true;
+  document.body.classList.remove("movie-player-open");
+}
+
+function openMovie(m){
+  activeMovie=m;
+  const modal=$("#movie-modal"),video=$("#movie-player"),poster=$("#movie-modal-poster");
+  poster.innerHTML='<img src="'+esc(m.posterUrl)+'" alt="" loading="eager">';
+  video.src=m.videoUrl;
+  video.poster=m.posterUrl;
+  video.load();
+  $("#movie-modal-year").textContent=m.year+" • "+m.runtime;
+  $("#movie-modal-title").textContent=m.title;
+  $("#movie-modal-description").textContent=m.description;
+  $("#movie-modal-tags").innerHTML=m.tags.map(t=>"<span>"+esc(t)+"</span>").join("");
+  $("#movie-modal-source").textContent="Source: "+m.source;
+  $("#movie-pin").onclick=()=>toggleSave(m);
+  $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
+  modal.hidden=false;
+  document.body.classList.add("movie-player-open");
+}
+
+function toggleSave(m){
+  const list=saved(),i=list.indexOf(m.id);
+  if(i>=0)list.splice(i,1);else list.push(m.id);
+  saveList(list);
+  render();
+  if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
+}
+
 function render(){
   const q=($("#movies-search")?.value||"").trim().toLowerCase();
   const list=movies.filter(m=>(activeFilter==="all"||m.categories.includes(activeFilter))&&(!q||m.title.toLowerCase().includes(q)||m.tags.join(" ").toLowerCase().includes(q)));
@@ -12,7 +48,7 @@ function render(){
     return '<article class="movie-card" data-id="'+esc(m.id)+'">'+
       '<button class="movie-save '+savedClass+'" data-save="'+esc(m.id)+'" aria-label="Save film"><i class="fa-'+icon+' fa-bookmark"></i></button>'+
       '<span class="movie-badge">'+esc(m.badge)+'</span>'+
-      '<div class="movie-poster" style="--poster-a:'+m.colors[0]+';--poster-b:'+m.colors[1]+'"><strong class="movie-poster-title">'+esc(m.short)+'</strong></div>'+
+      '<div class="movie-poster"><img src="'+esc(m.posterUrl)+'" alt="" loading="lazy"><div class="movie-poster-shade"></div><strong class="movie-poster-title">'+esc(m.short)+'</strong><span class="movie-play"><i class="fa-solid fa-play"></i></span></div>'+
       '<div class="movie-card-body"><h3>'+esc(m.title)+'</h3><div class="movie-meta"><span>'+m.year+'</span><span>•</span><span>'+esc(m.runtime)+'</span></div></div>'+
       '</article>';
   }).join("");
@@ -27,4 +63,29 @@ function render(){
     if(m)toggleSave(m);
   });
 }
-async function init(){try{const r=await fetch("/assets/data/movies.json?v=lunar1",{cache:"no-store"});movies=await r.json();if(movies[0])$("#movies-featured-watch").onclick=()=>openMovie(movies[0]);$("#movies-random").onclick=()=>movies.length&&openMovie(movies[Math.floor(Math.random()*movies.length)]);$("#movies-search").oninput=render;document.querySelectorAll(".movie-filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".movie-filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeFilter=b.dataset.filter;render()});document.querySelectorAll("[data-close-movie]").forEach(x=>x.onclick=()=>$("#movie-modal").hidden=true);document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#movie-modal").hidden=true});render()}catch(e){console.error(e);$("#movie-grid").innerHTML="<p>Movies could not be loaded right now.</p>"}}document.addEventListener("DOMContentLoaded",init);
+
+async function init(){
+  try{
+    const r=await fetch("/assets/data/movies.json?v=lunar2",{cache:"no-store"});
+    if(!r.ok)throw new Error("Movie catalogue request failed: "+r.status);
+    movies=await r.json();
+    if(movies[0])$("#movies-featured-watch").onclick=()=>openMovie(movies[0]);
+    $("#movies-random").onclick=()=>movies.length&&openMovie(movies[Math.floor(Math.random()*movies.length)]);
+    $("#movies-search").oninput=render;
+    document.querySelectorAll(".movie-filter").forEach(b=>b.onclick=()=>{
+      document.querySelectorAll(".movie-filter").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      activeFilter=b.dataset.filter;
+      render();
+    });
+    document.querySelectorAll("[data-close-movie]").forEach(x=>x.onclick=closeMovie);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMovie()});
+    $("#movie-player").addEventListener("error",()=>$("#movie-player-error").hidden=false);
+    $("#movie-player").addEventListener("loadeddata",()=>$("#movie-player-error").hidden=true);
+    render();
+  }catch(e){
+    console.error(e);
+    $("#movie-grid").innerHTML="<p>Movies could not be loaded right now.</p>";
+  }
+}
+document.addEventListener("DOMContentLoaded",init);
