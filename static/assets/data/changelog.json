@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:03:08-04:00",
+  "updatedAt": "2026-09-28T20:08:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-compact-ui",
+      "timestamp": "2026-09-28T20:08:00-04:00",
+      "title": "Friends Compact UI",
+      "tag": "UI",
+      "items": [
+        "Reduced the Friends page chrome, sidebar, buttons, avatars, message spacing, and composer sizing.",
+        "Shortened the conversation profile header so the chat starts much sooner instead of leaving a large empty header area.",
+        "Tightened the Friends top bar and server rail while preserving the full message area.",
+        "Refreshed the Friends stylesheet cache so the compact layout loads immediately."
+      ]
+    },
     {
       "id": "2026-09-28-brighter-backgrounds",
       "timestamp": "2026-09-28T20:03:08-04:00",
