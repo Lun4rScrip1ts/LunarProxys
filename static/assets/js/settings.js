@@ -133,9 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const mode = this.value;
     store.set("backgroundMode", mode);
     if (mode === "default") {
-      store.remove("backgroundImage");
-      store.remove("backgroundImageOpacity");
-      store.remove("backgroundImageBlur");
+      store.set("backgroundImage", "https://cdn.discordapp.com/attachments/1552677976980590602/1554634440548950047/1536061.jpg?backend=b2&ex=6abd99a6&is=6abc4826&hm=9d440db406ac0f9344d92d072419f6b7a&");
+      store.set("backgroundImageOpacity", "100");
+      store.set("backgroundImageBlur", "0");
       (async () => {
         if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
         window.location.reload();
