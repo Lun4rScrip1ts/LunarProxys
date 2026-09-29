@@ -135,3 +135,9 @@ body.movie-player-open .movie-modal[hidden]{
 .movies-danger{border:1px solid rgba(255,100,100,.2);border-radius:10px;padding:11px 16px;font-weight:850;color:#ffb5b5;background:rgba(255,60,60,.08);cursor:pointer}
 .movies-danger:hover{background:rgba(255,60,60,.16)}
 @media(max-width:600px){.movie-upload-card{padding:22px}.movie-upload-row{grid-template-columns:1fr}}
+
+.movies-library-tabs{display:flex;gap:6px;width:100%;margin-bottom:2px}
+.movie-library-tab{border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 13px;background:rgba(255,255,255,.045);color:#9fa8ba;font-weight:800;cursor:pointer}
+.movie-library-tab:hover{background:rgba(255,255,255,.09);color:#fff}
+.movie-library-tab.active{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.16);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.movie-library-tab i{margin-right:6px}
