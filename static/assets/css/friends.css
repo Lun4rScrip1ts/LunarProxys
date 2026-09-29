@@ -802,3 +802,197 @@
     padding-right:9px!important;
   }
 }
+
+.lunar-friends-page .sticker-drawer{
+  position:relative!important;
+  width:100%!important;
+  max-width:none!important;
+  max-height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.lunar-friends-page .sticker-drawer-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  padding:11px 13px!important;
+}
+.lunar-friends-page .sticker-drawer-head strong{
+  display:block!important;
+  color:#f3f5fa!important;
+  font-size:12px!important;
+}
+.lunar-friends-page .sticker-drawer-head span{
+  display:block!important;
+  margin-top:2px!important;
+  color:#737d8e!important;
+  font-size:9px!important;
+}
+.lunar-friends-page .sticker-head-actions{
+  display:flex!important;
+  gap:5px!important;
+}
+.lunar-friends-page .sticker-create-button,
+.lunar-friends-page .sticker-close-button{
+  height:30px!important;
+  border:1px solid var(--friends-border)!important;
+  border-radius:9px!important;
+  background:rgba(255,255,255,.045)!important;
+  color:#b9c1d0!important;
+  cursor:pointer!important;
+}
+.lunar-friends-page .sticker-create-button{
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:0 9px!important;
+  font-size:10px!important;
+}
+.lunar-friends-page .sticker-close-button{
+  width:30px!important;
+}
+.lunar-friends-page .sticker-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+  padding:10px!important;
+  overflow:auto!important;
+  min-height:0!important;
+}
+.lunar-friends-page .sticker-grid button,
+.lunar-friends-page .sticker-grid .sticker-item{
+  min-width:0!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.035)!important;
+  cursor:pointer!important;
+  transition:.15s ease!important;
+}
+.lunar-friends-page .sticker-grid button:hover,
+.lunar-friends-page .sticker-grid .sticker-item:hover{
+  transform:translateY(-1px)!important;
+  border-color:rgba(109,124,255,.24)!important;
+  background:rgba(109,124,255,.1)!important;
+}
+.lunar-friends-page .sticker-empty{
+  padding:28px 16px!important;
+  color:#717b8c!important;
+  text-align:center!important;
+  font-size:10px!important;
+}
+.lunar-friends-page .sticker-create-inline{
+  padding:10px!important;
+  border-bottom:1px solid var(--friends-border)!important;
+}
+.lunar-friends-page .sticker-create-inline-head{
+  display:flex!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+}
+.lunar-friends-page .sticker-create-inline-head strong{
+  display:block!important;
+  font-size:11px!important;
+}
+.lunar-friends-page .sticker-create-inline-head span{
+  display:block!important;
+  margin-top:2px!important;
+  color:#737d8e!important;
+  font-size:9px!important;
+}
+.lunar-friends-page .sticker-create-inline-head button{
+  width:28px!important;
+  height:28px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.05)!important;
+  color:#aeb6c5!important;
+}
+.lunar-friends-page .sticker-upload-zone{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-top:9px!important;
+  padding:9px!important;
+  border:1px dashed rgba(255,255,255,.12)!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.025)!important;
+}
+.lunar-friends-page .sticker-create-preview{
+  width:42px!important;
+  height:42px!important;
+  flex:none!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:9px!important;
+  background:#090c12!important;
+  color:#707a8a!important;
+  overflow:hidden!important;
+}
+.lunar-friends-page .sticker-create-preview img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+}
+.lunar-friends-page .sticker-create-form,
+.lunar-friends-page #friend-sticker-create-form{
+  display:block!important;
+}
+.lunar-friends-page #friend-sticker-create-form label{
+  display:block!important;
+  margin-top:8px!important;
+  color:#aab2c1!important;
+  font-size:9px!important;
+}
+.lunar-friends-page #friend-sticker-create-form input,
+.lunar-friends-page #friend-sticker-create-form select{
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin-top:4px!important;
+  padding:8px!important;
+  border:1px solid var(--friends-border)!important;
+  border-radius:8px!important;
+  outline:0!important;
+  background:#0d1118!important;
+  color:#fff!important;
+}
+.lunar-friends-page .sticker-create-row{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+}
+.lunar-friends-page .sticker-create-actions{
+  display:flex!important;
+  justify-content:flex-end!important;
+  gap:6px!important;
+  margin-top:10px!important;
+}
+.lunar-friends-page .sticker-create-actions button{
+  border:1px solid var(--friends-border)!important;
+  border-radius:8px!important;
+  padding:7px 10px!important;
+  background:rgba(255,255,255,.045)!important;
+  color:#c3cad6!important;
+  cursor:pointer!important;
+}
+.lunar-friends-page #friend-save-sticker-create{
+  background:linear-gradient(135deg,var(--friends-accent),var(--friends-accent-2))!important;
+  color:#fff!important;
+}
+.lunar-friends-page .emoji-picker-host{
+  min-height:360px!important;
+}
+.lunar-friends-page emoji-picker{
+  width:100%!important;
+  height:420px!important;
+  max-height:calc(100vh - 190px)!important;
+  --background:#0d1118!important;
+  --border-color:rgba(255,255,255,.07)!important;
+  --button-hover-background:#171d29!important;
+  --button-active-background:#20283a!important;
+  --category-font-color:#8993a5!important;
+  --emoji-size:22px!important;
+}
