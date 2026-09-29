@@ -1,140 +1,103 @@
-const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all";
+const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all",currentUser=null;
 const $=s=>document.querySelector(s);
 const saved=()=>{try{return JSON.parse(localStorage.getItem(MOVIE_KEY)||"[]")}catch{return[]}};
 const saveList=v=>localStorage.setItem(MOVIE_KEY,JSON.stringify([...new Set(v)]));
 const esc=v=>{const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML};
 const isSaved=id=>saved().includes(id);
 const fmt=t=>{if(!Number.isFinite(t))return"0:00";const m=Math.floor(t/60),s=Math.floor(t%60);return m+":"+(s<10?"0":"")+s};
+const colorFor=id=>{let n=0;for(const c of String(id))n=(n*31+c.charCodeAt(0))>>>0;return ["#"+((n>>16)&255).toString(16).padStart(2,"0")+((n>>8)&255).toString(16).padStart(2,"0")+(n&255).toString(16).padStart(2,"0"),"#"+((n>>8)&255).toString(16).padStart(2,"0")+((n>>16)&255).toString(16).padStart(2,"0")+((n>>4)&255).toString(16).padStart(2,"0")]};
+const initials=t=>String(t||"VIDEO").split(/\s+/).slice(0,3).map(x=>x[0]).join("").toUpperCase();
 
-function setPlayIcon(){
-  const v=$("#movie-player"),icon=$("#movie-play i"),big=$("#movie-big-play i");
-  const playing=!v.paused;
-  icon.className=playing?"fa-solid fa-pause":"fa-solid fa-play";
-  big.className=playing?"fa-solid fa-pause":"fa-solid fa-play";
-  $("#movie-big-play").classList.toggle("visible",!playing);
-  $("#movie-play").setAttribute("aria-label",playing?"Pause":"Play");
-}
-
-function syncPlayer(){
-  const v=$("#movie-player");
-  if(!v)return;
-  $("#movie-current-time").textContent=fmt(v.currentTime);
-  $("#movie-duration").textContent=fmt(v.duration);
-  $("#movie-progress").value=v.duration?((v.currentTime/v.duration)*100):0;
-  setPlayIcon();
-}
-
-function togglePlayback(){
-  const v=$("#movie-player");
-  if(v.paused)v.play().catch(()=>{});
-  else v.pause();
-}
-
-function closeMovie(){
-  const modal=$("#movie-modal"),video=$("#movie-player");
-  if(video){video.pause();video.removeAttribute("src");video.load()}
-  if(modal)modal.hidden=true;
-  document.body.classList.remove("movie-player-open");
-}
+function setPlayIcon(){const v=$("#movie-player"),icon=$("#movie-play i"),big=$("#movie-big-play i");if(!v)return;const playing=!v.paused;icon.className=playing?"fa-solid fa-pause":"fa-solid fa-play";big.className=playing?"fa-solid fa-pause":"fa-solid fa-play";$("#movie-big-play").classList.toggle("visible",!playing);$("#movie-play").setAttribute("aria-label",playing?"Pause":"Play")}
+function syncPlayer(){const v=$("#movie-player");if(!v)return;$("#movie-current-time").textContent=fmt(v.currentTime);$("#movie-duration").textContent=fmt(v.duration);$("#movie-progress").value=v.duration?(v.currentTime/v.duration)*100:0;setPlayIcon()}
+function togglePlayback(){const v=$("#movie-player");if(v.paused)v.play().catch(()=>{});else v.pause()}
+function closeMovie(){const modal=$("#movie-modal"),video=$("#movie-player");if(video){video.pause();video.removeAttribute("src");video.load()}if(modal)modal.hidden=true;document.body.classList.remove("movie-player-open")}
+function closeUpload(){const modal=$("#movie-upload-modal");if(modal)modal.hidden=true;$("#movie-upload-status").textContent=""}
+function posterMarkup(m){if(m.posterUrl)return '<img src="'+esc(m.posterUrl)+'" alt="" loading="lazy"><div class="movie-poster-shade"></div>';const c=colorFor(m.id);return '<div class="movie-generated-poster" style="--poster-a:'+c[0]+';--poster-b:'+c[1]+'"><strong>'+esc(initials(m.title))+'</strong></div><div class="movie-poster-shade"></div>'}
 
 function openMovie(m){
   activeMovie=m;
-  const modal=$("#movie-modal"),video=$("#movie-player"),poster=$("#movie-modal-poster");
-  poster.innerHTML='<img src="'+esc(m.posterUrl)+'" alt="" loading="eager">';
+  const modal=$("#movie-modal"),video=$("#movie-player");
+  $("#movie-modal-poster").innerHTML=posterMarkup(m);
   video.src=m.videoUrl;
-  video.poster=m.posterUrl;
+  video.poster=m.posterUrl||"";
   video.load();
   $("#movie-player-title").textContent=m.title;
-  $("#movie-modal-year").textContent=m.year+" • "+m.runtime;
+  $("#movie-modal-year").textContent=(m.category||"Video").toUpperCase()+" • "+new Date(m.uploadedAt).toLocaleDateString();
   $("#movie-modal-title").textContent=m.title;
-  $("#movie-modal-description").textContent=m.description;
-  $("#movie-modal-tags").innerHTML=m.tags.map(t=>"<span>"+esc(t)+"</span>").join("");
-  $("#movie-modal-source").textContent="Source: "+m.source;
+  $("#movie-modal-description").textContent=m.description||"Uploaded to your Lunar library.";
+  $("#movie-modal-tags").innerHTML='<span>'+esc(m.category||"Other")+'</span><span>'+esc(m.uploadedBy||"Lunar")+'</span>';
+  $("#movie-modal-source").textContent="Uploaded by "+(m.uploadedBy||"Lunar");
   $("#movie-pin").onclick=()=>toggleSave(m);
   $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
-  $("#movie-player-error").hidden=true;
-  $("#movie-progress").value=0;
-  $("#movie-current-time").textContent="0:00";
-  $("#movie-duration").textContent="0:00";
-  modal.hidden=false;
-  document.body.classList.add("movie-player-open");
+  const del=$("#movie-delete");del.hidden=!(currentUser&&m.ownerId===currentUser.id);del.onclick=()=>deleteMovie(m);
+  $("#movie-player-error").hidden=true;$("#movie-progress").value=0;$("#movie-current-time").textContent="0:00";$("#movie-duration").textContent="0:00";
+  modal.hidden=false;document.body.classList.add("movie-player-open");
   video.play().catch(()=>setPlayIcon());
 }
-
-function toggleSave(m){
-  const list=saved(),i=list.indexOf(m.id);
-  if(i>=0)list.splice(i,1);else list.push(m.id);
-  saveList(list);render();
-  if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
-}
+function toggleSave(m){const list=saved(),i=list.indexOf(m.id);if(i>=0)list.splice(i,1);else list.push(m.id);saveList(list);render();if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save'}
+async function deleteMovie(m){if(!confirm("Delete this video from your Lunar library?"))return;const r=await fetch("/api/movies/"+encodeURIComponent(m.id),{method:"DELETE"});if(!r.ok){alert((await r.json().catch(()=>({}))).error||"Could not delete video.");return}closeMovie();movies=movies.filter(x=>x.id!==m.id);render()}
 
 function render(){
   const q=($("#movies-search")?.value||"").trim().toLowerCase();
-  const list=movies.filter(m=>(activeFilter==="all"||m.categories.includes(activeFilter))&&(!q||m.title.toLowerCase().includes(q)||m.tags.join(" ").toLowerCase().includes(q)));
-  $("#movies-count").textContent=list.length+" film"+(list.length===1?"":"s");
-  $("#movie-grid").innerHTML=list.map(m=>{
-    const savedClass=isSaved(m.id)?"saved":"";
-    const icon=isSaved(m.id)?"solid":"regular";
-    return '<article class="movie-card" data-id="'+esc(m.id)+'"><button class="movie-save '+savedClass+'" data-save="'+esc(m.id)+'" aria-label="Save film"><i class="fa-'+icon+' fa-bookmark"></i></button><span class="movie-badge">'+esc(m.badge)+'</span><div class="movie-poster"><img src="'+esc(m.posterUrl)+'" alt="" loading="lazy"><div class="movie-poster-shade"></div><strong class="movie-poster-title">'+esc(m.short)+'</strong><span class="movie-play"><i class="fa-solid fa-play"></i></span></div><div class="movie-card-body"><h3>'+esc(m.title)+'</h3><div class="movie-meta"><span>'+m.year+'</span><span>•</span><span>'+esc(m.runtime)+'</span></div></div></article>';
-  }).join("");
-  document.querySelectorAll(".movie-card").forEach(card=>card.onclick=e=>{
-    if(e.target.closest(".movie-save"))return;
-    const m=movies.find(x=>x.id===card.dataset.id);
-    if(m)openMovie(m);
-  });
-  document.querySelectorAll(".movie-save").forEach(b=>b.onclick=e=>{
-    e.stopPropagation();
-    const m=movies.find(x=>x.id===b.dataset.save);
-    if(m)toggleSave(m);
-  });
+  const list=movies.filter(m=>(activeFilter==="all"||String(m.category||"other").toLowerCase()===activeFilter)&&(!q||m.title.toLowerCase().includes(q)||(m.description||"").toLowerCase().includes(q)));
+  $("#movies-count").textContent=list.length+" video"+(list.length===1?"":"s");
+  $("#movie-grid").innerHTML=list.length?list.map(m=>{const sc=isSaved(m.id)?"saved":"",icon=isSaved(m.id)?"solid":"regular";return '<article class="movie-card" data-id="'+esc(m.id)+'"><button class="movie-save '+sc+'" data-save="'+esc(m.id)+'" aria-label="Save video"><i class="fa-'+icon+' fa-bookmark"></i></button><span class="movie-badge">'+esc(m.category||"OTHER")+'</span><div class="movie-poster">'+posterMarkup(m)+'<strong class="movie-poster-title">'+esc(m.title)+'</strong><span class="movie-play"><i class="fa-solid fa-play"></i></span></div><div class="movie-card-body"><h3>'+esc(m.title)+'</h3><div class="movie-meta"><span>'+esc(m.uploadedBy||"Lunar")+'</span><span>•</span><span>'+new Date(m.uploadedAt).toLocaleDateString()+'</span></div></div></article>'}).join(""):'<div class="movie-empty"><i class="fa-solid fa-film"></i><h3>Your library is empty</h3><p>Upload a video to start building your movie shelf.</p><button class="movies-primary" id="movies-empty-upload"><i class="fa-solid fa-cloud-arrow-up"></i> Upload video</button></div>';
+  document.querySelectorAll(".movie-card").forEach(card=>card.onclick=e=>{if(e.target.closest(".movie-save"))return;const m=movies.find(x=>x.id===card.dataset.id);if(m)openMovie(m)});
+  document.querySelectorAll(".movie-save").forEach(b=>b.onclick=e=>{e.stopPropagation();const m=movies.find(x=>x.id===b.dataset.save);if(m)toggleSave(m)});
+  $("#movies-empty-upload")?.addEventListener("click",openUpload);
+}
+
+async function loadLibrary(){const r=await fetch("/api/movies",{cache:"no-store"});if(!r.ok)throw new Error("Library request failed");const data=await r.json();movies=Array.isArray(data.movies)?data.movies:[]}
+async function loadUser(){const r=await fetch("/api/auth/me",{cache:"no-store"});if(r.ok){const data=await r.json();currentUser=data.user||null}}
+
+function openUpload(){const modal=$("#movie-upload-modal");modal.hidden=false;$("#movie-upload-title").focus()}
+function readDataUrl(file){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(file)})}
+function uploadVideo(file,title,description,category){
+ return new Promise((resolve,reject)=>{
+  const xhr=new XMLHttpRequest();xhr.open("POST","/api/movies/upload");xhr.setRequestHeader("Content-Type",file.type);xhr.setRequestHeader("X-Movie-Title",title);xhr.setRequestHeader("X-Movie-Description",description);xhr.setRequestHeader("X-Movie-Category",category);
+  xhr.upload.onprogress=e=>{if(e.lengthComputable){$(".movie-upload-progress").hidden=false;$("#movie-upload-progress-bar").style.width=(e.loaded/e.total*100)+"%"}};
+  xhr.onload=()=>{let data={};try{data=JSON.parse(xhr.responseText)}catch{};if(xhr.status>=200&&xhr.status<300)resolve(data.movie);else reject(new Error(data.error||"Upload failed."))};
+  xhr.onerror=()=>reject(new Error("Upload connection failed."));xhr.send(file);
+ });
+}
+
+async function submitUpload(){
+  const file=$("#movie-upload-video").files[0],title=$("#movie-upload-title").value.trim(),description=$("#movie-upload-description").value.trim(),category=$("#movie-upload-category").value;
+  const status=$("#movie-upload-status"),button=$("#movie-upload-submit");
+  if(!file)return status.textContent="Choose a video first.";
+  if(!title)return status.textContent="Give your video a title.";
+  if(file.size>500*1024*1024)return status.textContent="That video is over the 500 MB limit.";
+  button.disabled=true;status.textContent="Uploading…";$(".movie-upload-progress").hidden=false;$("#movie-upload-progress-bar").style.width="0%";
+  try{
+    const movie=await uploadVideo(file,title,description,category);
+    const poster=$("#movie-upload-poster").files[0];
+    if(poster&&poster.size<=8*1024*1024){try{const data=await readDataUrl(poster);const pr=await fetch("/api/movies/"+encodeURIComponent(movie.id)+"/poster",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data})});if(pr.ok){const pd=await pr.json();movie.posterUrl=pd.movie.posterUrl}}catch{}}
+    movies.unshift(movie);render();closeUpload();$("#movie-upload-title").value="";$("#movie-upload-description").value="";$("#movie-upload-video").value="";$("#movie-upload-poster").value="";
+  }catch(e){status.textContent=e.message}
+  finally{button.disabled=false}
 }
 
 async function init(){
-  try{
-    const r=await fetch("/assets/data/movies.json?v=lunar3",{cache:"no-store"});
-    if(!r.ok)throw new Error("Movie catalogue request failed: "+r.status);
-    movies=await r.json();
-    if(movies[0])$("#movies-featured-watch").onclick=()=>openMovie(movies[0]);
-    $("#movies-random").onclick=()=>movies.length&&openMovie(movies[Math.floor(Math.random()*movies.length)]);
-    $("#movies-search").oninput=render;
-    document.querySelectorAll(".movie-filter").forEach(b=>b.onclick=()=>{
-      document.querySelectorAll(".movie-filter").forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");activeFilter=b.dataset.filter;render();
-    });
-    document.querySelectorAll("[data-close-movie]").forEach(x=>x.onclick=closeMovie);
-    const video=$("#movie-player");
-    $("#movie-play").onclick=togglePlayback;
-    $("#movie-big-play").onclick=togglePlayback;
-    video.onclick=togglePlayback;
-    video.addEventListener("play",setPlayIcon);
-    video.addEventListener("pause",setPlayIcon);
-    video.addEventListener("timeupdate",syncPlayer);
-    video.addEventListener("loadedmetadata",syncPlayer);
-    video.addEventListener("ended",setPlayIcon);
-    video.addEventListener("error",()=>$("#movie-player-error").hidden=false);
-    $("#movie-progress").oninput=e=>{
-      if(video.duration)video.currentTime=(Number(e.target.value)/100)*video.duration;
-    };
-    $("#movie-mute").onclick=()=>{
-      video.muted=!video.muted;
-      $("#movie-mute i").className=video.muted?"fa-solid fa-volume-xmark":"fa-solid fa-volume-high";
-    };
-    $("#movie-fullscreen").onclick=()=>{
-      const wrap=$(".movie-player-wrap");
-      if(document.fullscreenElement)document.exitFullscreen();
-      else wrap.requestFullscreen?.();
-    };
-    document.addEventListener("keydown",e=>{
-      if($("#movie-modal").hidden)return;
-      if(e.key==="Escape")closeMovie();
-      if(e.key===" "&&document.activeElement.tagName!=="INPUT"){e.preventDefault();togglePlayback()}
-      if(e.key==="ArrowRight")video.currentTime=Math.min(video.duration||0,video.currentTime+5);
-      if(e.key==="ArrowLeft")video.currentTime=Math.max(0,video.currentTime-5);
-    });
-    render();
-  }catch(e){
-    console.error(e);
-    $("#movie-grid").innerHTML="<p>Movies could not be loaded right now.</p>";
-  }
+ try{
+  await Promise.all([loadLibrary(),loadUser()]);
+  $("#movies-featured-watch").onclick=()=>movies[0]&&openMovie(movies[0]);
+  $("#movies-random").onclick=()=>movies.length&&openMovie(movies[Math.floor(Math.random()*movies.length)]);
+  $("#movies-search").oninput=render;
+  document.querySelectorAll(".movie-filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".movie-filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeFilter=b.dataset.filter;render()});
+  document.querySelectorAll("[data-close-movie]").forEach(x=>x.onclick=closeMovie);
+  document.querySelectorAll("[data-close-upload]").forEach(x=>x.onclick=closeUpload);
+  $("#movies-upload-open").onclick=openUpload;$("#movie-upload-submit").onclick=submitUpload;
+  $("#movie-upload-video").onchange=e=>$("#movie-upload-file-label").textContent=e.target.files[0]?.name||"Choose a video";
+  const video=$("#movie-player");
+  $("#movie-play").onclick=togglePlayback;$("#movie-big-play").onclick=togglePlayback;video.onclick=togglePlayback;
+  video.addEventListener("play",setPlayIcon);video.addEventListener("pause",setPlayIcon);video.addEventListener("timeupdate",syncPlayer);video.addEventListener("loadedmetadata",syncPlayer);video.addEventListener("ended",setPlayIcon);
+  video.addEventListener("error",()=>$("#movie-player-error").hidden=false);
+  $("#movie-progress").oninput=e=>{if(video.duration)video.currentTime=Number(e.target.value)/100*video.duration};
+  $("#movie-mute").onclick=()=>{video.muted=!video.muted;$("#movie-mute i").className=video.muted?"fa-solid fa-volume-xmark":"fa-solid fa-volume-high"};
+  $("#movie-fullscreen").onclick=()=>{const wrap=$(".movie-player-wrap");if(document.fullscreenElement)document.exitFullscreen();else wrap.requestFullscreen?.()};
+  document.addEventListener("keydown",e=>{if(!$("#movie-modal").hidden){if(e.key==="Escape")closeMovie();if(e.key===" "&&document.activeElement.tagName!=="INPUT"){e.preventDefault();togglePlayback()}if(e.key==="ArrowRight")video.currentTime=Math.min(video.duration||0,video.currentTime+5);if(e.key==="ArrowLeft")video.currentTime=Math.max(0,video.currentTime-5)}if(!$("#movie-upload-modal").hidden&&e.key==="Escape")closeUpload()});
+  render();
+ }catch(e){console.error(e);$("#movie-grid").innerHTML='<div class="movie-empty"><i class="fa-solid fa-triangle-exclamation"></i><h3>Library could not load</h3><p>Try refreshing the page.</p></div>'}
 }
 document.addEventListener("DOMContentLoaded",init);
