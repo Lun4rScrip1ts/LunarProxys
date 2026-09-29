@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:13:00-04:00",
+  "updatedAt": "2026-09-28T20:16:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-profile-layering",
+      "timestamp": "2026-09-28T20:16:00-04:00",
+      "title": "Friends Mini-Profile Layering Fix",
+      "tag": "Fix",
+      "items": [
+        "Made the conversation mini-profile an absolute overlay instead of letting it push into or sit behind the message frame.",
+        "Raised the mini-profile above the message area with explicit stacking order and glass layering.",
+        "Kept the Friend/Friended and Block controls inside the overlaid profile.",
+        "Refreshed the Friends stylesheet cache."
+      ]
+    },
     {
       "id": "2026-09-28-friends-mini-profile-actions",
       "timestamp": "2026-09-28T20:13:00-04:00",
