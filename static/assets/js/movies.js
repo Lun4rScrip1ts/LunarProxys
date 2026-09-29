@@ -1,5 +1,29 @@
 const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all";const $=s=>document.querySelector(s);const saved=()=>{try{return JSON.parse(localStorage.getItem(MOVIE_KEY)||"[]")}catch{return[]}};const saveList=v=>localStorage.setItem(MOVIE_KEY,JSON.stringify([...new Set(v)]));const esc=v=>{const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML};const isSaved=id=>saved().includes(id);
 function openMovie(m){activeMovie=m;const modal=$("#movie-modal"),poster=$("#movie-modal-poster");poster.textContent=m.short;poster.style.setProperty("--poster-a",m.colors[0]);poster.style.setProperty("--poster-b",m.colors[1]);$("#movie-modal-year").textContent=m.year+" • "+m.runtime;$("#movie-modal-title").textContent=m.title;$("#movie-modal-description").textContent=m.description;$("#movie-modal-tags").innerHTML=m.tags.map(t=>"<span>"+esc(t)+"</span>").join("");$("#movie-watch").onclick=()=>window.open(m.watchUrl,"_blank","noopener,noreferrer");$("#movie-pin").onclick=()=>toggleSave(m);$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';modal.hidden=false}
 function toggleSave(m){const list=saved(),i=list.indexOf(m.id);if(i>=0)list.splice(i,1);else list.push(m.id);saveList(list);render();if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save'}
-function render(){const q=($("#movies-search")?.value||"").trim().toLowerCase();const list=movies.filter(m=>(activeFilter==="all"||m.categories.includes(activeFilter))&&(!q||m.title.toLowerCase().includes(q)||m.tags.join(" ").toLowerCase().includes(q)));$("#movies-count").textContent=list.length+" film"+(list.length===1?"":"s");$("#movie-grid").innerHTML=list.map(m=>'<article class="movie-card" data-id="'+esc(m.id)+'"><button class="movie-save '+(isSaved(m.id)?"saved":"")+'" data-save="'+esc(m.id)+'" aria-label="Save film"><i class="fa-'+(isSaved(m.id)?"solid":"regular")+' fa-bookmark"></i></button><span class="movie-badge">'+esc(m.badge)+"</span><div class="movie-poster" style="--poster-a:"+m.colors[0]+";--poster-b:"+m.colors[1]+'"><strong class="movie-poster-title">'+esc(m.short)+'</strong></div><div class="movie-card-body"><h3>'+esc(m.title)+'</h3><div class="movie-meta"><span>'+m.year+'</span><span>•</span><span>'+esc(m.runtime)+'</span></div></div></article>').join("");document.querySelectorAll(".movie-card").forEach(card=>card.onclick=e=>{if(e.target.closest(".movie-save"))return;const m=movies.find(x=>x.id===card.dataset.id);if(m)openMovie(m)});document.querySelectorAll(".movie-save").forEach(b=>b.onclick=e=>{e.stopPropagation();const m=movies.find(x=>x.id===b.dataset.save);if(m)toggleSave(m)})}
+function render(){
+  const q=($("#movies-search")?.value||"").trim().toLowerCase();
+  const list=movies.filter(m=>(activeFilter==="all"||m.categories.includes(activeFilter))&&(!q||m.title.toLowerCase().includes(q)||m.tags.join(" ").toLowerCase().includes(q)));
+  $("#movies-count").textContent=list.length+" film"+(list.length===1?"":"s");
+  $("#movie-grid").innerHTML=list.map(m=>{
+    const savedClass=isSaved(m.id)?"saved":"";
+    const icon=isSaved(m.id)?"solid":"regular";
+    return '<article class="movie-card" data-id="'+esc(m.id)+'">'+
+      '<button class="movie-save '+savedClass+'" data-save="'+esc(m.id)+'" aria-label="Save film"><i class="fa-'+icon+' fa-bookmark"></i></button>'+
+      '<span class="movie-badge">'+esc(m.badge)+'</span>'+
+      '<div class="movie-poster" style="--poster-a:'+m.colors[0]+';--poster-b:'+m.colors[1]+'"><strong class="movie-poster-title">'+esc(m.short)+'</strong></div>'+
+      '<div class="movie-card-body"><h3>'+esc(m.title)+'</h3><div class="movie-meta"><span>'+m.year+'</span><span>•</span><span>'+esc(m.runtime)+'</span></div></div>'+
+      '</article>';
+  }).join("");
+  document.querySelectorAll(".movie-card").forEach(card=>card.onclick=e=>{
+    if(e.target.closest(".movie-save"))return;
+    const m=movies.find(x=>x.id===card.dataset.id);
+    if(m)openMovie(m);
+  });
+  document.querySelectorAll(".movie-save").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const m=movies.find(x=>x.id===b.dataset.save);
+    if(m)toggleSave(m);
+  });
+}
 async function init(){try{const r=await fetch("/assets/data/movies.json?v=lunar1",{cache:"no-store"});movies=await r.json();if(movies[0])$("#movies-featured-watch").onclick=()=>openMovie(movies[0]);$("#movies-random").onclick=()=>movies.length&&openMovie(movies[Math.floor(Math.random()*movies.length)]);$("#movies-search").oninput=render;document.querySelectorAll(".movie-filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".movie-filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeFilter=b.dataset.filter;render()});document.querySelectorAll("[data-close-movie]").forEach(x=>x.onclick=()=>$("#movie-modal").hidden=true);document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#movie-modal").hidden=true});render()}catch(e){console.error(e);$("#movie-grid").innerHTML="<p>Movies could not be loaded right now.</p>"}}document.addEventListener("DOMContentLoaded",init);
