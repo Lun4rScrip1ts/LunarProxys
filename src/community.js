@@ -20,6 +20,7 @@ const MAX_STICKERS = 100;
 const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
 const MAX_REACTION_TEXT = 8;
+const MAX_MOVIE_BYTES = 500 * 1024 * 1024;
 
 let state = {
   users: {},
@@ -30,6 +31,7 @@ let state = {
   dmThreads: {},
   dmMessages: [],
   reports: [],
+  movies: [],
 };
 let writeQueue = Promise.resolve();
 
@@ -48,6 +50,7 @@ async function loadState() {
         dmThreads: parsed.dmThreads && typeof parsed.dmThreads === "object" ? parsed.dmThreads : {},
         dmMessages: Array.isArray(parsed.dmMessages) ? parsed.dmMessages.slice(-5000) : [],
         reports: Array.isArray(parsed.reports) ? parsed.reports : [],
+        movies: Array.isArray(parsed.movies) ? parsed.movies.slice(-500) : [],
       };
       state.friendships = normalizeFriendshipEntries(state.friendships, state.friendRequests);
       for (const user of Object.values(state.users)) {
@@ -279,6 +282,49 @@ async function verifyPassword(password, record) {
 }
 
 
+function movieExtension(contentType) {
+  const type = String(contentType || "").split(";")[0].toLowerCase();
+  return type === "video/mp4" ? "mp4" : type === "video/webm" ? "webm" : type === "video/ogg" ? "ogv" : type === "video/quicktime" ? "mov" : type === "video/x-matroska" ? "mkv" : "";
+}
+function publicMovie(movie) {
+  return { id: movie.id, title: movie.title, description: movie.description || "", category: movie.category || "Other", videoUrl: movie.videoUrl, posterUrl: movie.posterUrl || "", uploadedBy: movie.username || "Lunar", uploadedAt: movie.uploadedAt, size: movie.size, contentType: movie.contentType, ownerId: movie.ownerId };
+}
+router.get("/movies", (_req, res) => { res.set("Cache-Control", "no-store"); res.json({ movies: state.movies.slice().reverse().map(publicMovie) }); });
+router.post("/movies/upload", requireUser, express.raw({ type: req => /^video\//i.test(String(req.headers["content-type"] || "")), limit: "500mb" }), async (req, res) => {
+  const contentType = String(req.headers["content-type"] || "").split(";")[0].toLowerCase();
+  const extension = movieExtension(contentType);
+  const buffer = Buffer.isBuffer(req.body) ? req.body : null;
+  const title = cleanText(req.headers["x-movie-title"], 100);
+  const description = cleanText(req.headers["x-movie-description"], 500);
+  const category = cleanText(req.headers["x-movie-category"], 30) || "Other";
+  if (!extension) return res.status(415).json({ error: "Use MP4, WebM, OGG, MOV, or MKV video." });
+  if (!buffer?.length) return res.status(400).json({ error: "Choose a video first." });
+  if (buffer.length > MAX_MOVIE_BYTES) return res.status(413).json({ error: "Videos must be 500 MB or smaller." });
+  if (!title) return res.status(400).json({ error: "Give the video a title." });
+  try {
+    const id = randomUUID();
+    const filename = "movie-" + id + "." + extension;
+    await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer, { mode: 0o644 });
+    const movie = { id, ownerId: req.user.id, username: req.user.username, title, description, category, videoUrl: "/uploads/" + filename, posterUrl: "", uploadedAt: new Date().toISOString(), size: buffer.length, contentType };
+    state.movies.push(movie);
+    if (state.movies.length > 500) state.movies.splice(0, state.movies.length - 500);
+    await persist();
+    res.status(201).json({ movie: publicMovie(movie) });
+  } catch { res.status(500).json({ error: "The video could not be saved." }); }
+});
+router.post("/movies/:id/poster", requireUser, async (req, res) => {
+  const movie = state.movies.find(item => item.id === req.params.id && item.ownerId === req.user.id);
+  if (!movie) return res.status(404).json({ error: "Movie not found." });
+  try { const poster = await saveImage(req.body?.data, req.user.id, "movie-poster"); if (!poster) return res.status(400).json({ error: "Choose a poster first." }); movie.posterUrl = poster; await persist(); res.json({ movie: publicMovie(movie) }); }
+  catch (error) { res.status(400).json({ error: error.message }); }
+});
+router.delete("/movies/:id", requireUser, async (req, res) => {
+  const index = state.movies.findIndex(item => item.id === req.params.id && item.ownerId === req.user.id);
+  if (index < 0) return res.status(404).json({ error: "Movie not found." });
+  const [movie] = state.movies.splice(index, 1);
+  for (const url of [movie.videoUrl, movie.posterUrl]) if (url?.startsWith("/uploads/")) { try { await fs.unlink(path.join(UPLOAD_DIR, path.basename(url))); } catch {} }
+  await persist(); res.json({ ok: true });
+});
 router.get("/auth/me", (req, res) => {
   const user = getSessionUser(req);
   res.json({ user: user ? publicUser(user, true) : null });
