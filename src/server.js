@@ -116,6 +116,7 @@ if (!vendorMap) {
 const routes = [
   { path: "/apps", file: "apps.html" },
   { path: "/games", file: "games.html" },
+  { path: "/movies", file: "movies.html" },
   { path: "/play.html", file: "games.html" },
   { path: "/settings", file: "settings.html" },
   { path: "/chat", file: "chat.html" },
