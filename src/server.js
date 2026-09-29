@@ -37,18 +37,6 @@ const server = http.createServer();
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-const RAILWAY_CANONICAL_HOST = "lunarproxys.up.railway.app";
-const CUSTOM_HOSTS = new Set(["lunarproxys.com", "www.lunarproxys.com"]);
-
-app.use((req, res, next) => {
-  const host = String(req.hostname || "").toLowerCase();
-  if (CUSTOM_HOSTS.has(host)) {
-    const location = `https://${RAILWAY_CANONICAL_HOST}${req.originalUrl || "/"}`;
-    return res.redirect(308, location);
-  }
-  next();
-});
-
 wisp.options.allow_loopback_ips = true;
 wisp.options.allow_private_ips = true;
 
