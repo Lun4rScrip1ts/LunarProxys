@@ -29,7 +29,7 @@ function openMovie(m){
   top.append(title,close);
   const wrap=document.createElement("div");
   Object.assign(wrap.style,{position:"relative",width:"min(1200px,96vw)",height:"min(68vh,calc(96vw * .5625))",minHeight:"240px",background:"#000",borderRadius:"16px",overflow:"hidden",boxShadow:"0 30px 100px rgba(0,0,0,.7)",flex:"0 0 auto"});
-  const video=document.createElement("video");video.src=m.videoUrl;video.poster=m.posterUrl||"";video.controls=true;video.playsInline=true;video.preload="metadata";video.style.cssText="width:100%;height:100%;object-fit:contain;display:block;background:#000";
+  const video=document.createElement("video");video.src=m.videoUrl;video.poster=m.posterUrl||"";video.controls=true;video.playsInline=true;video.preload="auto";video.style.cssText="width:100%;height:100%;object-fit:contain;display:block;background:#000";
   const error=document.createElement("div");error.textContent="Unable to play this video. MP4 (H.264/AAC) is recommended.";Object.assign(error.style,{position:"absolute",inset:"0",display:"none",placeItems:"center",padding:"20px",textAlign:"center",color:"#fff",background:"rgba(0,0,0,.8)",fontSize:"15px"});
   video.addEventListener("error",()=>{error.style.display="grid"});
   wrap.append(video,error);
@@ -115,7 +115,7 @@ async function init(){
   const video=$("#movie-player");
   $("#movie-play").onclick=togglePlayback;$("#movie-big-play").onclick=togglePlayback;
   video.addEventListener("play",setPlayIcon);video.addEventListener("pause",setPlayIcon);video.addEventListener("canplay",()=>{$("#movie-player-error").hidden=true;setPlayIcon()});video.addEventListener("timeupdate",syncPlayer);video.addEventListener("loadedmetadata",syncPlayer);video.addEventListener("ended",setPlayIcon);
-  video.addEventListener("error",()=>{const code=video.error?.code;$("#movie-player-error").textContent=code===4?"This video format is not supported by your browser. MP4 (H.264/AAC) is recommended.":"That video could not be loaded. Check the upload and try again.";$("#movie-player-error").hidden=false});
+  let mediaRecoveryAttempts=0,mediaRecoveryTimer=0;const recoverMedia=()=>{if(mediaRecoveryAttempts>=3||!video.src)return;clearTimeout(mediaRecoveryTimer);mediaRecoveryTimer=setTimeout(()=>{if(video.readyState>=3||video.paused)return;const wasPlaying=!video.paused,current=video.currentTime;mediaRecoveryAttempts++;video.load();video.addEventListener("loadedmetadata",()=>{try{video.currentTime=Math.min(current,Math.max(0,(video.duration||current)-0.05))}catch{}},{once:true});if(wasPlaying)video.play().catch(()=>{})},700)};video.addEventListener("stalled",recoverMedia);video.addEventListener("waiting",recoverMedia);video.addEventListener("progress",()=>{mediaRecoveryAttempts=0});video.addEventListener("error",()=>{const code=video.error?.code;if(code===2){recoverMedia();return}$("#movie-player-error").textContent=code===4?"This video format is not supported by your browser. MP4 (H.264/AAC) is recommended.":"That video could not be loaded. Check the upload and try again.";$("#movie-player-error").hidden=false});
   $("#movie-progress").oninput=e=>{if(video.duration)video.currentTime=Number(e.target.value)/100*video.duration};
   $("#movie-mute").onclick=()=>{video.muted=!video.muted;$("#movie-mute i").className=video.muted?"fa-solid fa-volume-xmark":"fa-solid fa-volume-high"};
   $("#movie-fullscreen").onclick=()=>{const wrap=$(".movie-player-wrap");if(document.fullscreenElement)document.exitFullscreen();else wrap.requestFullscreen?.()};
