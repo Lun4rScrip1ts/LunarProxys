@@ -1628,3 +1628,184 @@ body.interface-glass .lunar-friends-page .dm-messages{
   overflow-wrap:anywhere!important;
   word-break:break-word!important;
 }
+
+
+/* Ultra-compact Friends layout: reduce oversized empty chrome while keeping the message area spacious. */
+.lunar-friends-page .friends-app{
+  top:82px!important;
+  right:10px!important;
+  bottom:10px!important;
+  left:10px!important;
+  inset:82px 10px 10px!important;
+  border-radius:13px!important;
+}
+.lunar-friends-page .friends-server-rail{
+  width:48px!important;
+  flex-basis:48px!important;
+  padding:7px 0!important;
+  gap:6px!important;
+}
+.lunar-friends-page .server-icon{
+  width:34px!important;
+  height:34px!important;
+  font-size:14px!important;
+}
+.lunar-friends-page .friends-sidebar{
+  width:198px!important;
+  min-width:198px!important;
+}
+.lunar-friends-page .friends-sidebar-head{
+  height:45px!important;
+  padding:0 9px!important;
+}
+.lunar-friends-page .friends-sidebar-head strong{font-size:14px!important}
+.lunar-friends-page .friends-sidebar-head span{font-size:8px!important}
+.lunar-friends-page .friends-sidebar-head button{
+  width:27px!important;
+  height:27px!important;
+}
+.lunar-friends-page .friends-tabs{
+  padding:5px 5px 3px!important;
+  gap:3px!important;
+}
+.lunar-friends-page .friends-tab{
+  padding:6px 4px!important;
+  font-size:10px!important;
+}
+.lunar-friends-page .friend-item{
+  gap:7px!important;
+  padding:6px 7px!important;
+}
+.lunar-friends-page .friend-avatar{
+  flex-basis:30px!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  min-height:30px!important;
+}
+.lunar-friends-page .friend-copy strong{font-size:12px!important}
+.lunar-friends-page .friend-copy span{font-size:10px!important}
+
+.lunar-friends-page .dm-topbar{
+  height:44px!important;
+  min-height:44px!important;
+  flex-basis:44px!important;
+  padding:0 9px!important;
+  gap:6px!important;
+}
+.lunar-friends-page .dm-topbar .icon-button{
+  width:27px!important;
+  height:27px!important;
+  font-size:13px!important;
+}
+.lunar-friends-page .mini-avatar{
+  width:28px!important;
+  height:28px!important;
+  font-size:11px!important;
+}
+.lunar-friends-page .dm-top-name{
+  font-size:12px!important;
+  gap:5px!important;
+}
+.lunar-friends-page .dm-top-name span{font-size:15px!important}
+
+/* Compact mini-profile: shorter, lower-density header so the conversation starts sooner. */
+.lunar-friends-page .dm-profile-intro{
+  max-height:112px!important;
+  padding:9px 16px 7px!important;
+  overflow:hidden!important;
+}
+.lunar-friends-page .large-avatar{
+  width:42px!important;
+  height:42px!important;
+  margin-bottom:3px!important;
+  font-size:16px!important;
+}
+.lunar-friends-page .dm-profile-intro h1{
+  font-size:16px!important;
+  line-height:1.05!important;
+  margin:0!important;
+}
+.lunar-friends-page .dm-profile-handle{
+  font-size:10px!important;
+  line-height:1.1!important;
+}
+.lunar-friends-page .dm-profile-intro p{
+  margin:3px 0 4px!important;
+  font-size:9px!important;
+  line-height:1.2!important;
+}
+.lunar-friends-page .mutual-row{
+  gap:4px!important;
+  font-size:9px!important;
+}
+.lunar-friends-page .mutual-icons span{
+  width:18px!important;
+  height:18px!important;
+}
+.lunar-friends-page .profile-actions{
+  margin-top:4px!important;
+  gap:4px!important;
+}
+.lunar-friends-page .profile-actions button{
+  padding:5px 8px!important;
+  font-size:9px!important;
+  line-height:1!important;
+}
+
+.lunar-friends-page .dm-messages{
+  padding:6px 11px 7px!important;
+}
+.lunar-friends-page .dm-message{
+  gap:7px!important;
+  padding:4px 5px!important;
+}
+.lunar-friends-page .dm-avatar{
+  flex-basis:28px!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+}
+.lunar-friends-page .dm-message-meta strong{font-size:11px!important}
+.lunar-friends-page .dm-message-meta time{font-size:8px!important}
+.lunar-friends-page .dm-text{font-size:12px!important}
+.lunar-friends-page .dm-composer{
+  min-height:40px!important;
+  margin:4px 8px 6px!important;
+  padding:3px 5px!important;
+  border-radius:10px!important;
+}
+.lunar-friends-page .dm-composer input{
+  height:29px!important;
+  font-size:12px!important;
+  padding:4px 6px!important;
+}
+.lunar-friends-page .composer-icon,
+.lunar-friends-page .dm-send{
+  width:29px!important;
+  height:29px!important;
+  font-size:12px!important;
+}
+
+@media(max-width:800px){
+  .lunar-friends-page .friends-app{
+    top:70px!important;
+    right:0!important;
+    bottom:0!important;
+    left:0!important;
+    inset:70px 0 0!important;
+  }
+  .lunar-friends-page .friends-server-rail{
+    width:46px!important;
+    flex-basis:46px!important;
+  }
+  .lunar-friends-page .friends-sidebar{
+    width:calc(100% - 46px)!important;
+    min-width:0!important;
+  }
+  .lunar-friends-page .dm-profile-intro{
+    max-height:108px!important;
+    padding:8px 13px 6px!important;
+  }
+}
