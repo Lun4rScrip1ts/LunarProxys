@@ -28,6 +28,7 @@ function openMovie(m){
   $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
   modal.hidden=false;
   document.body.classList.add("movie-player-open");
+  video.play().catch(()=>{});
 }
 
 function toggleSave(m){
