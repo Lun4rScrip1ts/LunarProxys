@@ -288,6 +288,8 @@ function setPickerTab(tab){
   if(!stickersAllowed&&tab==="stickers")tab="emoji";
   document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(b=>b.classList.toggle("active",b.dataset.pickerTab===tab));
   document.querySelectorAll("#reaction-picker [data-picker-pane]").forEach(p=>p.classList.toggle("active",p.dataset.pickerPane===tab));
+  const drawer=$("friend-sticker-drawer");
+  if(drawer)drawer.setAttribute("aria-hidden",tab==="stickers"?"false":"true");
   if(tab==="stickers")renderFriendStickers(me?.stickers||[]);else renderRecentEmojis();
 }
 function renderRecentEmojis(){
