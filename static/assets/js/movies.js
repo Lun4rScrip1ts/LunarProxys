@@ -17,33 +17,36 @@ function posterMarkup(m){if(m.posterUrl)return '<img src="'+esc(m.posterUrl)+'" 
 
 function openMovie(m){
   activeMovie=m;
-  const modal=$("#movie-modal"),video=$("#movie-player");
-  $("#movie-modal-poster").innerHTML=posterMarkup(m);
-  video.pause();
-  video.removeAttribute("src");
+  const old=document.getElementById("lunar-movie-theater");
+  if(old)old.remove();
+  const overlay=document.createElement("div");
+  overlay.id="lunar-movie-theater";
+  Object.assign(overlay.style,{position:"fixed",inset:"0",width:"100vw",height:"100vh",zIndex:"2147483647",background:"rgba(0,0,0,.96)",display:"flex",flexDirection:"column",alignItems:"center",overflow:"auto",padding:"18px",boxSizing:"border-box",fontFamily:"inherit"});
+  const top=document.createElement("div");
+  Object.assign(top.style,{width:"min(1200px,96vw)",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"4px 0 12px",color:"#fff",flex:"0 0 auto"});
+  const title=document.createElement("strong");title.textContent=m.title;Object.assign(title.style,{fontSize:"18px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"80%"});
+  const close=document.createElement("button");close.type="button";close.textContent="×";Object.assign(close.style,{width:"42px",height:"42px",border:"1px solid rgba(255,255,255,.2)",borderRadius:"12px",background:"rgba(255,255,255,.1)",color:"#fff",fontSize:"28px",cursor:"pointer"});
+  top.append(title,close);
+  const wrap=document.createElement("div");
+  Object.assign(wrap.style,{position:"relative",width:"min(1200px,96vw)",height:"min(68vh,calc(96vw * .5625))",minHeight:"240px",background:"#000",borderRadius:"16px",overflow:"hidden",boxShadow:"0 30px 100px rgba(0,0,0,.7)",flex:"0 0 auto"});
+  const video=document.createElement("video");video.src=m.videoUrl;video.poster=m.posterUrl||"";video.controls=true;video.playsInline=true;video.preload="metadata";video.style.cssText="width:100%;height:100%;object-fit:contain;display:block;background:#000";
+  const error=document.createElement("div");error.textContent="Unable to play this video. MP4 (H.264/AAC) is recommended.";Object.assign(error.style,{position:"absolute",inset:"0",display:"none",placeItems:"center",padding:"20px",textAlign:"center",color:"#fff",background:"rgba(0,0,0,.8)",fontSize:"15px"});
+  video.addEventListener("error",()=>{error.style.display="grid"});
+  wrap.append(video,error);
+  const info=document.createElement("div");Object.assign(info.style,{width:"min(1200px,96vw)",color:"#fff",padding:"18px 0 35px",flex:"0 0 auto"});
+  const h=document.createElement("h2");h.textContent=m.title;Object.assign(h.style,{margin:"0 0 8px",fontSize:"28px"});
+  const p=document.createElement("p");p.textContent=m.description||"Uploaded to your Lunar library.";Object.assign(p.style,{margin:"0",color:"#b8bfcc",lineHeight:"1.5"});
+  info.append(h,p);
+  overlay.append(top,wrap,info);
+  document.body.appendChild(overlay);
+  document.documentElement.style.overflow="hidden";
+  document.body.style.overflow="hidden";
+  const closeOverlay=()=>{video.pause();overlay.remove();document.documentElement.style.overflow="";document.body.style.overflow=""};
+  close.onclick=closeOverlay;
+  overlay.addEventListener("click",e=>{if(e.target===overlay)closeOverlay()});
+  document.addEventListener("keydown",function escMovie(e){if(e.key==="Escape"){closeOverlay();document.removeEventListener("keydown",escMovie)}},{once:true});
+  video.addEventListener("canplay",()=>error.style.display="none");
   video.load();
-  video.src=m.videoUrl;
-  video.poster=m.posterUrl||"";
-  video.load();
-  $("#movie-player-title").textContent=m.title;
-  $("#movie-modal-year").textContent=(m.category||"Video").toUpperCase()+" • "+new Date(m.uploadedAt).toLocaleDateString();
-  $("#movie-modal-title").textContent=m.title;
-  $("#movie-modal-description").textContent=m.description||"Uploaded to your Lunar library.";
-  $("#movie-modal-tags").innerHTML='<span>'+esc(m.category||"Other")+'</span><span>'+esc(m.uploadedBy||"Lunar")+'</span>';
-  $("#movie-modal-source").textContent="Uploaded by "+(m.uploadedBy||"Lunar");
-  $("#movie-pin").onclick=()=>toggleSave(m);
-  $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
-  const del=$("#movie-delete");del.hidden=!(currentUser&&m.ownerId===currentUser.id);del.onclick=()=>deleteMovie(m);
-  $("#movie-player-error").hidden=true;$("#movie-player-error").textContent="That video could not be loaded. Try again in a moment.";$("#movie-progress").value=0;$("#movie-current-time").textContent="0:00";$("#movie-duration").textContent="0:00";
-  if(modal.parentElement!==document.body)document.body.appendChild(modal);
-  modal.hidden=false;
-  modal.removeAttribute("hidden");
-  modal.style.setProperty("display","block","important");
-  modal.style.setProperty("visibility","visible","important");
-  modal.style.setProperty("opacity","1","important");
-  modal.style.setProperty("pointer-events","auto","important");
-  document.body.classList.add("movie-player-open");
-  setPlayIcon();
 }
 function toggleSave(m){const list=saved(),i=list.indexOf(m.id);if(i>=0)list.splice(i,1);else list.push(m.id);saveList(list);render();if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save'}
 async function deleteMovie(m){if(!confirm("Delete this video from your Lunar library?"))return;const r=await fetch("/api/movies/"+encodeURIComponent(m.id),{method:"DELETE"});if(!r.ok){alert((await r.json().catch(()=>({}))).error||"Could not delete video.");return}closeMovie();movies=movies.filter(x=>x.id!==m.id);render()}
