@@ -21,9 +21,9 @@ body{
 body:not(#no)::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
   background:
-    radial-gradient(900px 500px at 50% -10%,rgba(255,255,255,.10),transparent 65%),
-    radial-gradient(600px 400px at 85% 100%,rgba(100,120,160,.07),transparent 70%),
-    linear-gradient(145deg,rgba(6,8,12,.52),rgba(11,14,20,.60) 55%,rgba(6,8,12,.68));
+    radial-gradient(800px 500px at 15% 10%,rgba(91,124,255,.18),transparent 65%),
+    radial-gradient(700px 500px at 88% 75%,rgba(67,211,180,.10),transparent 68%),
+    linear-gradient(145deg,rgba(7,10,16,.25),rgba(10,15,24,.42));
 }
 body:not(#no):before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
@@ -46,10 +46,11 @@ body:not(#no):before{
   color:var(--lunar-muted);font-size:11px;font-weight:800;letter-spacing:.22em;
 }
 .lunar-brand span{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.75)}
-.lunar-home .title{
+.lunar-home .title,
+.lunar-home .title:hover{
   margin:0 0 12px!important;font-size:clamp(48px,8vw,108px)!important;
   line-height:.95!important;letter-spacing:-.07em!important;text-transform:none!important;
-  text-shadow:0 12px 45px rgba(0,0,0,.45)!important;
+  text-shadow:none!important;
 }
 .lunar-home .title:hover{transform:none!important}
 .lunar-home #splash{margin:0 0 28px!important;color:var(--lunar-muted)!important;font-size:15px}
@@ -666,4 +667,17 @@ body.lunar-static-cursor a{cursor:pointer!important}
 #lunar-pixel-cursor,
 #lunar-ring-cursor{
   z-index:2147483646!important;
+}
+
+
+/* Bright global background treatment: match the clearer Donate page and remove the heavy black wash. */
+body:not(#no)::after{
+  background:
+    radial-gradient(800px 500px at 15% 10%,rgba(91,124,255,.18),transparent 65%),
+    radial-gradient(700px 500px at 88% 75%,rgba(67,211,180,.10),transparent 68%),
+    linear-gradient(145deg,rgba(7,10,16,.25),rgba(10,15,24,.42))!important;
+}
+.lunar-home .title,
+.lunar-home .title:hover{
+  text-shadow:none!important;
 }
