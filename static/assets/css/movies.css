@@ -54,3 +54,54 @@ body.movie-player-open{overflow:hidden}
   .movie-player-info{flex-direction:column}
   .movie-player-info .movies-secondary{align-self:flex-start}
 }
+
+/* Top-level movie theater layer */
+html:has(body.movie-player-open),
+body.movie-player-open{
+  overflow:hidden !important;
+}
+body.movie-player-open .movie-modal{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  z-index:2147483647 !important;
+  isolation:isolate !important;
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+}
+body.movie-player-open .movie-modal[hidden]{
+  display:block !important;
+}
+.movie-modal-backdrop{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  pointer-events:auto !important;
+}
+.movie-modal-card{
+  position:relative !important;
+  z-index:1 !important;
+  min-height:100vh !important;
+  width:100vw !important;
+  max-width:none !important;
+}
+.movie-player-wrap,
+.movie-player-top,
+.movie-modal-copy{
+  position:relative !important;
+  z-index:2 !important;
+}
+.movie-player{
+  position:relative !important;
+  z-index:2 !important;
+}
+.movie-player-controls,
+.movie-big-play,
+.movie-player-error{
+  z-index:10 !important;
+}
