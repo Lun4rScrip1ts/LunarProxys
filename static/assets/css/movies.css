@@ -111,7 +111,7 @@ body.movie-player-open .movie-modal[hidden]{
 .movie-empty i{font-size:30px;color:#aebcff}.movie-empty h3{margin:10px 0 5px;font-size:20px}.movie-empty p{color:#8993a5;margin:0 0 18px}
 .movie-generated-poster{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--poster-a),var(--poster-b))}
 .movie-generated-poster strong{font-size:52px;letter-spacing:-.08em;color:rgba(255,255,255,.9);text-shadow:0 4px 20px rgba(0,0,0,.35)}
-.movie-poster>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.movie-poster>img,.movie-poster-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;background:#090b10}.movie-poster-video{pointer-events:none}
 .movie-poster-shade{z-index:1}
 .movie-poster-title{z-index:2}
 .movie-upload-modal{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;padding:20px}
