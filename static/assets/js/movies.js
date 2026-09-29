@@ -35,8 +35,10 @@ function openMovie(m){
   $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
   const del=$("#movie-delete");del.hidden=!(currentUser&&m.ownerId===currentUser.id);del.onclick=()=>deleteMovie(m);
   $("#movie-player-error").hidden=true;$("#movie-player-error").textContent="That video could not be loaded. Try again in a moment.";$("#movie-progress").value=0;$("#movie-current-time").textContent="0:00";$("#movie-duration").textContent="0:00";
-  modal.hidden=false;document.body.classList.add("movie-player-open");
-  requestAnimationFrame(()=>video.play().catch(()=>setPlayIcon()));
+  document.body.appendChild(modal);
+  modal.hidden=false;
+  document.body.classList.add("movie-player-open");
+  setPlayIcon();
 }
 function toggleSave(m){const list=saved(),i=list.indexOf(m.id);if(i>=0)list.splice(i,1);else list.push(m.id);saveList(list);render();if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save'}
 async function deleteMovie(m){if(!confirm("Delete this video from your Lunar library?"))return;const r=await fetch("/api/movies/"+encodeURIComponent(m.id),{method:"DELETE"});if(!r.ok){alert((await r.json().catch(()=>({}))).error||"Could not delete video.");return}closeMovie();movies=movies.filter(x=>x.id!==m.id);render()}
@@ -101,8 +103,8 @@ async function init(){
   $("#movie-upload-video").onchange=async e=>{const file=e.target.files[0];$("#movie-upload-file-label").textContent=file?.name||"Choose a video";resetPosterPreview();if(file){try{generatedPosterData=await makeVideoPoster(file);showPosterPreview(generatedPosterData,"Automatic frame from video")}catch{}}};
   $("#movie-upload-poster").onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>8*1024*1024){$("#movie-upload-status").textContent="Poster images must be 8 MB or smaller.";e.target.value="";return}try{showPosterPreview(await readDataUrl(file),"Your uploaded poster")}catch{}};
   const video=$("#movie-player");
-  $("#movie-play").onclick=togglePlayback;$("#movie-big-play").onclick=togglePlayback;video.onclick=togglePlayback;
-  video.addEventListener("play",setPlayIcon);video.addEventListener("pause",setPlayIcon);video.addEventListener("timeupdate",syncPlayer);video.addEventListener("loadedmetadata",syncPlayer);video.addEventListener("ended",setPlayIcon);
+  $("#movie-play").onclick=togglePlayback;$("#movie-big-play").onclick=togglePlayback;
+  video.addEventListener("play",setPlayIcon);video.addEventListener("pause",setPlayIcon);video.addEventListener("canplay",()=>{$("#movie-player-error").hidden=true;setPlayIcon()});video.addEventListener("timeupdate",syncPlayer);video.addEventListener("loadedmetadata",syncPlayer);video.addEventListener("ended",setPlayIcon);
   video.addEventListener("error",()=>{const code=video.error?.code;$("#movie-player-error").textContent=code===4?"This video format is not supported by your browser. MP4 (H.264/AAC) is recommended.":"That video could not be loaded. Check the upload and try again.";$("#movie-player-error").hidden=false});
   $("#movie-progress").oninput=e=>{if(video.duration)video.currentTime=Number(e.target.value)/100*video.duration};
   $("#movie-mute").onclick=()=>{video.muted=!video.muted;$("#movie-mute i").className=video.muted?"fa-solid fa-volume-xmark":"fa-solid fa-volume-high"};
