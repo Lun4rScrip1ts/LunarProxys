@@ -1256,3 +1256,15 @@
   }
   .lunar-friends-page .dm-messages{padding-top:116px!important}
 }
+
+
+/* Friends visibility guard: hidden UI must never leak into the page layout. */
+.lunar-friends-page [hidden]{
+  display:none!important;
+}
+.lunar-friends-page .sticker-drawer[aria-hidden="true"]{
+  display:none!important;
+}
+.lunar-friends-page .sticker-drawer[aria-hidden="false"]{
+  display:block!important;
+}
