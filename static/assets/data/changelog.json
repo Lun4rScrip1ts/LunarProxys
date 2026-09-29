@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T19:45:25-04:00",
+  "updatedAt": "2026-09-28T20:03:08-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-brighter-backgrounds",
+      "timestamp": "2026-09-28T20:03:08-04:00",
+      "title": "Brighter Backgrounds & Home Title Polish",
+      "tag": "Visual",
+      "items": [
+        "Lightened the global page background treatment so Apps, Games, Settings, Chat, Friends, and other tabs no longer get the heavy black wash.",
+        "Matched the clearer background treatment more closely to the Donate page.",
+        "Removed the black drop/fade shadow from the Lunar Proxy home title.",
+        "Refreshed Lunar stylesheet cache versions so the visual fix appears immediately."
+      ]
+    },
     {
       "id": "2026-09-28-friends-avatar-layout",
       "timestamp": "2026-09-28T19:45:25-04:00",
