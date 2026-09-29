@@ -1,17 +1,6 @@
 {
-  "updatedAt": "2026-09-29T11:04:42-04:00",
+  "updatedAt": "2026-09-28T21:03:21-04:00",
   "entries": [
-    {
-      "id": "2026-09-29-railway-canonical-host",
-      "timestamp": "2026-09-29T11:04:42-04:00",
-      "title": "Railway Canonical Host",
-      "tag": "Fix",
-      "items": [
-        "Added a server-side redirect from lunarproxys.com and www.lunarproxys.com to the Railway deployment host.",
-        "Preserved the current path and query string during the redirect.",
-        "Kept the Railway hostname as the canonical address for the running site."
-      ]
-    },
     {
       "id": "2026-09-28-movies-brave-search",
       "timestamp": "2026-09-28T21:03:21-04:00",
