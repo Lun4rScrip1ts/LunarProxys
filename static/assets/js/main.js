@@ -162,7 +162,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.style.backgroundImage = "none";
       return;
     }
-    const image = mode === "original" ? "/assets/media/background/full-main.png" : (mode === "custom" ? saved : "");
+    const defaultBliss = "https://cdn.discordapp.com/attachments/1552677976980590602/1554634440548950047/1536061.jpg?backend=b2&ex=6abd99a6&is=6abc4826&hm=9d440db406ac0f9344d92d072419f6b7a&";
+    const image = mode === "default" ? defaultBliss : (mode === "original" ? "/assets/media/background/full-main.png" : (mode === "custom" ? saved : ""));
     if (!image || image === "none") return;
     const imageLayer = document.createElement("div");
     imageLayer.id = "lunar-background-image";
