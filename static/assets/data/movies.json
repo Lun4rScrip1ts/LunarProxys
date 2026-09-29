@@ -1,0 +1,223 @@
+[
+  {
+    "id": "great-train-robbery",
+    "title": "The Great Train Robbery",
+    "short": "THE GREAT\nTRAIN ROBBERY",
+    "year": 1903,
+    "runtime": "12 min",
+    "badge": "CLASSIC",
+    "categories": [
+      "classic",
+      "silent"
+    ],
+    "tags": [
+      "Classic",
+      "Silent",
+      "Western"
+    ],
+    "description": "A landmark early narrative film available as a digital viewing copy through the Library of Congress.",
+    "watchUrl": "https://www.loc.gov/item/00694220/",
+    "colors": [
+      "#0b1e3c",
+      "#8a4b25"
+    ]
+  },
+  {
+    "id": "within-our-gates",
+    "title": "Within Our Gates",
+    "short": "WITHIN\nOUR GATES",
+    "year": 1920,
+    "runtime": "78 min",
+    "badge": "CLASSIC",
+    "categories": [
+      "classic",
+      "silent"
+    ],
+    "tags": [
+      "Drama",
+      "Silent",
+      "Feature"
+    ],
+    "description": "Oscar Micheaux's landmark silent feature, available as a digital viewing copy through the Library of Congress.",
+    "watchUrl": "https://www.loc.gov/item/2024600507/",
+    "colors": [
+      "#1c2430",
+      "#73523b"
+    ]
+  },
+  {
+    "id": "popeye-sindbad",
+    "title": "Popeye the Sailor Meets Sindbad the Sailor",
+    "short": "POPEYE\nMEETS\nSINDBAD",
+    "year": 1936,
+    "runtime": "16 min",
+    "badge": "ANIMATION",
+    "categories": [
+      "animation",
+      "classic"
+    ],
+    "tags": [
+      "Animation",
+      "Adventure",
+      "Classic"
+    ],
+    "description": "A classic animated short included in the Library of Congress public-domain film selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#163f63",
+      "#c47a29"
+    ]
+  },
+  {
+    "id": "st-louis-blues",
+    "title": "St. Louis Blues",
+    "short": "ST. LOUIS\nBLUES",
+    "year": 1929,
+    "runtime": "16 min",
+    "badge": "MUSIC",
+    "categories": [
+      "classic"
+    ],
+    "tags": [
+      "Music",
+      "Short",
+      "Classic"
+    ],
+    "description": "A preserved film included in the Library of Congress public-domain National Film Registry selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#40233d",
+      "#b86a50"
+    ]
+  },
+  {
+    "id": "memphis-belle",
+    "title": "The Memphis Belle",
+    "short": "THE\nMEMPHIS\nBELLE",
+    "year": 1944,
+    "runtime": "40 min",
+    "badge": "DOCUMENTARY",
+    "categories": [
+      "documentary"
+    ],
+    "tags": [
+      "History",
+      "Documentary"
+    ],
+    "description": "A historic wartime documentary preserved in the Library of Congress public-domain film selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#263c2d",
+      "#87916a"
+    ]
+  },
+  {
+    "id": "hitch-hiker",
+    "title": "The Hitch-Hiker",
+    "short": "THE\nHITCH-HIKER",
+    "year": 1953,
+    "runtime": "71 min",
+    "badge": "NOIR",
+    "categories": [
+      "classic"
+    ],
+    "tags": [
+      "Noir",
+      "Crime",
+      "Classic"
+    ],
+    "description": "A classic film noir included in the Library of Congress public-domain National Film Registry selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#101722",
+      "#5e718b"
+    ]
+  },
+  {
+    "id": "duck-and-cover",
+    "title": "Duck and Cover",
+    "short": "DUCK\n& COVER",
+    "year": 1951,
+    "runtime": "9 min",
+    "badge": "HISTORY",
+    "categories": [
+      "documentary"
+    ],
+    "tags": [
+      "History",
+      "Education",
+      "Short"
+    ],
+    "description": "A historic educational film preserved in the Library of Congress public-domain film selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#55341d",
+      "#b88c45"
+    ]
+  },
+  {
+    "id": "modesta",
+    "title": "Modesta",
+    "short": "MODESTA",
+    "year": 1956,
+    "runtime": "35 min",
+    "badge": "CLASSIC",
+    "categories": [
+      "classic"
+    ],
+    "tags": [
+      "Drama",
+      "Puerto Rico",
+      "Classic"
+    ],
+    "description": "A culturally significant film included in the Library of Congress public-domain National Film Registry selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#234c49",
+      "#9e6550"
+    ]
+  },
+  {
+    "id": "all-my-babies",
+    "title": "All My Babies",
+    "short": "ALL MY\nBABIES",
+    "year": 1953,
+    "runtime": "50 min",
+    "badge": "DOCUMENTARY",
+    "categories": [
+      "documentary"
+    ],
+    "tags": [
+      "Documentary",
+      "History"
+    ],
+    "description": "A historic documentary preserved in the Library of Congress public-domain film selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#203b31",
+      "#b0805b"
+    ]
+  },
+  {
+    "id": "master-hands",
+    "title": "Master Hands",
+    "short": "MASTER\nHANDS",
+    "year": 1936,
+    "runtime": "20 min",
+    "badge": "DOCUMENTARY",
+    "categories": [
+      "documentary"
+    ],
+    "tags": [
+      "Industry",
+      "Documentary",
+      "Classic"
+    ],
+    "description": "A visually distinctive industrial documentary preserved in the Library of Congress public-domain film selection.",
+    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
+    "colors": [
+      "#202b38",
+      "#a66e38"
+    ]
+  }
+]
