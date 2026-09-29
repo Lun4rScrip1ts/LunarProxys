@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:16:00-04:00",
+  "updatedAt": "2026-09-28T20:18:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-profile-conversation-layer",
+      "timestamp": "2026-09-28T20:18:00-04:00",
+      "title": "Friends Profile Conversation Layer Fix",
+      "tag": "Fix",
+      "items": [
+        "Kept the mini-profile layered over the conversation area without affecting the message composer.",
+        "Restored the conversation to the normal flexible message layout so the composer stays anchored at the bottom.",
+        "Added top spacing to the conversation so messages can continue underneath the profile overlay.",
+        "Refreshed the Friends stylesheet cache."
+      ]
+    },
     {
       "id": "2026-09-28-friends-profile-layering",
       "timestamp": "2026-09-28T20:16:00-04:00",
