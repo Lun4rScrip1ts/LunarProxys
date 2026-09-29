@@ -154,17 +154,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // Re-apply the background after account settings finish loading. This matters when
   // the saved custom background exists on the account but not in localStorage yet.
   const applyLunarBackground = () => {
-    const image = store.get("backgroundImage");
+    const mode = store.get("backgroundMode") || "default";
+    const saved = store.get("backgroundImage");
     document.body.style.backgroundImage = "";
     document.getElementById("lunar-background-image")?.remove();
-
+    if (mode === "none") {
+      document.body.style.backgroundImage = "none";
+      return;
+    }
+    const image = mode === "original" ? "/assets/media/background/full-main.png" : (mode === "custom" ? saved : "");
     if (!image || image === "none") return;
-
     const imageLayer = document.createElement("div");
     imageLayer.id = "lunar-background-image";
-    imageLayer.style.backgroundImage = `url("${String(image).replace(/"/g, "\\\"")}")`;
+    imageLayer.style.backgroundImage = 'url("' + String(image).replace(/"/g, '\\"') + '")';
     imageLayer.style.opacity = String(Number(store.get("backgroundImageOpacity") || 100) / 100);
-    imageLayer.style.filter = `blur(${Number(store.get("backgroundImageBlur") || 0)}px)`;
+    imageLayer.style.filter = "blur(" + Number(store.get("backgroundImageBlur") || 0) + "px)";
+    imageLayer.style.backgroundPosition = "center";
+    imageLayer.style.backgroundRepeat = "no-repeat";
+    imageLayer.style.backgroundSize = "cover";
+    imageLayer.style.backgroundAttachment = "fixed";
+    imageLayer.style.position = "fixed";
+    imageLayer.style.inset = "0";
+    imageLayer.style.zIndex = "0";
+    imageLayer.style.pointerEvents = "none";
     document.body.insertBefore(imageLayer, document.body.firstChild);
   };
 
@@ -216,19 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Background Image Logic — isolated in its own layer so opacity/blur affect
-  // only the uploaded image and never the UI or background effects.
-  const savedBackgroundImage = store.get("backgroundImage");
-  document.body.style.backgroundImage = "";
-  document.getElementById("lunar-background-image")?.remove();
-  if (savedBackgroundImage && savedBackgroundImage !== "none") {
-    const imageLayer = document.createElement("div");
-    imageLayer.id = "lunar-background-image";
-    imageLayer.style.backgroundImage = `url("${String(savedBackgroundImage).replace(/"/g, "\\\"")}")`;
-    imageLayer.style.opacity = String(Number(store.get("backgroundImageOpacity") || 100) / 100);
-    imageLayer.style.filter = `blur(${Number(store.get("backgroundImageBlur") || 0)}px)`;
-    document.body.insertBefore(imageLayer, document.body.firstChild);
-  }
+  // Background Image Logic — isolated in its own layer so opacity/blur affect only the image.
+  applyLunarBackground();
 
   // Background effects
   const backgroundEffect = store.get("particles") || "off";
@@ -328,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (CURSOR_EFFECTS.includes(activePointer) && effectsLevel !== "off" && motionLevel !== "off") {
     const cursorScript = document.createElement("script");
-    cursorScript.src = "/assets/js/cursor.js?v=lunar11";
+    cursorScript.src = "/assets/js/cursor.js?v=lunar12";
     cursorScript.onload = () => initCursorEffect();
     document.head.appendChild(cursorScript);
   }
