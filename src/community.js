@@ -21,6 +21,7 @@ const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
 const MAX_REACTION_TEXT = 8;
 const MAX_MOVIE_BYTES = 500 * 1024 * 1024;
+const PUBLIC_MOVIE_UPLOADERS = new Set(["lunar", "lunarstudios"]);
 
 let state = {
   users: {},
@@ -289,7 +290,7 @@ function movieExtension(contentType) {
 function publicMovie(movie) {
   return { id: movie.id, title: movie.title, description: movie.description || "", category: movie.category || "Other", videoUrl: movie.videoUrl, posterUrl: movie.posterUrl || "", uploadedBy: movie.username || "Lunar", uploadedAt: movie.uploadedAt, size: movie.size, contentType: movie.contentType, ownerId: movie.ownerId };
 }
-router.get("/movies", (_req, res) => { res.set("Cache-Control", "no-store"); res.json({ movies: state.movies.slice().reverse().map(publicMovie) }); });
+router.get("/movies", (req, res) => { const user = getSessionUser(req); res.set("Cache-Control", "no-store"); const visible = state.movies.filter(movie => isPublicMovie(movie) || (user && movie.ownerId === user.id)); res.json({ movies: visible.slice().reverse().map(publicMovie) }); });
 router.post("/movies/upload", requireUser, express.raw({ type: req => /^video\//i.test(String(req.headers["content-type"] || "")), limit: "500mb" }), async (req, res) => {
   const contentType = String(req.headers["content-type"] || "").split(";")[0].toLowerCase();
   const extension = movieExtension(contentType);
@@ -305,7 +306,7 @@ router.post("/movies/upload", requireUser, express.raw({ type: req => /^video\//
     const id = randomUUID();
     const filename = "movie-" + id + "." + extension;
     await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer, { mode: 0o644 });
-    const movie = { id, ownerId: req.user.id, username: req.user.username, title, description, category, videoUrl: "/uploads/" + filename, posterUrl: "", uploadedAt: new Date().toISOString(), size: buffer.length, contentType };
+    const movie = { id, ownerId: req.user.id, username: req.user.username, title, description, category, videoUrl: "/uploads/" + filename, posterUrl: "", uploadedAt: new Date().toISOString(), size: buffer.length, contentType, visibility: PUBLIC_MOVIE_UPLOADERS.has(req.user.username.toLowerCase()) ? "public" : "private" };
     state.movies.push(movie);
     if (state.movies.length > 500) state.movies.splice(0, state.movies.length - 500);
     await persist();
