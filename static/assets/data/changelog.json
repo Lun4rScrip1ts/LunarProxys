@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:10:00-04:00",
+  "updatedAt": "2026-09-28T20:13:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-mini-profile-actions",
+      "timestamp": "2026-09-28T20:13:00-04:00",
+      "title": "Friends Mini-Profile Actions",
+      "tag": "UI",
+      "items": [
+        "Added Friend/Friended and Block actions directly to the compact conversation profile.",
+        "Friend changes to Friended and disables itself when the selected user is already a friend.",
+        "Kept the actions compact so they fit inside the shortened mini-profile header.",
+        "Refreshed Friends script and stylesheet cache versions."
+      ]
+    },
     {
       "id": "2026-09-28-friends-scale-nav",
       "timestamp": "2026-09-28T20:10:00-04:00",
