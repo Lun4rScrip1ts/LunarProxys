@@ -197,8 +197,25 @@ if(mutualRow){
 $("dm-input").placeholder="Message @"+f.username;
 renderFriends();
 await loadMessages(false);
-$("profile-friend").disabled=true;
-$("profile-friend").textContent="Friends";
+
+/* Keep the mini-profile actions useful even when this view is opened for a non-friend. */
+const miniFriendButton=$("profile-friend");
+const miniBlockButton=$("profile-block");
+const miniIsFriend=f.isFriend !== false;
+miniFriendButton.textContent=miniIsFriend ? "Friended" : "Friend";
+miniFriendButton.disabled=miniIsFriend;
+miniFriendButton.onclick=async()=>{
+  if(!active || miniFriendButton.disabled)return;
+  try{
+    await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:active.username})});
+    miniFriendButton.textContent="Pending";
+    miniFriendButton.disabled=true;
+    toast("Friend request sent.");
+    await bootstrap();
+  }catch(e){toast(e.message)}
+};
+miniBlockButton.textContent=f.isBlocked ? "Blocked" : "Block";
+miniBlockButton.disabled=Boolean(f.isBlocked);
 }
 async function loadMessages(forceBottom=false){if(!active)return;try{const e=$("dm-messages");const wasAtBottom=e.scrollHeight-e.scrollTop-e.clientHeight<40;const oldTop=e.scrollTop;const oldHeight=e.scrollHeight;const d=await api("/api/friends/dms/"+active.id+"/messages?limit=100");messages=d.messages||[];renderMessages();if(forceBottom||wasAtBottom)e.scrollTop=e.scrollHeight;else e.scrollTop=Math.max(0,oldTop+(e.scrollHeight-oldHeight))}catch(e){toast(e.message)}}
 function reactionHtml(m){return(m.reactions||[]).map(r=>{
