@@ -11,7 +11,7 @@ const initials=t=>String(t||"VIDEO").split(/\s+/).slice(0,3).map(x=>x[0]).join("
 function setPlayIcon(){const v=$("#movie-player"),icon=$("#movie-play i"),big=$("#movie-big-play i");if(!v)return;const playing=!v.paused;icon.className=playing?"fa-solid fa-pause":"fa-solid fa-play";big.className=playing?"fa-solid fa-pause":"fa-solid fa-play";$("#movie-big-play").classList.toggle("visible",!playing);$("#movie-play").setAttribute("aria-label",playing?"Pause":"Play")}
 function syncPlayer(){const v=$("#movie-player");if(!v)return;$("#movie-current-time").textContent=fmt(v.currentTime);$("#movie-duration").textContent=fmt(v.duration);$("#movie-progress").value=v.duration?(v.currentTime/v.duration)*100:0;setPlayIcon()}
 function togglePlayback(){const v=$("#movie-player");if(!v)return;if(v.paused){v.play().catch(()=>{$("#movie-player-error").hidden=false;$("#movie-player-error").textContent="This video cannot be played in your browser. MP4 (H.264/AAC) is recommended.";setPlayIcon()})}else v.pause()}
-function closeMovie(){const modal=$("#movie-modal"),video=$("#movie-player");if(video){video.pause();video.removeAttribute("src");video.load()}if(modal)modal.hidden=true;document.body.classList.remove("movie-player-open")}
+function closeMovie(){const modal=$("#movie-modal"),video=$("#movie-player");if(video){video.pause();video.removeAttribute("src");video.load()}if(modal){modal.hidden=true;modal.removeAttribute("style")}document.body.classList.remove("movie-player-open")}
 function closeUpload(){const modal=$("#movie-upload-modal");if(modal)modal.hidden=true;$("#movie-upload-status").textContent=""}
 function posterMarkup(m){if(m.posterUrl)return '<img src="'+esc(m.posterUrl)+'" alt="" loading="lazy"><div class="movie-poster-shade"></div>';const c=colorFor(m.id);return '<div class="movie-generated-poster" style="--poster-a:'+c[0]+';--poster-b:'+c[1]+'"><strong>'+esc(initials(m.title))+'</strong></div><div class="movie-poster-shade"></div>'}
 
@@ -35,8 +35,13 @@ function openMovie(m){
   $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
   const del=$("#movie-delete");del.hidden=!(currentUser&&m.ownerId===currentUser.id);del.onclick=()=>deleteMovie(m);
   $("#movie-player-error").hidden=true;$("#movie-player-error").textContent="That video could not be loaded. Try again in a moment.";$("#movie-progress").value=0;$("#movie-current-time").textContent="0:00";$("#movie-duration").textContent="0:00";
-  document.body.appendChild(modal);
+  if(modal.parentElement!==document.body)document.body.appendChild(modal);
   modal.hidden=false;
+  modal.removeAttribute("hidden");
+  modal.style.setProperty("display","block","important");
+  modal.style.setProperty("visibility","visible","important");
+  modal.style.setProperty("opacity","1","important");
+  modal.style.setProperty("pointer-events","auto","important");
   document.body.classList.add("movie-player-open");
   setPlayIcon();
 }
