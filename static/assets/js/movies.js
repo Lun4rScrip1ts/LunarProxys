@@ -1,4 +1,4 @@
-const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all",currentUser=null,currentLibrary="public";
+const MOVIE_KEY="lunar-movie-saved";let movies=[],activeMovie=null,activeFilter="all",currentUser=null,currentLibrary="public",generatedPosterData="";
 const $=s=>document.querySelector(s);
 const saved=()=>{try{return JSON.parse(localStorage.getItem(MOVIE_KEY)||"[]")}catch{return[]}};
 const saveList=v=>localStorage.setItem(MOVIE_KEY,JSON.stringify([...new Set(v)]));
@@ -10,7 +10,7 @@ const initials=t=>String(t||"VIDEO").split(/\s+/).slice(0,3).map(x=>x[0]).join("
 
 function setPlayIcon(){const v=$("#movie-player"),icon=$("#movie-play i"),big=$("#movie-big-play i");if(!v)return;const playing=!v.paused;icon.className=playing?"fa-solid fa-pause":"fa-solid fa-play";big.className=playing?"fa-solid fa-pause":"fa-solid fa-play";$("#movie-big-play").classList.toggle("visible",!playing);$("#movie-play").setAttribute("aria-label",playing?"Pause":"Play")}
 function syncPlayer(){const v=$("#movie-player");if(!v)return;$("#movie-current-time").textContent=fmt(v.currentTime);$("#movie-duration").textContent=fmt(v.duration);$("#movie-progress").value=v.duration?(v.currentTime/v.duration)*100:0;setPlayIcon()}
-function togglePlayback(){const v=$("#movie-player");if(v.paused)v.play().catch(()=>{});else v.pause()}
+function togglePlayback(){const v=$("#movie-player");if(!v)return;if(v.paused){v.play().catch(()=>{$("#movie-player-error").hidden=false;$("#movie-player-error").textContent="This video cannot be played in your browser. MP4 (H.264/AAC) is recommended.";setPlayIcon()})}else v.pause()}
 function closeMovie(){const modal=$("#movie-modal"),video=$("#movie-player");if(video){video.pause();video.removeAttribute("src");video.load()}if(modal)modal.hidden=true;document.body.classList.remove("movie-player-open")}
 function closeUpload(){const modal=$("#movie-upload-modal");if(modal)modal.hidden=true;$("#movie-upload-status").textContent=""}
 function posterMarkup(m){if(m.posterUrl)return '<img src="'+esc(m.posterUrl)+'" alt="" loading="lazy"><div class="movie-poster-shade"></div>';const c=colorFor(m.id);return '<div class="movie-generated-poster" style="--poster-a:'+c[0]+';--poster-b:'+c[1]+'"><strong>'+esc(initials(m.title))+'</strong></div><div class="movie-poster-shade"></div>'}
@@ -19,6 +19,9 @@ function openMovie(m){
   activeMovie=m;
   const modal=$("#movie-modal"),video=$("#movie-player");
   $("#movie-modal-poster").innerHTML=posterMarkup(m);
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
   video.src=m.videoUrl;
   video.poster=m.posterUrl||"";
   video.load();
@@ -31,9 +34,9 @@ function openMovie(m){
   $("#movie-pin").onclick=()=>toggleSave(m);
   $("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save';
   const del=$("#movie-delete");del.hidden=!(currentUser&&m.ownerId===currentUser.id);del.onclick=()=>deleteMovie(m);
-  $("#movie-player-error").hidden=true;$("#movie-progress").value=0;$("#movie-current-time").textContent="0:00";$("#movie-duration").textContent="0:00";
+  $("#movie-player-error").hidden=true;$("#movie-player-error").textContent="That video could not be loaded. Try again in a moment.";$("#movie-progress").value=0;$("#movie-current-time").textContent="0:00";$("#movie-duration").textContent="0:00";
   modal.hidden=false;document.body.classList.add("movie-player-open");
-  video.play().catch(()=>setPlayIcon());
+  requestAnimationFrame(()=>video.play().catch(()=>setPlayIcon()));
 }
 function toggleSave(m){const list=saved(),i=list.indexOf(m.id);if(i>=0)list.splice(i,1);else list.push(m.id);saveList(list);render();if(activeMovie?.id===m.id)$("#movie-pin").innerHTML=isSaved(m.id)?'<i class="fa-solid fa-bookmark"></i> Saved':'<i class="fa-regular fa-bookmark"></i> Save'}
 async function deleteMovie(m){if(!confirm("Delete this video from your Lunar library?"))return;const r=await fetch("/api/movies/"+encodeURIComponent(m.id),{method:"DELETE"});if(!r.ok){alert((await r.json().catch(()=>({}))).error||"Could not delete video.");return}closeMovie();movies=movies.filter(x=>x.id!==m.id);render()}
@@ -54,6 +57,9 @@ async function loadLibrary(){const r=await fetch("/api/movies",{cache:"no-store"
 async function loadUser(){const r=await fetch("/api/auth/me",{cache:"no-store"});if(r.ok){const data=await r.json();currentUser=data.user||null}}
 
 function openUpload(){const modal=$("#movie-upload-modal");modal.hidden=false;$("#movie-upload-title").focus()}
+function resetPosterPreview(){generatedPosterData="";const img=$("#movie-poster-preview"),empty=$("#movie-poster-preview-empty");if(img){img.removeAttribute("src");img.hidden=true}if(empty)empty.hidden=false}
+function showPosterPreview(data,label="Poster preview"){const img=$("#movie-poster-preview"),empty=$("#movie-poster-preview-empty"),note=$("#movie-poster-preview-note");if(!img)return;img.src=data;img.hidden=false;if(empty)empty.hidden=true;if(note)note.textContent=label}
+function makeVideoPoster(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),v=document.createElement("video");v.muted=true;v.playsInline=true;v.preload="metadata";const cleanup=()=>{URL.revokeObjectURL(url);v.remove()};v.onloadedmetadata=()=>{const t=Math.min(1,Math.max(0,(v.duration||1)*0.05));v.currentTime=t};v.onseeked=()=>{try{const w=1280,h=720,c=document.createElement("canvas");c.width=w;c.height=h;const ctx=c.getContext("2d");const scale=Math.max(w/v.videoWidth,h/v.videoHeight),dw=v.videoWidth*scale,dh=v.videoHeight*scale;ctx.drawImage(v,(w-dw)/2,(h-dh)/2,dw,dh);const data=c.toDataURL("image/jpeg",.82);cleanup();resolve(data)}catch(e){cleanup();reject(e)}};v.onerror=()=>{cleanup();reject(new Error("The video preview could not be generated."))};v.src=url})}
 function readDataUrl(file){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=reject;fr.readAsDataURL(file)})}
 function uploadVideo(file,title,description,category){
  return new Promise((resolve,reject)=>{
@@ -74,8 +80,9 @@ async function submitUpload(){
   try{
     const movie=await uploadVideo(file,title,description,category);
     const poster=$("#movie-upload-poster").files[0];
-    if(poster&&poster.size<=8*1024*1024){try{const data=await readDataUrl(poster);const pr=await fetch("/api/movies/"+encodeURIComponent(movie.id)+"/poster",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data})});if(pr.ok){const pd=await pr.json();movie.posterUrl=pd.movie.posterUrl}}catch{}}
-    movies.unshift(movie);render();closeUpload();$("#movie-upload-title").value="";$("#movie-upload-description").value="";$("#movie-upload-video").value="";$("#movie-upload-poster").value="";
+    const posterData=poster&&poster.size<=8*1024*1024?await readDataUrl(poster):generatedPosterData;
+    if(posterData){try{const pr=await fetch("/api/movies/"+encodeURIComponent(movie.id)+"/poster",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:posterData})});if(pr.ok){const pd=await pr.json();movie.posterUrl=pd.movie.posterUrl}}catch{}}
+    movies.unshift(movie);render();closeUpload();$("#movie-upload-title").value="";$("#movie-upload-description").value="";$("#movie-upload-video").value="";$("#movie-upload-poster").value="";resetPosterPreview();$("#movie-upload-file-label").textContent="Choose a video";
   }catch(e){status.textContent=e.message}
   finally{button.disabled=false}
 }
@@ -91,11 +98,12 @@ async function init(){
   document.querySelectorAll("[data-close-movie]").forEach(x=>x.onclick=closeMovie);
   document.querySelectorAll("[data-close-upload]").forEach(x=>x.onclick=closeUpload);
   $("#movies-upload-open").onclick=()=>{if(!currentUser){openUpload();return}currentLibrary="mine";document.querySelector(".movie-library-tab[data-library=\"mine\"]")?.click();openUpload()};$("#movie-upload-submit").onclick=submitUpload;
-  $("#movie-upload-video").onchange=e=>$("#movie-upload-file-label").textContent=e.target.files[0]?.name||"Choose a video";
+  $("#movie-upload-video").onchange=async e=>{const file=e.target.files[0];$("#movie-upload-file-label").textContent=file?.name||"Choose a video";resetPosterPreview();if(file){try{generatedPosterData=await makeVideoPoster(file);showPosterPreview(generatedPosterData,"Automatic frame from video")}catch{}}};
+  $("#movie-upload-poster").onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>8*1024*1024){$("#movie-upload-status").textContent="Poster images must be 8 MB or smaller.";e.target.value="";return}try{showPosterPreview(await readDataUrl(file),"Your uploaded poster")}catch{}};
   const video=$("#movie-player");
   $("#movie-play").onclick=togglePlayback;$("#movie-big-play").onclick=togglePlayback;video.onclick=togglePlayback;
   video.addEventListener("play",setPlayIcon);video.addEventListener("pause",setPlayIcon);video.addEventListener("timeupdate",syncPlayer);video.addEventListener("loadedmetadata",syncPlayer);video.addEventListener("ended",setPlayIcon);
-  video.addEventListener("error",()=>$("#movie-player-error").hidden=false);
+  video.addEventListener("error",()=>{const code=video.error?.code;$("#movie-player-error").textContent=code===4?"This video format is not supported by your browser. MP4 (H.264/AAC) is recommended.":"That video could not be loaded. Check the upload and try again.";$("#movie-player-error").hidden=false});
   $("#movie-progress").oninput=e=>{if(video.duration)video.currentTime=Number(e.target.value)/100*video.duration};
   $("#movie-mute").onclick=()=>{video.muted=!video.muted;$("#movie-mute i").className=video.muted?"fa-solid fa-volume-xmark":"fa-solid fa-volume-high"};
   $("#movie-fullscreen").onclick=()=>{const wrap=$(".movie-player-wrap");if(document.fullscreenElement)document.exitFullscreen();else wrap.requestFullscreen?.()};
