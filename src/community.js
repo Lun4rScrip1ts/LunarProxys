@@ -287,8 +287,11 @@ function movieExtension(contentType) {
   const type = String(contentType || "").split(";")[0].toLowerCase();
   return type === "video/mp4" ? "mp4" : type === "video/webm" ? "webm" : type === "video/ogg" ? "ogv" : type === "video/quicktime" ? "mov" : type === "video/x-matroska" ? "mkv" : "";
 }
+function isPublicMovie(movie) {
+  return PUBLIC_MOVIE_UPLOADERS.has(String(movie.username || "").toLowerCase());
+}
 function publicMovie(movie) {
-  return { id: movie.id, title: movie.title, description: movie.description || "", category: movie.category || "Other", videoUrl: movie.videoUrl, posterUrl: movie.posterUrl || "", uploadedBy: movie.username || "Lunar", uploadedAt: movie.uploadedAt, size: movie.size, contentType: movie.contentType, ownerId: movie.ownerId };
+  return { id: movie.id, title: movie.title, description: movie.description || "", category: movie.category || "Other", videoUrl: movie.videoUrl, posterUrl: movie.posterUrl || "", uploadedBy: movie.username || "Lunar", uploadedAt: movie.uploadedAt, size: movie.size, contentType: movie.contentType, ownerId: movie.ownerId, visibility: isPublicMovie(movie) ? "public" : "private" };
 }
 router.get("/movies", (req, res) => { const user = getSessionUser(req); res.set("Cache-Control", "no-store"); const visible = state.movies.filter(movie => isPublicMovie(movie) || (user && movie.ownerId === user.id)); res.json({ movies: visible.slice().reverse().map(publicMovie) }); });
 router.post("/movies/upload", requireUser, express.raw({ type: req => /^video\//i.test(String(req.headers["content-type"] || "")), limit: "500mb" }), async (req, res) => {
