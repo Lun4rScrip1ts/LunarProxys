@@ -2239,3 +2239,63 @@ body.interface-glass .lunar-friends-page .dm-messages{
     padding-top:157px!important;
   }
 }
+
+
+/* Give the overlaid mini-profile enough vertical room for its complete frame and actions. */
+.lunar-friends-page .dm-profile-intro{
+  top:48px!important;
+  height:190px!important;
+  min-height:190px!important;
+  max-height:190px!important;
+  padding:12px 20px 10px!important;
+  overflow:hidden!important;
+}
+.lunar-friends-page .dm-profile-intro .large-avatar{
+  width:54px!important;
+  height:54px!important;
+  margin-bottom:5px!important;
+  font-size:19px!important;
+}
+.lunar-friends-page .dm-profile-intro h1{
+  font-size:20px!important;
+  line-height:1.05!important;
+  margin:0 0 2px!important;
+}
+.lunar-friends-page .dm-profile-handle{
+  font-size:11px!important;
+  line-height:1.1!important;
+}
+.lunar-friends-page .dm-profile-intro p{
+  margin:5px 0 6px!important;
+  font-size:10px!important;
+  line-height:1.25!important;
+}
+.lunar-friends-page .dm-profile-intro .mutual-row{
+  min-height:20px!important;
+  gap:6px!important;
+  font-size:10px!important;
+}
+.lunar-friends-page .dm-profile-intro .profile-actions{
+  margin-top:7px!important;
+  gap:6px!important;
+}
+.lunar-friends-page .dm-profile-intro .profile-actions button{
+  height:28px!important;
+  padding:5px 11px!important;
+  font-size:10px!important;
+}
+.lunar-friends-page .dm-messages{
+  padding-top:202px!important;
+}
+@media(max-width:800px){
+  .lunar-friends-page .dm-profile-intro{
+    top:46px!important;
+    height:180px!important;
+    min-height:180px!important;
+    max-height:180px!important;
+    padding:10px 15px 9px!important;
+  }
+  .lunar-friends-page .dm-messages{
+    padding-top:192px!important;
+  }
+}
