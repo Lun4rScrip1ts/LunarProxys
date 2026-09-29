@@ -15,12 +15,10 @@
       "Silent",
       "Western"
     ],
-    "description": "A landmark early narrative film available as a digital viewing copy through the Library of Congress.",
-    "watchUrl": "https://www.loc.gov/item/00694220/",
-    "colors": [
-      "#0b1e3c",
-      "#8a4b25"
-    ]
+    "description": "Edwin S. Porter's landmark 1903 silent Western short.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Great_Train_Robbery%2C_Edwin_S._Porter%2C_Edison_Films%2C_1903_Poster.jpg",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Great_Train_Robbery_(1903).webm",
+    "source": "Wikimedia Commons / Library of Congress"
   },
   {
     "id": "within-our-gates",
@@ -38,12 +36,10 @@
       "Silent",
       "Feature"
     ],
-    "description": "Oscar Micheaux's landmark silent feature, available as a digital viewing copy through the Library of Congress.",
-    "watchUrl": "https://www.loc.gov/item/2024600507/",
-    "colors": [
-      "#1c2430",
-      "#73523b"
-    ]
+    "description": "Oscar Micheaux's landmark silent feature from the Library of Congress National Screening Room.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Within_Our_Gates_1920_newspaper_ad.jpg",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Within_Our_Gates_(1920).webm",
+    "source": "Wikimedia Commons / Library of Congress"
   },
   {
     "id": "popeye-sindbad",
@@ -61,12 +57,10 @@
       "Adventure",
       "Classic"
     ],
-    "description": "A classic animated short included in the Library of Congress public-domain film selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#163f63",
-      "#c47a29"
-    ]
+    "description": "The classic Fleischer Studios animated short, available as a public-domain film.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Popeye_Meets_Sinbad.PNG",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Popeye_the_Sailor_Meets_Sindbad_the_Sailor_HD.webm",
+    "source": "Wikimedia Commons / Library of Congress"
   },
   {
     "id": "st-louis-blues",
@@ -83,12 +77,10 @@
       "Short",
       "Classic"
     ],
-    "description": "A preserved film included in the Library of Congress public-domain National Film Registry selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#40233d",
-      "#b86a50"
-    ]
+    "description": "Dudley Murphy's 1929 short featuring Bessie Smith.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Poster_of_the_movie_St._Louis_Blues.jpg",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/St._Louis_Blues.webm",
+    "source": "Wikimedia Commons / Library of Congress"
   },
   {
     "id": "memphis-belle",
@@ -102,14 +94,13 @@
     ],
     "tags": [
       "History",
-      "Documentary"
+      "Documentary",
+      "War"
     ],
-    "description": "A historic wartime documentary preserved in the Library of Congress public-domain film selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#263c2d",
-      "#87916a"
-    ]
+    "description": "William Wyler's wartime documentary about the B-17 Flying Fortress Memphis Belle.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Memphis_Belle_A_Story_of_a_Flying_Fortress_(1944_poster).jpg",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Memphis_Belle_-_A_Story_of_a_Flying_Fortress.webm",
+    "source": "Wikimedia Commons / Library of Congress"
   },
   {
     "id": "hitch-hiker",
@@ -126,12 +117,10 @@
       "Crime",
       "Classic"
     ],
-    "description": "A classic film noir included in the Library of Congress public-domain National Film Registry selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#101722",
-      "#5e718b"
-    ]
+    "description": "Ida Lupino's classic 1953 film noir.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Hitch-Hiker_(1953_poster).jpeg",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Hitch-Hiker.webm",
+    "source": "Wikimedia Commons / Library of Congress"
   },
   {
     "id": "duck-and-cover",
@@ -148,76 +137,30 @@
       "Education",
       "Short"
     ],
-    "description": "A historic educational film preserved in the Library of Congress public-domain film selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#55341d",
-      "#b88c45"
-    ]
-  },
-  {
-    "id": "modesta",
-    "title": "Modesta",
-    "short": "MODESTA",
-    "year": 1956,
-    "runtime": "35 min",
-    "badge": "CLASSIC",
-    "categories": [
-      "classic"
-    ],
-    "tags": [
-      "Drama",
-      "Puerto Rico",
-      "Classic"
-    ],
-    "description": "A culturally significant film included in the Library of Congress public-domain National Film Registry selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#234c49",
-      "#9e6550"
-    ]
-  },
-  {
-    "id": "all-my-babies",
-    "title": "All My Babies",
-    "short": "ALL MY\nBABIES",
-    "year": 1953,
-    "runtime": "50 min",
-    "badge": "DOCUMENTARY",
-    "categories": [
-      "documentary"
-    ],
-    "tags": [
-      "Documentary",
-      "History"
-    ],
-    "description": "A historic documentary preserved in the Library of Congress public-domain film selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#203b31",
-      "#b0805b"
-    ]
+    "description": "A 1951 civil-defense educational film preserved as a public-domain work.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/DuckandCover.jpg",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Duck_And_Cover_(1951)_Bert_The_Turtle.webm",
+    "source": "Wikimedia Commons"
   },
   {
     "id": "master-hands",
     "title": "Master Hands",
     "short": "MASTER\nHANDS",
     "year": 1936,
-    "runtime": "20 min",
+    "runtime": "32 min",
     "badge": "DOCUMENTARY",
     "categories": [
-      "documentary"
+      "documentary",
+      "classic"
     ],
     "tags": [
       "Industry",
       "Documentary",
       "Classic"
     ],
-    "description": "A visually distinctive industrial documentary preserved in the Library of Congress public-domain film selection.",
-    "watchUrl": "https://www.loc.gov/free-to-use/public-domain-films-from-the-national-film-registry/",
-    "colors": [
-      "#202b38",
-      "#a66e38"
-    ]
+    "description": "A visually striking 1936 documentary about work inside a Chevrolet automobile factory.",
+    "posterUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/T%C3%ADtulos_de_%22Master_Hands%22_(GuiaMartinez).png",
+    "videoUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Master_Hands.webm",
+    "source": "Wikimedia Commons / Library of Congress"
   }
 ]
