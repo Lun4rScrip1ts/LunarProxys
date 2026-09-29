@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-09-28T20:18:00-04:00",
+  "updatedAt": "2026-09-28T20:21:00-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-friends-profile-frame-size",
+      "timestamp": "2026-09-28T20:21:00-04:00",
+      "title": "Friends Mini-Profile Frame Size",
+      "tag": "UI",
+      "items": [
+        "Expanded the overlaid mini-profile so the avatar, profile text, mutual friends, and Friend/Block actions fit fully inside the frame.",
+        "Added more vertical room while keeping the profile layered over the conversation.",
+        "Adjusted message spacing to account for the larger profile overlay.",
+        "Refreshed the Friends stylesheet cache."
+      ]
+    },
     {
       "id": "2026-09-28-friends-profile-conversation-layer",
       "timestamp": "2026-09-28T20:18:00-04:00",
