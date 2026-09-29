@@ -1,6 +1,17 @@
 {
-  "updatedAt": "2026-09-28T20:58:42-04:00",
+  "updatedAt": "2026-09-28T21:01:14-04:00",
   "entries": [
+    {
+      "id": "2026-09-28-lunar-movies-route-fix",
+      "timestamp": "2026-09-28T21:01:14-04:00",
+      "title": "Movies Route Fix",
+      "tag": "Fix",
+      "items": [
+        "Added the missing /movies server route so the new Movies page no longer falls through to the 404 page.",
+        "Kept the existing static movies.html page and Movies navigation intact.",
+        "Refreshed the changelog with the actual completion time for this fix."
+      ]
+    },
     {
       "id": "2026-09-28-lunar-movies",
       "timestamp": "2026-09-28T20:58:42-04:00",
