@@ -3,25 +3,78 @@ const $=id=>document.getElementById(id);
 const api=async(url,opt={})=>{const r=await fetch(url,{credentials:"same-origin",...opt});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Something went wrong.");return d};
 const esc=v=>{const d=document.createElement("div");d.textContent=v??"";return d.innerHTML};
 const initials=n=>(n||"?").slice(0,2).toUpperCase();
-let me=null,friends=[],incoming=[],outgoing=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,gifKey="",gifTab="trending",menuMessage=null,timer=null;
+let me=null,friends=[],incoming=[],outgoing=[],blocked=[],threads=[],threadByUser={},unread=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,gifKey="",gifTab="trending",menuMessage=null,timer=null;
 const toast=m=>{clearTimeout(timer);$("friends-toast").textContent=m;$("friends-toast").classList.add("show");timer=setTimeout(()=>$("friends-toast").classList.remove("show"),2200)};
-const avatar=u=>u&&u.avatarUrl?'<div class="friend-avatar"><img src="'+esc(u.avatarUrl)+'" alt=""><i></i></div>':'<div class="friend-avatar">'+esc(initials(u&&u.displayName||u&&u.username))+'<i></i></div>';
+const avatar=u=>{
+  const online=Boolean(u?.isOnline);
+  const name=u?.displayName||u?.username||"";
+  return u&&u.avatarUrl
+    ? '<div class="friend-avatar"><img src="'+esc(u.avatarUrl)+'" alt=""><i class="'+(online?"is-online":"")+'"></i></div>'
+    : '<div class="friend-avatar">'+esc(initials(name))+'<i class="'+(online?"is-online":"")+'"></i></div>';
+};
 const friendOf=id=>friends.some(x=>x.id===id);
 function renderFriends(){
-const e=$("friends-list");
-const filter=($("friends-filter")?.value||"").trim().toLowerCase();
-const onlineOnly=document.querySelector(".friends-tab.active")?.dataset.tab==="online";
-const visible=friends.filter(f=>{
-  const name=((f.displayName||"")+" "+(f.username||"")).toLowerCase();
-  const isOnline=!f.status||f.status==="online";
-  return (!filter||name.includes(filter))&&(!onlineOnly||isOnline);
-});
-e.innerHTML=visible.map(f=>'<button class="friend-item '+(active&&active.id===f.id?"active":"")+'" data-friend="'+f.id+'">'+avatar(f)+'<span class="friend-copy"><strong>'+esc(f.displayName)+'</strong><span>@'+esc(f.username)+'</span></span></button>').join("");$("friends-empty").hidden=!!visible.length;
-if(!visible.length && filter) $("friends-empty").innerHTML="No friends match your search.";
-else if(!visible.length) $("friends-empty").innerHTML="No friends yet.<br>Send someone a friend request to start chatting.";
+  const e=$("friends-list");
+  const filter=($("friends-filter")?.value||"").trim().toLowerCase();
+  const onlineOnly=document.querySelector(".friends-tab.active")?.dataset.tab==="online";
+  const visible=friends
+    .filter(f=>{
+      const name=((f.displayName||"")+" "+(f.username||"")).toLowerCase();
+      return (!filter||name.includes(filter))&&(!onlineOnly||Boolean(f.isOnline));
+    })
+    .sort((a,b)=>{
+      const ua=(threadByUser[a.id]?.unreadCount||0), ub=(threadByUser[b.id]?.unreadCount||0);
+      if(ua!==ub)return ub-ua;
+      const ta=Date.parse(threadByUser[a.id]?.lastMessage?.createdAt||0)||0;
+      const tb=Date.parse(threadByUser[b.id]?.lastMessage?.createdAt||0)||0;
+      if(ta!==tb)return tb-ta;
+      return String(a.displayName||a.username).localeCompare(String(b.displayName||b.username));
+    });
+  e.innerHTML=visible.map(f=>{
+    const t=threadByUser[f.id];
+    const preview=t?.lastMessage?.message||((t?.lastMessage?.attachment?.kind==="gif")?"GIF":(t?.lastMessage?.attachment?"Sticker":""));
+    const unread=Number(t?.unreadCount||0);
+    return '<div class="friend-item '+(active&&active.id===f.id?"active":"")+'" data-friend="'+esc(f.id)+'">'+avatar(f)+'<span class="friend-copy"><strong>'+esc(f.displayName||f.username)+'</strong><span>@'+esc(f.username)+'</span><small class="friend-preview">'+esc(preview)+'</small></span>'+(unread?'<b class="friend-unread">'+(unread>99?"99+":unread)+'</b>':"")+'<button type="button" class="friend-row-more" data-friend-menu="'+esc(f.id)+'" aria-label="More options"><i class="fa-solid fa-ellipsis"></i></button></div>';
+  }).join("");
+  $("friends-empty").hidden=Boolean(visible.length);
+  if(!visible.length&&filter)$("friends-empty").innerHTML="No conversations match your search.";
+  else if(!visible.length)$("friends-empty").innerHTML="No friends or conversations yet.<br>Use Add Friend to start a conversation.";
 }
-function renderInbox(){const e=$("friends-list");$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length;e.innerHTML=incoming.map(x=>'<div class="search-user">'+avatar(x.from)+'<span class="search-user-info"><strong>'+esc(x.from.displayName)+'</strong><span>@'+esc(x.from.username)+'</span></span><button data-request="accept" data-id="'+x.id+'">Accept</button><button data-request="decline" data-id="'+x.id+'" style="background:#303238">Decline</button></div>').join("")||'<div class="friends-empty">Your inbox is clear.</div>'}
-async function bootstrap(){try{const d=await api("/api/friends/bootstrap");me=d.user;friends=d.friends||[];incoming=d.incoming||[];outgoing=d.outgoing||[];document.querySelector(".friends-tab.active")?.dataset.tab==="inbox"?renderInbox():renderFriends();$("inbox-count").textContent=incoming.length;$("inbox-count").hidden=!incoming.length}catch(e){toast(e.message);location.href="/account"}}
+function renderBlocked(){
+  const e=$("friends-list");
+  const filter=($("friends-filter")?.value||"").trim().toLowerCase();
+  const visible=blocked.filter(u=>((u.displayName||"")+" "+(u.username||"")).toLowerCase().includes(filter));
+  e.innerHTML=visible.map(u=>'<div class="blocked-list-item">'+avatar(u)+'<span class="friend-copy"><strong>'+esc(u.displayName||u.username)+'</strong><span>@'+esc(u.username)+'</span></span><button type="button" class="blocked-unblock" data-unblock="'+esc(u.id)+'">Unblock</button></div>').join("");
+  $("friends-empty").hidden=Boolean(visible.length);
+  if(!visible.length)$("friends-empty").innerHTML=filter?"No blocked users match your search.":"No blocked users.";
+}
+function renderInbox(){
+  const e=$("friends-list");
+  const dmItems=unread.slice().reverse().map(x=>'<div class="search-user inbox-dm" data-inbox-user="'+esc(x.sender.username)+'">'+avatar(x.sender)+'<span class="search-user-info"><strong>'+esc(x.sender.displayName)+'</strong><span>'+esc(x.message)+'</span></span><time>'+new Date(x.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>').join("");
+  const requestItems=incoming.map(x=>'<div class="search-user">'+avatar(x.from)+'<span class="search-user-info"><strong>'+esc(x.from.displayName)+'</strong><span>@'+esc(x.from.username)+' sent a friend request</span></span><button data-request="accept" data-id="'+x.id+'">Accept</button><button data-request="decline" data-id="'+x.id+'">Ignore</button></div>').join("");
+  e.innerHTML=(dmItems+requestItems)||'<div class="friends-empty">Your inbox is clear.</div>';
+}
+async function bootstrap(){
+  try{
+    const d=await api("/api/friends/bootstrap");
+    me=d.user;
+    friends=d.friends||[];
+    incoming=d.incoming||[];
+    outgoing=d.outgoing||[];
+    blocked=d.blocked||[];
+    threads=d.threads||[];
+    unread=d.unread||[];
+    threadByUser=Object.fromEntries(threads.map(t=>[t.friend.id,t]));
+    $("inbox-count").textContent=Number(d.unreadCount||0);
+    $("inbox-count").hidden=!Number(d.unreadCount||0);
+    const tab=document.querySelector(".friends-tab.active")?.dataset.tab;
+    if(tab==="inbox")renderInbox();else if(tab==="blocked")renderBlocked();else renderFriends();
+    if(active){
+      const fresh=friends.find(f=>f.id===active.id);
+      if(fresh)active={...active,...fresh};
+    }
+  }catch(e){toast(e.message);location.href="/account"}
+}
 function renderFriendStickers(stickers){
   const grid=$("friend-sticker-grid");
   if(!grid)return;
@@ -111,18 +164,44 @@ function openModal(id){$(id).hidden=false}
 function closeModals(){["friend-modal","forward-modal"].forEach(id=>$(id).hidden=true);$("message-menu").hidden=true}
 function openAdd(){openModal("friend-modal");$("friend-search-input").focus()}
 $("add-friend-button").onclick=openAdd;$("empty-add-friend").onclick=openAdd;
-$("friends-search-button").onclick=()=>{const w=$("friends-filter-wrap");w.hidden=!w.hidden;if(!w.hidden)$("friends-filter").focus()};
-$("friends-filter").oninput=()=>renderFriends();
+$("friends-search-button")?.addEventListener("click",()=>{$("friends-filter")?.focus()});
+$("friends-filter").oninput=()=>{
+  const tab=document.querySelector(".friends-tab.active")?.dataset.tab;
+  if(tab==="blocked")renderBlocked();else if(tab==="inbox")renderInbox();else renderFriends();
+};
 $("friends-filter-clear").onclick=()=>{$("friends-filter").value="";renderFriends();$("friends-filter").focus()};
 $("friends-refresh-button").onclick=async()=>{const b=$("friends-refresh-button");b.classList.add("spinning");await bootstrap();setTimeout(()=>b.classList.remove("spinning"),400)};
-$("dm-search-button").onclick=()=>{if(!active)return;const q=prompt("Search this conversation");if(!q)return;const found=messages.find(m=>(m.message||"").toLowerCase().includes(q.toLowerCase()));toast(found?"Found a matching message.":"No matching messages.")};
-$("dm-call-button").onclick=()=>toast("Voice calls are not enabled yet.");
-$("dm-video-button").onclick=()=>toast("Video calls are not enabled yet.");
-$("dm-more-button").onclick=()=>{if(active)openUserProfile(active.username,document.querySelector(".dm-top-name"))};
-document.querySelectorAll(".friends-tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".friends-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");b.dataset.tab==="inbox"?renderInbox():renderFriends()});
+$("dm-search-button")?.addEventListener("click",()=>{});
+$("dm-call-button")?.addEventListener("click",()=>{});
+$("dm-video-button")?.addEventListener("click",()=>{});
+$("dm-more-button")?.addEventListener("click",()=>{if(active)openUserProfile(active.username,document.querySelector(".dm-top-name"))});
+document.querySelectorAll(".friends-tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".friends-tab").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  const tab=b.dataset.tab;
+  if(tab==="inbox")renderInbox();else if(tab==="blocked")renderBlocked();else renderFriends();
+});
 $("friend-search-input").oninput=async e=>{const q=e.target.value.trim();if(q.length<2){$("friend-search-results").innerHTML="";return}try{const d=await api("/api/friends/users?q="+encodeURIComponent(q));$("friend-search-results").innerHTML=(d.users||[]).map(u=>{const p=outgoing.some(x=>x.to.id===u.id)||incoming.some(x=>x.from.id===u.id);return'<div class="search-user">'+avatar(u)+'<span class="search-user-info"><strong>'+esc(u.displayName)+'</strong><span>@'+esc(u.username)+'</span></span><button data-add-user="'+esc(u.username)+'" '+(p||friendOf(u.id)?"disabled":"")+'>'+(friendOf(u.id)?"Friends":p?"Pending":"Add")+'</button></div>'}).join("")||'<div class="friends-empty">No users found.</div>'}catch(x){toast(x.message)}};
 $("friend-search-results").onclick=async e=>{const b=e.target.closest("[data-add-user]");if(!b||b.disabled)return;try{await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:b.dataset.addUser})});toast("Friend request sent.");closeModals();await bootstrap()}catch(x){toast(x.message)}};
-$("friends-list").onclick=async e=>{const b=e.target.closest("[data-request]");if(b){try{const old=incoming.find(x=>x.id===b.dataset.id);await api("/api/friends/requests/"+b.dataset.id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:b.dataset.request})});await bootstrap();if(b.dataset.request==="accept"&&old)openDm(old.from)}catch(x){toast(x.message)}return}const f=e.target.closest("[data-friend]");if(f){const u=friends.find(x=>x.id===f.dataset.friend);if(u)openDm(u)}};
+$("friends-list").onclick=async e=>{
+  const unblock=e.target.closest("[data-unblock]");
+  if(unblock){
+    try{await api("/api/friends/blocked/"+encodeURIComponent(unblock.dataset.unblock),{method:"DELETE"});await bootstrap();toast("User unblocked.");}catch(x){toast(x.message)}
+    return;
+  }
+  const inboxUser=e.target.closest("[data-inbox-user]");
+  if(inboxUser){
+    const user=friends.find(x=>x.username===inboxUser.dataset.inboxUser)||unread.find(x=>x.sender.username===inboxUser.dataset.inboxUser)?.sender;
+    if(user)openDm(user);
+    return;
+  }
+  const friendMenu=e.target.closest("[data-friend-menu]");
+  if(friendMenu){
+    e.preventDefault();e.stopPropagation();openFriendContextMenu(friendMenu.dataset.friend,e);
+    return;
+  }
+  const b=e.target.closest("[data-request]");if(b){try{const old=incoming.find(x=>x.id===b.dataset.id);await api("/api/friends/requests/"+b.dataset.id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:b.dataset.request})});await bootstrap();if(b.dataset.request==="accept"&&old)openDm(old.from)}catch(x){toast(x.message)}return}const f=e.target.closest("[data-friend]");if(f){const u=friends.find(x=>x.id===f.dataset.friend);if(u)openDm(u)}
+};
 function profileAvatarHtml(u){return u&&u.avatarUrl?'<img src="'+esc(u.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(u&&u.displayName||u&&u.username))}
 async function openUserProfile(username,anchor=null){
 try{
@@ -146,7 +225,7 @@ try{
   let mutualBox=document.getElementById("friends-profile-mutuals");
   if(!mutualBox){mutualBox=document.createElement("div");mutualBox.id="friends-profile-mutuals";mutualBox.className="friends-profile-mutuals";actions.before(mutualBox)}
   mutualBox.innerHTML=mutuals.length?`<strong>${mutuals.length} Mutual Friend${mutuals.length===1?"":"s"}</strong><div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${esc(m.avatarUrl)}" alt="@${esc(m.username)}" title="@${esc(m.username)}">`:`<span title="@${esc(m.username)}">${esc(initials(m.displayName||m.username))}</span>`).join("")}</div>`:"<strong>No Mutual Friends</strong>";
-  const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block");
+  const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block"), report=$("friends-profile-report");
   actions.hidden=!!u.isSelf;
   message.onclick=()=>{ location.href="/friends?user="+encodeURIComponent(u.username); };
   friend.textContent=u.isFriend?"Added":(u.friendRequestPending?"Pending":"Friend");
@@ -178,16 +257,16 @@ try{
 }
 function closeUserProfile(){$("friends-profile-modal").hidden=true}
 async function openDm(f){
-active=f;
-document.querySelector(".friends-app").classList.add("dm-open");
-$("dm-empty").hidden=true;
-$("dm-view").hidden=false;
-$("dm-top-username").textContent=f.username;
-$("dm-profile-name").textContent=f.displayName;
-$("dm-profile-handle").textContent="@"+f.username;
-$("dm-profile-description").textContent="This is the very beginning of your legendary conversation with "+f.username+".";
-$("dm-mini-avatar").innerHTML=f.avatarUrl?'<img src="'+esc(f.avatarUrl)+'" alt=""><i></i>':esc(initials(f.displayName))+'<i></i>';
-$("dm-large-avatar").innerHTML=f.avatarUrl?'<img src="'+esc(f.avatarUrl)+'" alt="">':esc(initials(f.displayName));
+  active=f;
+  document.querySelector(".friends-app").classList.add("dm-open");
+  $("dm-empty").hidden=true;
+  $("dm-view").hidden=false;
+  $("dm-top-username").textContent=f.username;
+  $("dm-profile-name").textContent=f.displayName||f.username;
+  $("dm-profile-handle").textContent="@"+f.username;
+  $("dm-profile-description").textContent=f.bio||"";
+  $("dm-mini-avatar").innerHTML=f.avatarUrl?'<img src="'+esc(f.avatarUrl)+'" alt=""><i class="'+(f.isOnline?"is-online":"")+'"></i>':esc(initials(f.displayName||f.username))+'<i class="'+(f.isOnline?"is-online":"")+'"></i>';
+$("dm-large-avatar").innerHTML=f.avatarUrl?'<img src="'+esc(f.avatarUrl)+'" alt="">':esc(initials(f.displayName||f.username));
 const mutuals=Array.isArray(f.mutualFriends)?f.mutualFriends:[];
 const mutualRow=$(".mutual-row");
 if(mutualRow){
@@ -196,7 +275,9 @@ if(mutualRow){
 }
 $("dm-input").placeholder="Message @"+f.username;
 renderFriends();
-await loadMessages(false);
+await api("/api/friends/dms/"+encodeURIComponent(f.id)+"/read",{method:"POST"}).catch(()=>{});
+await bootstrap();
+await loadMessages(true);
 
 /* Keep the mini-profile actions useful even when this view is opened for a non-friend. */
 const miniFriendButton=$("profile-friend");
@@ -218,6 +299,7 @@ miniBlockButton.textContent=f.isBlocked ? "Blocked" : "Block";
 miniBlockButton.disabled=Boolean(f.isBlocked);
 }
 async function loadMessages(forceBottom=false){if(!active)return;try{const e=$("dm-messages");const wasAtBottom=e.scrollHeight-e.scrollTop-e.clientHeight<40;const oldTop=e.scrollTop;const oldHeight=e.scrollHeight;const d=await api("/api/friends/dms/"+active.id+"/messages?limit=100");messages=d.messages||[];renderMessages();if(forceBottom||wasAtBottom)e.scrollTop=e.scrollHeight;else e.scrollTop=Math.max(0,oldTop+(e.scrollHeight-oldHeight))}catch(e){toast(e.message)}}
+function publicFriendUserLocal(u){return {id:u.id,username:u.username,displayName:u.displayName||u.username,avatarUrl:u.avatarUrl||"",status:u.status||"",isOnline:Boolean(u.isOnline)}}
 function reactionHtml(m){return(m.reactions||[]).map(r=>{
   const kind=r.kind==="sticker"?"sticker":"emoji";
   const visual=kind==="sticker"
@@ -227,7 +309,11 @@ function reactionHtml(m){return(m.reactions||[]).map(r=>{
 }).join("")}
 function renderMessages(){
   const e=$("dm-messages");
-  e.innerHTML=messages.map(m=>{
+  let lastDay="";
+  const html=[];
+  for(const m of messages){
+    const day=new Date(m.createdAt).toLocaleDateString([], {weekday:"long",month:"long",day:"numeric",year:"numeric"});
+    if(day!==lastDay){html.push('<div class="dm-date-divider">'+esc(day)+'</div>');lastDay=day;}
     const deleted=Boolean(m.deletedAt);
     const own=m.senderId===me.id;
     const attachment=deleted?"":(m.attachment
@@ -235,8 +321,10 @@ function renderMessages(){
         ? '<div class="dm-sticker-attachment" data-sticker-url="'+esc(m.attachment.url)+'" data-sticker-name="'+esc(m.attachment.name||"Sticker")+'"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"><button type="button" class="sticker-save-badge '+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"is-saved":"")+'" title="Sticker collection" aria-label="Sticker collection"><i class="fa-'+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"solid":"regular")+' fa-bookmark"></i></button></div>'
         : '<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">')
       : "");
-    return '<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time></div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>';
-  }).join("");
+    const pending=m.pending?'<span class="dm-pending">Sending...</span>':"";
+    html.push('<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time>'+pending+'</div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted&&!m.pending?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>');
+  }
+  e.innerHTML=html.join("");
 }
 function saveSticker(url,name){
   if(!me||!url)return Promise.resolve(null);
@@ -269,6 +357,30 @@ async function toggleStickerSave(attachment){
       if(added)toast("Sticker saved to your collection.");
     }
   }finally{if(badge){badge.disabled=false;badge.classList.remove("is-saving");}}
+}
+function positionFriendContextMenu(menu,x,y){
+  menu.style.left="0px";menu.style.top="0px";menu.hidden=false;
+  const rect=menu.getBoundingClientRect();
+  menu.style.left=Math.max(8,Math.min(innerWidth-rect.width-8,x))+"px";
+  menu.style.top=Math.max(8,Math.min(innerHeight-rect.height-8,y))+"px";
+}
+function openFriendContextMenu(id,event){
+  const user=friends.find(x=>x.id===id);
+  if(!user)return;
+  const menu=$("friend-context-menu");
+  const isFriend=friends.some(x=>x.id===id)&&areFriendLocally(id);
+  menu.innerHTML='<button data-fcm="message"><i class="fa-regular fa-message"></i><span>Message</span></button>'+
+    '<button data-fcm="friend" '+(isFriend?'disabled':'')+'><i class="fa-solid fa-user-plus"></i><span>'+(isFriend?'Friends':'Add Friend')+'</span></button>'+
+    '<button data-fcm="profile"><i class="fa-regular fa-id-card"></i><span>View Profile</span></button>'+
+    '<button data-fcm="copy-name"><i class="fa-regular fa-copy"></i><span>Copy Username</span></button>'+
+    '<button data-fcm="copy-id"><i class="fa-regular fa-id-badge"></i><span>Copy User ID</span></button>'+
+    '<button data-fcm="block"><i class="fa-solid fa-ban"></i><span>Block User</span></button>';
+  menu.dataset.userId=id;
+  positionFriendContextMenu(menu,event.clientX,event.clientY);
+}
+function areFriendLocally(id){
+  const request=friends.find(x=>x.id===id);
+  return Boolean(request&&request.id===id&&threads.some(t=>t.friend.id===id&&t.friend.isFriend));
 }
 function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button>'+(m.senderId===me.id&&!m.deletedAt?'<button data-mm="delete">Delete</button><button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
 let pickerContext={type:"compose",messageId:"",anchor:null};
@@ -428,9 +540,71 @@ $("forward-friends").onclick=async e=>{
     closeModals();toast(global?"Message forwarded to Global Chat.":"Message forwarded.");
   }catch(x){toast(x.message)}
 };
-$("dm-form").onsubmit=async e=>{e.preventDefault();if(!active)return;const text=$("dm-input").value.trim();if(editing){if(!text)return;try{await api("/api/friends/dms/messages/"+editing,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});editing=null;$("dm-edit-bar").hidden=true;$("dm-input").value="";await loadMessages()}catch(x){toast(x.message)}return}if(!text&&!gifDraft)return;try{await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,attachment:gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null,replyTo:reply?reply.id:""})});$("dm-input").value="";gifDraft=null;$("gif-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;await loadMessages()}catch(x){toast(x.message)}};
+$("dm-form").onsubmit=async e=>{
+  e.preventDefault();
+  if(!active)return;
+  const text=$("dm-input").value.trim();
+  if(editing){
+    if(!text)return;
+    try{
+      await api("/api/friends/dms/messages/"+editing,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});
+      editing=null;$("dm-edit-bar").hidden=true;$("dm-input").value="";await loadMessages();
+    }catch(x){toast(x.message)}
+    return;
+  }
+  if(!text&&!gifDraft)return;
+  const attachment=gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null;
+  const temp={
+    id:"pending-"+Date.now(),
+    threadId:"",
+    senderId:me.id,
+    recipientId:active.id,
+    sender:publicFriendUserLocal(me),
+    message:text,
+    attachment,
+    reactions:[],
+    createdAt:new Date().toISOString(),
+    editedAt:"",
+    pending:true
+  };
+  messages.push(temp);
+  renderMessages();
+  $("dm-messages").scrollTop=$("dm-messages").scrollHeight;
+  const sendText=text;
+  $("dm-input").value="";gifDraft=null;$("gif-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;
+  try{
+    await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:sendText,attachment,replyTo:temp.replyTo?.id||""})});
+    await loadMessages(true);
+    await bootstrap();
+  }catch(x){
+    messages=messages.filter(m=>m.id!==temp.id);
+    renderMessages();
+    toast(x.message);
+  }
+};
 
+$("friend-context-menu").onclick=async e=>{
+  const b=e.target.closest("[data-fcm]");
+  if(!b)return;
+  const id=$("friend-context-menu").dataset.userId;
+  const user=friends.find(x=>x.id===id);
+  $("friend-context-menu").hidden=true;
+  if(!user)return;
+  try{
+    if(b.dataset.fcm==="message")openDm(user);
+    else if(b.dataset.fcm==="profile")openUserProfile(user.username,b);
+    else if(b.dataset.fcm==="copy-name"){await navigator.clipboard.writeText("@"+user.username);toast("Username copied.");}
+    else if(b.dataset.fcm==="copy-id"){await navigator.clipboard.writeText(user.id);toast("User ID copied.");}
+    else if(b.dataset.fcm==="friend"){
+      await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user.username})});
+      toast("Friend request sent.");await bootstrap();
+    }else if(b.dataset.fcm==="block"){
+      if(confirm("Block @"+user.username+"?")){await api("/api/friends/block/"+user.id,{method:"POST"});toast("User blocked.");await bootstrap();}
+    }
+  }catch(x){toast(x.message)}
+};
 $("friends-profile-close").onclick=closeUserProfile;
+$("dm-mini-avatar").onclick=()=>{if(active)openUserProfile(active.username,$("dm-mini-avatar"))};
 $("friends-profile-modal").addEventListener("click",e=>{if(e.target.id==="friends-profile-modal")closeUserProfile()});
 document.querySelector(".dm-top-name").onclick=()=>{if(active)openUserProfile(active.username)};
 
@@ -460,7 +634,11 @@ $("gif-search-clear").onclick=()=>{$("gif-search-input").value="";loadGifs();$("
 $("gif-grid").onclick=async e=>{const card=e.target.closest(".gif-card");if(!card)return;const g=$("gif-grid")._gifs.find(x=>x.id===card.dataset.gifId);if(!g)return;const favorite=e.target.closest(".gif-fav");if(favorite){try{await api("/api/friends/gifs/favorites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gif:g})});favorite.classList.add("is-saved");favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';favorite.title="Saved GIF";toast("GIF saved to favourites.")}catch(x){toast(x.message)}return}gifDraft=g;$("gif-preview-image").src=g.preview||g.url;$("gif-preview").hidden=false;$("gif-panel").hidden=true;if(!$("dm-input").value.trim())$("dm-form").requestSubmit()};
 $("gif-preview-remove").onclick=()=>{gifDraft=null;$("gif-preview").hidden=true};
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=closeModals);document.querySelector("[data-close-forward]").onclick=closeModals;
-document.addEventListener("click",e=>{if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest("#reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}if(!$("gif-panel").hidden&&!e.target.closest("#gif-panel")&&!e.target.closest("#dm-gif"))$("gif-panel").hidden=true});
+document.addEventListener("click",e=>{
+  if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest("#reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}
+  if(!$("gif-panel").hidden&&!e.target.closest("#gif-panel")&&!e.target.closest("#dm-plus"))$("gif-panel").hidden=true;
+  if(!$("friend-context-menu").hidden&&!e.target.closest("#friend-context-menu")&&!e.target.closest("[data-friend-menu]"))$("friend-context-menu").hidden=true;
+});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("gif-panel").hidden=true;closeReactionPopups()}});
 setupGifs();bootstrap();setInterval(()=>{bootstrap();if(active)loadMessages()},5000);
 
