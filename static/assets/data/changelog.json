@@ -1,6 +1,72 @@
 {
-  "updatedAt": "2026-09-28T21:03:21-04:00",
+  "updatedAt": "2026-09-29T21:21:12-04:00",
   "entries": [
+    {
+      "id": "2026-09-29-sticker-removal",
+      "timestamp": "2026-09-29T21:21:12-04:00",
+      "title": "Sticker Collection Removal",
+      "tag": "Feature",
+      "items": [
+        "Added a remove button to My Sticker Catalog on the Profile page.",
+        "Removed stickers are deleted from the account collection and the catalog updates immediately.",
+        "Kept the existing chat sticker system unchanged."
+      ]
+    },
+    {
+      "id": "2026-09-29-chat-profile-modal-fix",
+      "timestamp": "2026-09-29T21:19:00-04:00",
+      "title": "Chat Profile Panel Fix",
+      "tag": "Fix",
+      "items": [
+        "Matched the Global Chat profile modal structure to the Friends profile so all profile fields and actions load correctly.",
+        "Added the missing profile fields needed by the Friends-style profile system.",
+        "Fixed the profile-panel error caused by a missing element."
+      ]
+    },
+    {
+      "id": "2026-09-29-chat-friends-profile",
+      "timestamp": "2026-09-29T21:16:42-04:00",
+      "title": "Global Chat Friends-Style Profiles",
+      "tag": "Feature",
+      "items": [
+        "Global Chat profiles now use the same mini-profile system as Friends.",
+        "Clicking a user's name or profile picture opens the profile panel with the same profile information and actions.",
+        "Added the same slide-in profile presentation and close behavior."
+      ]
+    },
+    {
+      "id": "2026-09-29-owner-tags",
+      "timestamp": "2026-09-29T21:12:12-04:00",
+      "title": "Owner & Co-Owner Tags",
+      "tag": "UI",
+      "items": [
+        "Added compact Owner and Co-Owner tags to Global Chat and Friends.",
+        "@lunar / lunar is shown as Owner and @lunarstudios / lunarstudios is shown as Co-Owner.",
+        "Kept the role labels small so they read like compact profile tags."
+      ]
+    },
+    {
+      "id": "2026-09-29-friends-gif-picker",
+      "timestamp": "2026-09-29T21:00:17-04:00",
+      "title": "Friends GIF Picker Sync",
+      "tag": "Feature",
+      "items": [
+        "Copied the working Global Chat GIPHY picker behavior into Friends chat.",
+        "Added the same Trending, Saved, search, clear-search, and GIF saving behavior.",
+        "GIF selection now sends the GIF directly through the Friends DM message system."
+      ]
+    },
+    {
+      "id": "2026-09-29-friends-gif-upload-fix",
+      "timestamp": "2026-09-29T20:55:17-04:00",
+      "title": "Friends GIF & Image Fix",
+      "tag": "Fix",
+      "items": [
+        "Restored Friends DM sending after the composer attachment flow broke.",
+        "Fixed Friends GIF selection and image uploads so attachments can be sent again.",
+        "Kept the existing Friends composer and message flow intact."
+      ]
+    },
     {
       "id": "2026-09-28-movies-brave-search",
       "timestamp": "2026-09-28T21:03:21-04:00",
