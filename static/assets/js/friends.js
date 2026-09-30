@@ -129,7 +129,7 @@ $("dm-emoji-button")?.addEventListener("click",e=>openUnifiedPicker("emoji",e.cu
 $("dm-sticker-button")?.addEventListener("click",e=>openUnifiedPicker("stickers",e.currentTarget,{type:"browse"}));
 $("friend-close-sticker-drawer")?.addEventListener("click",()=>closeReactionPopups());
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeReactionPopups();}});
-document.addEventListener("click",e=>{const t=e.target;if(dmComposeMenu&&!dmComposeMenu.hidden&&!dmComposeMenu.contains(t)&&!t.closest("#dm-gif-button")&&!t.closest("#dm-image-button-direct")&&!t.closest("#dm-sticker-button-direct"))closeDmComposeMenu();if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(t)&&!t.closest("#dm-plus")&&!t.closest("[data-action=\"react\"]"))closeReactionPopups();if($("gif-panel")&&!$("gif-panel").hidden&&!$("gif-panel").contains(t)&&!t.closest("#dm-plus"))$("gif-panel").hidden=true;});
+document.addEventListener("click",e=>{const t=e.target;if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(t)&&!t.closest("#dm-gif-button")&&!t.closest("#dm-image-button-direct")&&!t.closest("#dm-sticker-button-direct")&&!t.closest("[data-action=\"react\"]"))closeReactionPopups();if($("gif-panel")&&!$("gif-panel").hidden&&!$("gif-panel").contains(t)&&!t.closest("#dm-gif-button"))$("gif-panel").hidden=true;});
 $("friend-open-sticker-create")?.addEventListener("click",async()=>{
   const context=(pickerContext.type==="reaction"||pickerContext.type==="browse")?pickerContext:{type:"browse",messageId:"",anchor:$("dm-sticker-button")};
   await openUnifiedPicker("stickers",context.anchor||$("dm-emoji-button"),context);
@@ -457,7 +457,7 @@ async function ensureEmojiPicker(){
   return emojiPickerLoading;
 }
 function positionUnifiedPicker(anchor){
-  const rect=(anchor||$("dm-plus"))?.getBoundingClientRect();const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
+  const rect=(anchor||$("dm-gif-button"))?.getBoundingClientRect();const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
   let left=rect?rect.left+rect.width/2-width/2:(innerWidth-width)/2,top=rect?rect.top-height-8:80;if(top<8)top=rect?rect.bottom+8:80;
   const p=$("reaction-picker");p.style.width=width+"px";p.style.left=Math.max(8,Math.min(innerWidth-width-8,left))+"px";p.style.top=Math.max(8,Math.min(innerHeight-height-8,top))+"px";
 }
