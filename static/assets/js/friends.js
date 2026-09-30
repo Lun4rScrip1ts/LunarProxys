@@ -459,6 +459,7 @@ async function reactToMessage(id,payload){
   const message=messages.find(item=>item.id===id);
   if(!message)return;
   const before=JSON.parse(JSON.stringify(message.reactions||[]));
+  if(!Array.isArray(message.reactions))message.reactions=[];
   const kind=payload.kind==="sticker"?"sticker":"emoji";
   const key=kind==="sticker"?payload.stickerUrl:payload.emoji;
   let reaction=message.reactions.find(item=>(item.kind==="sticker"?"sticker":"emoji")===kind && (kind==="sticker"?item.stickerUrl:item.emoji)===key);
@@ -466,6 +467,7 @@ async function reactToMessage(id,payload){
     reaction=kind==="sticker"?{kind,stickerUrl:payload.stickerUrl,stickerName:payload.stickerName||"Sticker",users:[]}:{kind,emoji:payload.emoji,users:[]};
     message.reactions.push(reaction);
   }
+  if(!Array.isArray(reaction.users))reaction.users=[];
   const index=reaction.users.findIndex(user=>user.userId===me.id);
   if(index>=0)reaction.users.splice(index,1);
   else reaction.users.push({userId:me.id,username:me.username});
@@ -561,13 +563,23 @@ $("dm-messages").addEventListener("click",async e=>{
   if(action.dataset.action==="edit"&&m.senderId===me.id&&!m.deletedAt){editing=m.id;renderMessages();const input=document.querySelector("[data-inline-edit-input]");input?.focus();input?.select();return}
   if(action.dataset.action==="delete"&&m.senderId===me.id&&!m.deletedAt){
     if(!confirm("Delete this message?"))return;
-    try{await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});toast("Message deleted.");await loadMessages()}catch(x){toast(x.message)}
+    const previous=m.deletedAt;
+    m.deletedAt=new Date().toISOString();
+    renderMessages();
+    try{await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});toast("Message deleted.");}
+    catch(x){m.deletedAt=previous;renderMessages();toast(x.message)}
     return
   }
   if(action.dataset.action==="menu"){showMenu(m,action);return}
 });
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
-$("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||"");toast("Copied.")}else if(b.dataset.mm==="delete"){if(confirm("Delete this message?")){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
+$("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||"");toast("Copied.")}else if(b.dataset.mm==="delete"){
+  if(confirm("Delete this message?")){
+    const previous=m.deletedAt;m.deletedAt=new Date().toISOString();renderMessages();
+    try{await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});toast("Message deleted.");}
+    catch(x){m.deletedAt=previous;renderMessages();toast(x.message)}
+  }
+}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
 let forwardContext={sourceType:"dm",messageId:"",excludeId:""};
 function renderForwardTargets(){
   const wrap=$("forward-friends");
