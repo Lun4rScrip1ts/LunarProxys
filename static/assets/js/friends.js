@@ -248,13 +248,13 @@ try{
       block.textContent="Blocked"; block.disabled=true; toast("User blocked."); closeUserProfile(); await bootstrap();
     }catch(e){toast(e.message)}
   };
+  if(report)report.onclick=async()=>{
+    try{
+      await api("/api/friends/report/"+encodeURIComponent(u.id),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reason:"Reported from Friends profile"})});
+      toast("Report submitted.");
+    }catch(e){toast(e.message)}
+  };
   modal.hidden=false;
-  const card=modal.querySelector(".friends-profile-card");
-  card.style.left="50%";
-  card.style.top="50%";
-  card.style.right="auto";
-  card.style.bottom="auto";
-  card.style.transform="translate(-50%,-50%)";
 }catch(e){toast(e.message)}
 }
 function closeUserProfile(){$("friends-profile-modal").hidden=true}
