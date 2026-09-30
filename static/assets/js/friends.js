@@ -171,10 +171,6 @@ $("friends-filter").oninput=()=>{
 };
 $("friends-filter-clear").onclick=()=>{$("friends-filter").value="";renderFriends();$("friends-filter").focus()};
 $("friends-refresh-button").onclick=async()=>{const b=$("friends-refresh-button");b.classList.add("spinning");await bootstrap();setTimeout(()=>b.classList.remove("spinning"),400)};
-$("dm-search-button")?.addEventListener("click",()=>{});
-$("dm-call-button")?.addEventListener("click",()=>{});
-$("dm-video-button")?.addEventListener("click",()=>{});
-$("dm-more-button")?.addEventListener("click",()=>{if(active)openUserProfile(active.username,document.querySelector(".dm-top-name"))});
 document.querySelectorAll(".friends-tab").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".friends-tab").forEach(x=>x.classList.remove("active"));
   b.classList.add("active");
