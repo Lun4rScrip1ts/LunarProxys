@@ -758,6 +758,8 @@ function getMutualFriends(viewerId, targetId) {
 function publicFriendUserForViewer(user, viewerId) {
   const result = publicFriendUser(user);
   result.mutualFriends = getMutualFriends(viewerId, user.id);
+  result.isFriend = areFriends(viewerId, user.id);
+  result.isBlocked = isBlocked(viewerId, user.id);
   return result;
 }
 
