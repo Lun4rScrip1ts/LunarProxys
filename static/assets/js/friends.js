@@ -9,8 +9,8 @@ const avatar=u=>{
   const online=Boolean(u?.isOnline);
   const name=u?.displayName||u?.username||"";
   return u&&u.avatarUrl
-    ? '<div class="friend-avatar"><img src="'+esc(u.avatarUrl)+'" alt=""><i class="'+(online?"is-online":"")+'"></i></div>'
-    : '<div class="friend-avatar">'+esc(initials(name))+'<i class="'+(online?"is-online":"")+'"></i></div>';
+    ? '<div class="friend-avatar friend-profile-avatar-trigger" data-profile-user="'+esc(u.username||"")+'"><img src="'+esc(u.avatarUrl)+'" alt=""><i class="'+(online?"is-online":"")+'"></i></div>'
+    : '<div class="friend-avatar friend-profile-avatar-trigger" data-profile-user="'+esc(u.username||"")+'">'+esc(initials(name))+'<i class="'+(online?"is-online":"")+'"></i></div>';
 };
 const friendOf=id=>friends.some(x=>x.id===id);
 function renderFriends(){
@@ -184,6 +184,12 @@ document.querySelectorAll(".friends-tab").forEach(b=>b.onclick=()=>{
 $("friend-search-input").oninput=async e=>{const q=e.target.value.trim();if(q.length<2){$("friend-search-results").innerHTML="";return}try{const d=await api("/api/friends/users?q="+encodeURIComponent(q));$("friend-search-results").innerHTML=(d.users||[]).map(u=>{const p=outgoing.some(x=>x.to.id===u.id)||incoming.some(x=>x.from.id===u.id);return'<div class="search-user">'+avatar(u)+'<span class="search-user-info"><strong>'+esc(u.displayName)+'</strong><span>@'+esc(u.username)+'</span></span><button data-add-user="'+esc(u.username)+'" '+(p||friendOf(u.id)?"disabled":"")+'>'+(friendOf(u.id)?"Friends":p?"Pending":"Add")+'</button></div>'}).join("")||'<div class="friends-empty">No users found.</div>'}catch(x){toast(x.message)}};
 $("friend-search-results").onclick=async e=>{const b=e.target.closest("[data-add-user]");if(!b||b.disabled)return;try{await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:b.dataset.addUser})});toast("Friend request sent.");closeModals();await bootstrap()}catch(x){toast(x.message)}};
 $("friends-list").onclick=async e=>{
+  const profile=e.target.closest("[data-profile-user]");
+  if(profile){
+    e.preventDefault();e.stopPropagation();
+    openUserProfile(profile.dataset.profileUser,profile);
+    return;
+  }
   const unblock=e.target.closest("[data-unblock]");
   if(unblock){
     try{await api("/api/friends/blocked/"+encodeURIComponent(unblock.dataset.unblock),{method:"DELETE"});await bootstrap();toast("User unblocked.");}catch(x){toast(x.message)}
