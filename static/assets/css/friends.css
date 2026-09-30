@@ -1377,6 +1377,3 @@
 .chat-role-badge{display:inline-flex;align-items:center;margin-left:4px;padding:1px 4px;border-radius:4px;font-size:7px;font-weight:800;line-height:1.1;letter-spacing:.04em;vertical-align:middle;text-transform:uppercase}
 .chat-role-badge.owner{background:rgba(255,193,7,.14);color:#ffd76a;border:1px solid rgba(255,193,7,.24)}
 .chat-role-badge.co-owner{background:rgba(145,117,255,.14);color:#c8baff;border:1px solid rgba(145,117,255,.24)}
-.dm-username{font-size:10px;color:#777f8d;margin-left:3px}
-
-.dm-username.role-user{display:none}
