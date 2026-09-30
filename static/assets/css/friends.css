@@ -1254,3 +1254,34 @@
 .lunar-friends-page .dm-compose-menu[hidden],
 .lunar-friends-page .gif-panel[hidden],
 .lunar-friends-page .emoji-sticker-picker[hidden]{display:none!important}
+
+/* Compact Friends proportions */
+.lunar-friends-page .friends-app{top:64px!important;right:14px!important;bottom:14px!important;left:14px!important;border-radius:10px!important}
+.lunar-friends-page .friends-sidebar{width:240px!important;min-width:240px!important}
+.lunar-friends-page .friends-sidebar-head{height:48px!important;min-height:48px!important}
+.lunar-friends-page .dm-topbar{flex-basis:54px!important}
+.lunar-friends-page .dm-composer{height:42px!important;min-height:42px!important;margin:4px 12px 10px!important;padding:4px!important}
+.lunar-friends-page .composer-icon,.lunar-friends-page .dm-send{width:31px!important;height:31px!important;min-width:31px!important}
+.lunar-friends-page .dm-composer input{height:31px!important;font-size:10px!important}
+.lunar-friends-page .dm-compose-menu{bottom:39px!important;width:180px!important}
+.lunar-friends-page .dm-message-actions{top:-11px!important;right:5px!important}
+.lunar-friends-page .dm-message-actions:before{
+  content:"😀  ❤️  😂  😮  😢  👍";
+  display:block;
+  position:absolute;
+  right:calc(100% + 5px);
+  top:2px;
+  white-space:nowrap;
+  padding:5px 7px;
+  border:1px solid var(--friends-border-strong);
+  border-radius:7px;
+  background:#111318;
+  color:#b5bac1;
+  font-size:11px;
+  letter-spacing:2px;
+  opacity:0;
+  transform:translateY(3px) scale(.96);
+  pointer-events:none;
+  transition:opacity .12s ease,transform .12s ease;
+}
+.lunar-friends-page .dm-message:hover .dm-message-actions:before{opacity:1;transform:none}
