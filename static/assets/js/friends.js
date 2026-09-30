@@ -270,21 +270,9 @@ try{
   const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block"), report=$("friends-profile-report");
   actions.hidden=!!u.isSelf;
   message.onclick=()=>{closeUserProfile();const target=friends.find(x=>x.id===u.id)||{...u,isFriend:Boolean(u.isFriend),isBlocked:Boolean(u.isBlocked)};openDm(target);};
-  friend.textContent=u.isFriend?"Remove Friend":(u.friendRequestPending?"Pending":"Friend");
-  friend.disabled=!!u.friendRequestPending;
+  friend.textContent=u.isFriend?"Added":(u.friendRequestPending?"Pending":"Friend");
+  friend.disabled=!!u.isFriend||!!u.friendRequestPending;
   friend.onclick=async()=>{
-    if(u.isFriend){
-      if(!confirm("Remove @"+u.username+" from your friends?"))return;
-      try{
-        await api("/api/friends/"+encodeURIComponent(u.id),{method:"DELETE"});
-        u.isFriend=false;
-        friend.textContent="Friend";
-        friend.disabled=false;
-        toast("Friend removed.");
-        await bootstrap();
-      }catch(e){toast(e.message)}
-      return;
-    }
     try{
       await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
       friend.textContent="Pending"; friend.disabled=true; toast("Friend request sent.");
@@ -384,7 +372,7 @@ function renderMessages(){
       html.push('<article class="dm-message dm-message-editing" data-mid="'+m.id+'"><div class="dm-message-content dm-inline-edit"><textarea data-inline-edit-input maxlength="500">'+esc(m.message||"")+'</textarea><div class="dm-inline-edit-actions"><button type="button" data-inline-edit="save">Save</button><button type="button" data-inline-edit="cancel">Cancel</button></div></div></article>');
       continue;
     }
-    html.push('<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button>'<span class="dm-username'+(userRole(m.sender.username)?" role-user":"")+'">@'+esc(m.sender.username)+'</span>'+roleBadge(m.sender.username)+'<time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time>'+pending+'</div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><div class="quick-reactions" aria-label="Quick reactions"><button type="button" data-quick-reaction="😀">😀</button><button type="button" data-quick-reaction="❤️">❤️</button><button type="button" data-quick-reaction="😂">😂</button><button type="button" data-quick-reaction="😮">😮</button><button type="button" data-quick-reaction="😢">😢</button><button type="button" data-quick-reaction="👍">👍</button></div><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted&&!m.pending?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button><button data-action="menu"><i class="fa-solid fa-ellipsis"></i></button></div></article>');
+    html.push('<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button>'+roleBadge(m.sender.username)+'<time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time>'+pending+'</div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><div class="quick-reactions" aria-label="Quick reactions"><button type="button" data-quick-reaction="😀">😀</button><button type="button" data-quick-reaction="❤️">❤️</button><button type="button" data-quick-reaction="😂">😂</button><button type="button" data-quick-reaction="😮">😮</button><button type="button" data-quick-reaction="😢">😢</button><button type="button" data-quick-reaction="👍">👍</button></div><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted&&!m.pending?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button><button data-action="menu"><i class="fa-solid fa-ellipsis"></i></button></div></article>');
   }
   e.innerHTML=html.join("");
 }
