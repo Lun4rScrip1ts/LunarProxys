@@ -687,9 +687,11 @@
     let left = rect ? rect.left + rect.width / 2 - width / 2 : (window.innerWidth - width) / 2;
     let top = rect ? rect.top - height - 8 : 80;
     if (top < 8) top = rect ? rect.bottom + 8 : 80;
-    reactionPicker.style.width = width + "px";
-    reactionPicker.style.left = Math.max(8, Math.min(window.innerWidth - width - 8, left)) + "px";
-    reactionPicker.style.top = Math.max(8, Math.min(window.innerHeight - height - 8, top)) + "px";
+    reactionPicker.style.setProperty("width",width+"px","important");
+    reactionPicker.style.setProperty("left",Math.max(8,Math.min(window.innerWidth-width-8,left))+"px","important");
+    reactionPicker.style.setProperty("right","auto","important");
+    reactionPicker.style.setProperty("bottom","auto","important");
+    reactionPicker.style.setProperty("top",Math.max(8,Math.min(window.innerHeight-height-8,top))+"px","important");
   }
 
   async function openUnifiedPicker(tab="emoji", anchor=null, context={type:"compose"}) {
