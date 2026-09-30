@@ -50,3 +50,5 @@
 - Made friend-list and inbox avatars open the live right-side profile panel directly, while row clicks still open the DM.
 
 - Added hover/cursor treatment for profile avatars and clearer disabled states in the friend context menu.
+
+- Corrected friend-state checks so a DM conversation with a non-friend is not incorrectly shown as an accepted friendship.
