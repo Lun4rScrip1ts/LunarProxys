@@ -224,6 +224,7 @@
   font-weight:700!important;
 }
 .lunar-friends-page .friend-avatar{
+  cursor:pointer!important;
   width:38px!important;
   height:38px!important;
   min-width:38px!important;
@@ -944,6 +945,7 @@
 }
 .lunar-friends-page .message-menu button:hover,
 .lunar-friends-page .friend-context-menu button:hover{background:#2b2f36!important;color:#fff!important}
+.lunar-friends-page .friend-context-menu button:disabled{opacity:.45!important;cursor:default!important}
 
 .lunar-friends-page .friends-profile-modal{
   position:fixed!important;
