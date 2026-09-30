@@ -565,7 +565,7 @@ $("dm-messages").addEventListener("click",async e=>{
     return
   }
   if(action.dataset.action==="menu"){showMenu(m,action);return}
-};
+});
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
 $("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||"");toast("Copied.")}else if(b.dataset.mm==="delete"){if(confirm("Delete this message?")){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
 let forwardContext={sourceType:"dm",messageId:"",excludeId:""};
