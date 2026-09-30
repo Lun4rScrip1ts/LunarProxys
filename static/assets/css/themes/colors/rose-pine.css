@@ -1,42 +1,5 @@
-/* Rosé Pine */
-:root {
-   --background: #191724;
-   --surface: #1f1d2e;
-   --surface-card: #1f1d2e;
-   --surface-tile: #26233a;
-   --surface-raised: #2a273f;
-   --surface-overlay: #2a273f;
-   --surface-input: #2a273f;
-   --surface-button: #2a273f;
-   --surface-button-hover: #403d52;
-   --surface-hover: #403d52;
-   --surface-active: #403d52;
-   --surface-nav: rgba(25, 23, 36, 0.5);
-   --surface-nav-active: rgba(64, 61, 82, 0.5);
-
-   --border: rgba(224, 222, 244, 0.08);
-   --border-subtle: rgba(224, 222, 244, 0.04);
-   --border-strong: rgba(224, 222, 244, 0.16);
-
-   --text: #e0def4;
-   --text-muted: #908caa;
-   --text-faint: #6e6a86;
-
-   --accent: #c4a7e7;
-   --accent-hover: #ebbcba;
-   --accent-text: #191724;
-
-   --success: #90cf95;
-   --warning: #f6c177;
-   --danger: #eb6f92;
-
-   --toggle-on: var(--success);
-   --toggle-off: #403d52;
-
-   --tab: #1f1d2e;
-   --tab-active: #403d52;
-   --tab-hover: #2a273f;
-   --tab-border: transparent;
-
-   --background-image: var(--background);
+/* rose-pine */
+:root{
+  --background:#191724;--surface:#1f1d2e;--surface-card:#26233a;--surface-tile:#2a273f;--surface-raised:#393552;--surface-overlay:#2a273f;--surface-input:#403d52;--surface-button:#514d69;--surface-button-hover:#625d7b;--surface-hover:rgba(224,222,244,.10);--surface-active:rgba(224,222,244,.15);--surface-nav:rgba(224,222,244,.24);--surface-nav-active:#e0def4;
+  --border:#aaa6c2;--border-subtle:#76718f;--border-strong:#c4a7e7;--text:#d7bff4;--text-muted:#191724;--text-faint:#9ccf9c;--accent:#f6c177;--accent-hover:#eb6f92;--accent-text:#403d52;--success:#26233a;--warning:#403d52;--danger:#2a273f;--toggle-on:var(--success);--toggle-off:undefined;--toggle-knob:undefined;--tab:#26233a;--tab-active:#625d7b;--tab-hover:rgba(224,222,244,.10);--tab-border:var(--border);--background-image:var(--background);
 }
