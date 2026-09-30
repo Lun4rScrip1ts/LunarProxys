@@ -229,7 +229,7 @@ try{
   mutualBox.innerHTML=mutuals.length?`<strong>${mutuals.length} Mutual Friend${mutuals.length===1?"":"s"}</strong><div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${esc(m.avatarUrl)}" alt="@${esc(m.username)}" title="@${esc(m.username)}">`:`<span title="@${esc(m.username)}">${esc(initials(m.displayName||m.username))}</span>`).join("")}</div>`:"<strong>No Mutual Friends</strong>";
   const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block"), report=$("friends-profile-report");
   actions.hidden=!!u.isSelf;
-  message.onclick=()=>{ location.href="/friends?user="+encodeURIComponent(u.username); };
+  message.onclick=()=>{closeUserProfile();const target=friends.find(x=>x.id===u.id)||{...u,isFriend:Boolean(u.isFriend),isBlocked:Boolean(u.isBlocked)};openDm(target);};
   friend.textContent=u.isFriend?"Added":(u.friendRequestPending?"Pending":"Friend");
   friend.disabled=!!u.isFriend||!!u.friendRequestPending;
   friend.onclick=async()=>{
@@ -279,7 +279,9 @@ $("dm-input").placeholder="Message @"+f.username;
 renderFriends();
 await api("/api/friends/dms/"+encodeURIComponent(f.id)+"/read",{method:"POST"}).catch(()=>{});
 await bootstrap();
-await loadMessages(true);
+  f=friends.find(x=>x.id===f.id)||f;
+  active=f;
+  await loadMessages(true);
 
 /* Keep the mini-profile actions useful even when this view is opened for a non-friend. */
 const miniFriendButton=$("profile-friend");
