@@ -1,42 +1,5 @@
-/* Gruvbox */
-:root {
-   --background: #282828;
-   --surface: #32302f;
-   --surface-card: #32302f;
-   --surface-tile: #3c3836;
-   --surface-raised: #504945;
-   --surface-overlay: #3c3836;
-   --surface-input: #3c3836;
-   --surface-button: #3c3836;
-   --surface-button-hover: #504945;
-   --surface-hover: #504945;
-   --surface-active: #504945;
-   --surface-nav: rgba(29, 32, 33, 0.5);
-   --surface-nav-active: rgba(80, 73, 69, 0.5);
-
-   --border: rgba(235, 219, 178, 0.09);
-   --border-subtle: rgba(235, 219, 178, 0.04);
-   --border-strong: rgba(235, 219, 178, 0.16);
-
-   --text: #ebdbb2;
-   --text-muted: #a89984;
-   --text-faint: #928374;
-
-   --accent: #fe8019;
-   --accent-hover: #fabd2f;
-   --accent-text: #282828;
-
-   --success: #b8bb26;
-   --warning: #fabd2f;
-   --danger: #fb4934;
-
-   --toggle-on: var(--success);
-   --toggle-off: #504945;
-
-   --tab: #32302f;
-   --tab-active: #504945;
-   --tab-hover: #3c3836;
-   --tab-border: transparent;
-
-   --background-image: var(--background);
+/* gruvbox */
+:root{
+  --background:#282828;--surface:#302f2c;--surface-card:#3c3836;--surface-tile:#504945;--surface-raised:#665c54;--surface-overlay:#3c3836;--surface-input:#504945;--surface-button:#665c54;--surface-button-hover:#7c6f64;--surface-hover:rgba(235,219,178,.10);--surface-active:rgba(235,219,178,.15);--surface-nav:rgba(235,219,178,.25);--surface-nav-active:#ebdbb2;
+  --border:#c5b48a;--border-subtle:#928374;--border-strong:#d79921;--text:#fabd2f;--text-muted:#282828;--text-faint:#b8bb26;--accent:#fabd2f;--accent-hover:#fb4934;--accent-text:#504945;--success:#3c3836;--warning:#504945;--danger:#665c54;--toggle-on:var(--success);--toggle-off:undefined;--toggle-knob:undefined;--tab:#3c3836;--tab-active:#7c6f64;--tab-hover:rgba(235,219,178,.10);--tab-border:var(--border);--background-image:var(--background);
 }
