@@ -265,7 +265,7 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
         modal.id = "friends-profile-modal";
         modal.className = "friends-profile-modal";
         modal.hidden = true;
-        modal.innerHTML = '<div class="friends-profile-card"><button id="friends-profile-close" class="friends-profile-close" type="button" aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button><div id="friends-profile-banner" class="friends-profile-banner"></div><div class="friends-profile-body"><div id="friends-profile-avatar" class="friends-profile-avatar"></div><div class="friends-profile-name"><h2 id="friends-profile-display"></h2><span id="friends-profile-owner" hidden>Owner</span></div><div id="friends-profile-username" class="friends-profile-username"></div><div id="friends-profile-status" class="friends-profile-status"></div><p id="friends-profile-bio" class="friends-profile-bio"></p><div id="friends-profile-actions" class="profile-actions"><button id="friends-profile-message" type="button" class="message-action">Message</button><button id="friends-profile-friend" type="button" class="friend-action">Friend</button><button id="friends-profile-block" type="button" class="block-action">Block</button></div><div id="friends-profile-roles" class="friends-profile-roles"></div><div id="friends-profile-stickers" class="friends-profile-stickers"></div></div></div>';
+        modal.innerHTML = '<div class="friends-profile-card"><button id="friends-profile-close" class="friends-profile-close" type="button" aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button><div id="friends-profile-banner" class="friends-profile-banner"></div><div class="friends-profile-body"><div id="friends-profile-avatar" class="friends-profile-avatar"></div><div class="friends-profile-name"><h2 id="friends-profile-display"></h2><span id="friends-profile-owner" class="friends-profile-owner" hidden>Owner</span></div><div id="friends-profile-username" class="friends-profile-username"></div><div id="friends-profile-status" class="friends-profile-status"></div><div id="friends-profile-member" class="friends-profile-member"></div><p id="friends-profile-bio" class="friends-profile-bio"></p><div id="friends-profile-actions" class="profile-actions"><button id="friends-profile-message" type="button" class="message-action">Message</button><button id="friends-profile-friend" type="button" class="friend-action">Friend</button><button id="friends-profile-block" type="button" class="block-action">Block</button><button id="friends-profile-report" type="button" class="report-action">Report</button></div><div id="friends-profile-roles" class="friends-profile-roles"></div><div id="friends-profile-stickers" class="friends-profile-stickers"></div></div></div>';
         document.body.appendChild(modal);
       }
 
@@ -276,14 +276,22 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
       document.getElementById("friends-profile-avatar").innerHTML = avatarHtml(u);
       document.getElementById("friends-profile-display").textContent = u.displayName || u.username;
       document.getElementById("friends-profile-username").textContent = "@" + u.username;
-      document.getElementById("friends-profile-status").textContent = u.status || "Online";
+      document.getElementById("friends-profile-status").textContent = u.isOnline ? "Online" : (u.status || "Offline");
+      document.getElementById("friends-profile-status").classList.toggle("is-online", Boolean(u.isOnline));
+      document.getElementById("friends-profile-member").textContent = u.createdAt
+        ? "Member since " + new Date(u.createdAt).toLocaleDateString([], {month:"short",year:"numeric"})
+        : "";
       document.getElementById("friends-profile-bio").textContent = u.bio || "No bio yet.";
       document.getElementById("friends-profile-owner").hidden = !u.isOwner;
       document.getElementById("friends-profile-roles").innerHTML = (u.roles || []).map(r => "<span>" + escape(r) + "</span>").join("");
-      document.getElementById("friends-profile-stickers").innerHTML = (u.stickers || []).slice(0, 12).map(s => '<img src="' + escapeAttr(s.url) + '" alt="' + escapeAttr(s.name || "Sticker") + '" loading="lazy">').join("");
+      document.getElementById("friends-profile-stickers").innerHTML = (u.stickers || []).slice(0, 12).map(sticker =>
+        '<img src="' + escapeAttr(sticker.url) + '" alt="' + escapeAttr(sticker.name || "Sticker") + '" loading="lazy">'
+      ).join("");
 
       const banner = document.getElementById("friends-profile-banner");
-      banner.style.backgroundImage = u.bannerUrl ? 'url("' + String(u.bannerUrl).replace(/"/g, '\\\"') + '")' : "none";
+      banner.style.backgroundImage = u.bannerUrl
+        ? 'url("' + String(u.bannerUrl).replace(/"/g, '\\\"') + '")'
+        : "none";
 
       const card = modal.querySelector(".friends-profile-card");
       const bg = u.backgroundUrl || "";
@@ -314,17 +322,24 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
       const message = document.getElementById("friends-profile-message");
       const friend = document.getElementById("friends-profile-friend");
       const block = document.getElementById("friends-profile-block");
+      const report = document.getElementById("friends-profile-report");
 
       message.onclick = () => { location.href = "/friends?user=" + encodeURIComponent(u.username); };
       friend.textContent = u.isFriend ? "Added" : (u.friendRequestPending ? "Pending" : "Friend");
       friend.disabled = !!u.isFriend || !!u.friendRequestPending;
       friend.onclick = async () => {
         try {
-          await api("/api/friends/requests", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
+          await api("/api/friends/requests", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({username:u.username})
+          });
           friend.textContent = "Pending";
           friend.disabled = true;
           showToast("Friend request sent.");
-        } catch (e) { showToast(e.message); }
+        } catch (e) {
+          showToast(e.message);
+        }
       };
       block.textContent = u.isBlocked ? "Blocked" : "Block";
       block.disabled = !!u.isBlocked;
@@ -335,22 +350,35 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
           block.textContent = "Blocked";
           block.disabled = true;
           showToast("User blocked.");
-          modal.hidden = true;
-        } catch (e) { showToast(e.message); }
+          closeChatProfile();
+        } catch (e) {
+          showToast(e.message);
+        }
       };
+      if (report) {
+        report.onclick = async () => {
+          try {
+            await api("/api/friends/report/" + encodeURIComponent(u.id), {
+              method:"POST",
+              headers:{"Content-Type":"application/json"},
+              body:JSON.stringify({reason:"Reported from Global Chat profile"})
+            });
+            showToast("Report submitted.");
+          } catch (e) {
+            showToast(e.message);
+          }
+        };
+      }
 
       modal.hidden = false;
-      modal.onclick = e => { if (e.target === modal) modal.hidden = true; };
-      document.getElementById("friends-profile-close").onclick = () => { modal.hidden = true; };
-
-      card.style.left = "50%";
-      card.style.top = "50%";
-      card.style.right = "auto";
-      card.style.bottom = "auto";
-      card.style.transform = "translate(-50%, -50%)";
     } catch (e) {
       showToast(e.message);
     }
+  }
+
+  function closeChatProfile() {
+    const modal = document.getElementById("friends-profile-modal");
+    if (modal) modal.hidden = true;
   }
 
   function renderStickers(stickers) {
