@@ -1119,3 +1119,6 @@
   .lunar-friends-page .friends-profile-card{width:100%!important}
   .lunar-friends-page .gif-panel{right:8px!important;bottom:62px!important;width:min(340px,calc(100vw - 16px))!important}
 }
+
+.lunar-friends-page [hidden]{display:none!important}
+.lunar-friends-page .friend-sticker-drawer[aria-hidden="true"]{display:none!important}
