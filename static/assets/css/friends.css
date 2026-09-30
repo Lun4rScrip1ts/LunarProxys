@@ -1378,3 +1378,5 @@
 .chat-role-badge.owner{background:rgba(255,193,7,.14);color:#ffd76a;border:1px solid rgba(255,193,7,.24)}
 .chat-role-badge.co-owner{background:rgba(145,117,255,.14);color:#c8baff;border:1px solid rgba(145,117,255,.24)}
 .dm-username{font-size:10px;color:#777f8d;margin-left:3px}
+
+.dm-username.role-user{display:none}
