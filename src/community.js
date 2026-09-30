@@ -3,6 +3,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import express from "express";
 import { promises as fs } from "node:fs";
+import fetch from "node-fetch";
 import { mkdir, rename } from "node:fs/promises";
 
 const scrypt = promisify(scryptCallback);
@@ -12,6 +13,10 @@ const DATA_DIR = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_
 const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
 const DATA_FILE = path.join(DATA_DIR, "community.json");
 const SESSION_DAYS = 365;
+const PASSWORD_RESET_TTL_MS = 10 * 60 * 1000;
+const PASSWORD_RESET_CODE_ATTEMPTS = 5;
+const PASSWORD_RESET_REQUEST_COOLDOWN_MS = 60 * 1000;
+const passwordResetCooldowns = new Map();
 const MAX_MESSAGES = 500;
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_USERS = 10000;
@@ -33,6 +38,7 @@ let state = {
   dmMessages: [],
   reports: [],
   movies: [],
+  passwordResets: {},
 };
 let writeQueue = Promise.resolve();
 
@@ -52,6 +58,7 @@ async function loadState() {
         dmMessages: Array.isArray(parsed.dmMessages) ? parsed.dmMessages.slice(-5000) : [],
         reports: Array.isArray(parsed.reports) ? parsed.reports : [],
         movies: Array.isArray(parsed.movies) ? parsed.movies.slice(-500) : [],
+        passwordResets: parsed.passwordResets && typeof parsed.passwordResets === "object" ? parsed.passwordResets : {},
       };
       state.friendships = normalizeFriendshipEntries(state.friendships, state.friendRequests);
       for (const user of Object.values(state.users)) {
@@ -370,6 +377,146 @@ router.post("/auth/register", async (req, res) => {
   setSession(res, user.id);
   await persist();
   res.status(201).json({ user: publicUser(user, true) });
+});
+
+function findUserByEmail(email) {
+  const key = String(email || "").trim().toLowerCase();
+  return Object.values(state.users).find(user => user.email && user.email.toLowerCase() === key) || null;
+}
+
+function resetCodeHtml(code) {
+  return `<!doctype html>
+<html>
+  <body style="margin:0;background:#0b0d12;color:#f4f5f8;font-family:Arial,sans-serif">
+    <div style="max-width:520px;margin:0 auto;padding:40px 20px">
+      <div style="padding:28px;border:1px solid #252a35;border-radius:18px;background:#11151c">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.18em;color:#a995ff">LUNAR ACCOUNT</div>
+        <h1 style="margin:12px 0 8px;font-size:28px">Password reset code</h1>
+        <p style="color:#aab1bf;line-height:1.6">Use this code to confirm that you own this Lunar account. It expires in 10 minutes.</p>
+        <div style="margin:24px 0;padding:18px;text-align:center;border-radius:14px;background:#191e29;border:1px solid #303747;font-size:34px;font-weight:900;letter-spacing:.28em;color:#fff">${code}</div>
+        <p style="color:#727b8c;font-size:12px;line-height:1.6">If you did not request a password reset, you can ignore this email.</p>
+      </div>
+    </div>
+  </body>
+</html>`;
+}
+
+async function sendPasswordResetEmail(email, code) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+  if (!apiKey || !from) throw new Error("Password reset email service is not configured.");
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + apiKey,
+    },
+    body: JSON.stringify({
+      from,
+      to: [email],
+      subject: "Your Lunar password reset code",
+      html: resetCodeHtml(code),
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "The password reset email could not be sent.");
+}
+
+router.post("/auth/password-reset/request", async (req, res) => {
+  const email = cleanText(req.body?.email, 254).toLowerCase();
+  if (!validEmail(email)) return res.status(400).json({ error: "Enter a valid email address." });
+
+  const now = Date.now();
+  const cooldownKey = email + "|" + String(req.ip || "");
+  const lastRequested = passwordResetCooldowns.get(cooldownKey) || 0;
+  if (now - lastRequested < PASSWORD_RESET_REQUEST_COOLDOWN_MS) {
+    return res.status(429).json({ error: "Please wait a minute before requesting another code." });
+  }
+  passwordResetCooldowns.set(cooldownKey, now);
+
+  const user = findUserByEmail(email);
+  if (!user) return res.json({ ok: true, message: "If an account uses that email, a verification code has been sent." });
+
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const credentials = await hashPassword(code);
+  state.passwordResets[user.id] = {
+    userId: user.id,
+    codeSalt: credentials.salt,
+    codeHash: credentials.hash,
+    attempts: 0,
+    expiresAt: now + PASSWORD_RESET_TTL_MS,
+    verifiedTokenHash: "",
+    verifiedTokenSalt: "",
+    verifiedExpiresAt: 0,
+  };
+
+  try {
+    await sendPasswordResetEmail(user.email, code);
+    await persist();
+    res.json({ ok: true, message: "If an account uses that email, a verification code has been sent." });
+  } catch (error) {
+    delete state.passwordResets[user.id];
+    await persist();
+    res.status(503).json({ error: "Password reset email service is unavailable right now." });
+  }
+});
+
+router.post("/auth/password-reset/verify", async (req, res) => {
+  const email = cleanText(req.body?.email, 254).toLowerCase();
+  const code = cleanText(req.body?.code, 6);
+  if (!validEmail(email) || !/^\d{6}$/.test(code)) return res.status(400).json({ error: "Enter the 6-digit verification code." });
+
+  const user = findUserByEmail(email);
+  const reset = user ? state.passwordResets[user.id] : null;
+  if (!user || !reset || Date.now() > reset.expiresAt) return res.status(400).json({ error: "That verification code is invalid or expired." });
+  if (reset.attempts >= PASSWORD_RESET_CODE_ATTEMPTS) return res.status(429).json({ error: "Too many incorrect attempts. Request a new code." });
+
+  reset.attempts += 1;
+  if (!(await verifyPassword(code, { salt: reset.codeSalt, hash: reset.codeHash }))) {
+    await persist();
+    return res.status(400).json({ error: "That verification code is invalid or expired." });
+  }
+
+  const resetToken = randomBytes(32).toString("hex");
+  const tokenCredentials = await hashPassword(resetToken);
+  reset.verifiedTokenSalt = tokenCredentials.salt;
+  reset.verifiedTokenHash = tokenCredentials.hash;
+  reset.verifiedExpiresAt = Date.now() + PASSWORD_RESET_TTL_MS;
+  reset.codeHash = "";
+  reset.codeSalt = "";
+  await persist();
+  res.json({ ok: true, resetToken });
+});
+
+router.post("/auth/password-reset/complete", async (req, res) => {
+  const resetToken = cleanText(req.body?.resetToken, 128);
+  const password = req.body?.password;
+  if (!resetToken) return res.status(400).json({ error: "Verify the code first." });
+  if (!validPassword(password)) return res.status(400).json({ error: "Password must be 8–128 characters." });
+
+  let matched = null;
+  for (const reset of Object.values(state.passwordResets)) {
+    if (!reset.verifiedTokenHash || Date.now() > reset.verifiedExpiresAt) continue;
+    if (await verifyPassword(resetToken, { salt: reset.verifiedTokenSalt, hash: reset.verifiedTokenHash })) {
+      matched = reset;
+      break;
+    }
+  }
+  if (!matched) return res.status(400).json({ error: "Your reset session is invalid or expired. Start again." });
+
+  const user = state.users[matched.userId];
+  if (!user) return res.status(400).json({ error: "That account could not be found." });
+
+  const credentials = await hashPassword(password);
+  user.salt = credentials.salt;
+  user.hash = credentials.hash;
+
+  for (const [token, session] of Object.entries(state.sessions)) {
+    if (session?.userId === user.id) delete state.sessions[token];
+  }
+  delete state.passwordResets[user.id];
+  await persist();
+  res.json({ ok: true });
 });
 
 router.post("/auth/login", async (req, res) => {
