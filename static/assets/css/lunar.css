@@ -680,3 +680,9 @@ body:not(#no)::after{
 .lunar-home .title:hover{
   text-shadow:none!important;
 }
+
+.account-sticker-item{position:relative!important;overflow:hidden!important}
+.account-sticker-remove{position:absolute!important;top:6px!important;right:6px!important;width:24px!important;height:24px!important;padding:0!important;border:0!important;border-radius:6px!important;background:rgba(12,14,18,.82)!important;color:#fff!important;display:grid!important;place-items:center!important;cursor:pointer!important;opacity:0!important;transform:scale(.9)!important;transition:opacity .15s ease,transform .15s ease,background .15s ease!important}
+.account-sticker-item:hover .account-sticker-remove,.account-sticker-remove:focus-visible{opacity:1!important;transform:scale(1)!important}
+.account-sticker-remove:hover:not(:disabled){background:rgba(237,66,69,.92)!important}
+.account-sticker-remove:disabled{opacity:.55!important;cursor:wait!important}
