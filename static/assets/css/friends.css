@@ -1286,3 +1286,90 @@
 }
 .lunar-friends-page .dm-message:hover .dm-message-actions:before{opacity:1;transform:none}
 .lunar-friends-page .dm-message-actions:before{display:none!important}.lunar-friends-page .quick-reactions{position:absolute;right:calc(100% + 5px);top:1px;display:flex;gap:2px;padding:3px;border:1px solid var(--friends-border-strong);border-radius:7px;background:#111318;box-shadow:0 7px 18px rgba(0,0,0,.35);opacity:0;transform:translateY(3px) scale(.96);pointer-events:none;transition:opacity .12s ease,transform .12s ease}.lunar-friends-page .dm-message:hover .quick-reactions{opacity:1;transform:none;pointer-events:auto}.lunar-friends-page .quick-reactions button{width:27px!important;height:25px!important;font-size:12px!important;padding:0!important}
+
+/* Chat GIF picker parity */
+.lunar-friends-page .gif-panel{
+  position:fixed!important;
+  width:min(390px,calc(100vw - 32px))!important;
+  height:min(520px,70vh)!important;
+  right:auto!important;
+  bottom:auto!important;
+  padding:0!important;
+  border-radius:18px!important;
+  background:rgba(13,16,22,.98)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  box-shadow:0 25px 80px rgba(0,0,0,.48)!important;
+  z-index:2147483000!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.lunar-friends-page .gif-panel[hidden]{display:none!important}
+.lunar-friends-page .gif-panel .gif-head{
+  min-height:55px!important;
+  box-sizing:border-box!important;
+  padding:12px 15px!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  flex:0 0 auto!important;
+}
+.lunar-friends-page .gif-panel .gif-head button{
+  width:30px!important;height:30px!important;border-radius:8px!important;
+  background:rgba(255,255,255,.035)!important;
+}
+.lunar-friends-page .gif-panel .gif-search{
+  height:38px!important;
+  box-sizing:border-box!important;
+  margin:12px 13px 8px!important;
+  padding:0 7px 0 11px!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:11px!important;
+  background:rgba(255,255,255,.045)!important;
+  flex:0 0 auto!important;
+}
+.lunar-friends-page .gif-panel .gif-search input{padding:0 7px!important;font-size:11px!important}
+.lunar-friends-page .gif-panel .gif-search-clear{
+  width:26px!important;height:26px!important;border:0!important;border-radius:7px!important;
+  background:transparent!important;color:#777f8d!important;cursor:pointer!important;
+}
+.lunar-friends-page .gif-panel .gif-search-clear:hover{background:rgba(255,255,255,.07)!important;color:#fff!important}
+.lunar-friends-page .gif-panel .gif-tabs{
+  padding:0 13px 8px!important;gap:5px!important;flex:0 0 auto!important;
+}
+.lunar-friends-page .gif-panel .gif-tab{
+  flex:1!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+  padding:8px 9px!important;border:1px solid transparent!important;border-radius:10px!important;
+  background:transparent!important;color:#7d8593!important;font-size:10px!important;
+}
+.lunar-friends-page .gif-panel .gif-tab.active{
+  background:rgba(255,255,255,.075)!important;border-color:rgba(255,255,255,.08)!important;color:#fff!important;
+}
+.lunar-friends-page .gif-panel .gif-grid{
+  min-height:0!important;flex:1 1 auto!important;display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;padding:5px 13px 13px!important;
+  overflow-y:auto!important;overflow-x:hidden!important;align-content:start!important;
+}
+.lunar-friends-page .gif-panel .gif-card{
+  min-height:72px!important;aspect-ratio:1!important;border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:10px!important;background:rgba(255,255,255,.025)!important;
+  transition:.16s ease!important;position:relative!important;overflow:hidden!important;
+}
+.lunar-friends-page .gif-panel .gif-card:hover{
+  transform:translateY(-1px)!important;border-color:rgba(145,117,255,.28)!important;background:rgba(145,117,255,.08)!important;
+}
+.lunar-friends-page .gif-panel .gif-card img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important}
+.lunar-friends-page .gif-panel .gif-fav{
+  right:5px!important;top:5px!important;width:25px!important;height:25px!important;
+  display:grid!important;place-items:center!important;border:1px solid rgba(255,255,255,.13)!important;
+  background:rgba(8,10,14,.82)!important;color:#aab1bd!important;opacity:0!important;
+}
+.lunar-friends-page .gif-panel .gif-card:hover .gif-fav,
+.lunar-friends-page .gif-panel .gif-fav.is-saved{opacity:1!important}
+.lunar-friends-page .gif-panel .gif-status{
+  flex:0 0 auto!important;min-height:18px!important;padding:4px 11px 7px!important;
+}
+@media(max-width:700px){
+  .lunar-friends-page .gif-panel{
+    width:calc(100vw - 16px)!important;height:min(430px,calc(100vh - 72px))!important;
+  }
+}
