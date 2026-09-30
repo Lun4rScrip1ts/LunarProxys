@@ -1,4 +1,4 @@
-import { randomBytes, scrypt as scryptCallback, timingSafeEqual, randomUUID } from "node:crypto";
+import { randomBytes, randomInt, scrypt as scryptCallback, timingSafeEqual, randomUUID } from "node:crypto";
 import path from "node:path";
 import { promisify } from "node:util";
 import express from "express";
@@ -437,7 +437,7 @@ router.post("/auth/password-reset/request", async (req, res) => {
   const user = findUserByEmail(email);
   if (!user) return res.json({ ok: true, message: "If an account uses that email, a verification code has been sent." });
 
-  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const code = String(randomInt(100000, 1000000));
   const credentials = await hashPassword(code);
   state.passwordResets[user.id] = {
     userId: user.id,
