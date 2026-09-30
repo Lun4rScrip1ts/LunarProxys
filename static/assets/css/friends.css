@@ -1246,3 +1246,11 @@
   }
   .lunar-friends-page .dm-message-actions button[data-action="menu"]{display:grid!important}
 }
+
+
+.lunar-friends-page .modal-backdrop[hidden],
+.lunar-friends-page .friend-modal[hidden],
+.lunar-friends-page .forward-modal[hidden],
+.lunar-friends-page .dm-compose-menu[hidden],
+.lunar-friends-page .gif-panel[hidden],
+.lunar-friends-page .emoji-sticker-picker[hidden]{display:none!important}
