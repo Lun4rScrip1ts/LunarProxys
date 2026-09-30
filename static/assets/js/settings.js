@@ -543,8 +543,6 @@ function AB() {
   const doc = popup.document;
   const iframe = doc.createElement("iframe");
   const link = doc.createElement("link");
-  const script = doc.createElement("script");
-
   doc.title = name;
   link.rel = "icon";
   link.href = icon;
@@ -556,16 +554,7 @@ function AB() {
   style.border = style.outline = "none";
   style.width = style.height = "100%";
 
-  script.textContent = `
-    window.onbeforeunload = function (event) {
-      const message = 'Leave Site?';
-      (event || window.event).returnValue = message;
-      return message;
-    };
-  `;
-
   doc.head.appendChild(link);
-  doc.head.appendChild(script);
   doc.body.appendChild(iframe);
 
   location.replace(panicLink);
