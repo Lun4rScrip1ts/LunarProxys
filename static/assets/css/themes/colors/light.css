@@ -1,5 +1,7 @@
-/* light */
+/* Light — high contrast */
 :root{
-  --background:#f4f7fb;--surface:#ffffff;--surface-card:#ffffff;--surface-tile:#e8edf5;--surface-raised:#ffffff;--surface-overlay:#e8edf5;--surface-input:#f0f3f8;--surface-button:#e1e7f0;--surface-button-hover:#dce3ed;--surface-hover:rgba(25,35,50,.08);--surface-active:rgba(25,35,50,.12);--surface-nav:rgba(25,35,50,.18);--surface-nav-active:#172033;
-  --border:#536174;--border-subtle:#7a8798;--border-strong:#5b4bdb;--text:#493ac2;--text-muted:#ffffff;--text-faint:#2f9e62;--accent:#b7791f;--accent-hover:#d64545;--accent-text:#aeb8c7;--success:#ffffff;--warning:#e8edf5;--danger:#f0f3f8;--toggle-on:var(--success);--toggle-off:undefined;--toggle-knob:undefined;--tab:#ffffff;--tab-active:#dce3ed;--tab-hover:rgba(25,35,50,.08);--tab-border:var(--border);--background-image:var(--background);
+--background:#f4f7fb;--surface:#ffffff;--surface-card:#ffffff;--surface-tile:#e8edf5;--surface-raised:#ffffff;--surface-overlay:#eef2f7;--surface-input:#f7f9fc;--surface-button:#e3e8f0;--surface-button-hover:#d8e0eb;--surface-hover:#eef2f7;--surface-active:#dce3ed;
+--surface-nav:rgba(255,255,255,.86);--surface-nav-active:rgba(91,75,219,.12);--border:rgba(35,48,70,.14);--border-subtle:rgba(35,48,70,.08);--border-strong:rgba(91,75,219,.38);
+--text:#182230;--text-muted:#526174;--text-faint:#748196;--accent:#5b4bdb;--accent-hover:#493ac2;--accent-text:#fff;--success:#2f9e62;--warning:#b7791f;--danger:#d64545;--toggle-on:var(--success);--toggle-off:#b8c1cf;--toggle-knob:#fff;
+--tab:#fff;--tab-active:#e3e8f0;--tab-hover:#eef2f7;--tab-border:var(--border);--background-image:var(--background);
 }
