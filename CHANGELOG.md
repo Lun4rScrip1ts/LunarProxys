@@ -48,3 +48,5 @@
 - Reordered the DM plus menu to Sticker Collection, GIFs, then Emojis as requested.
 
 - Made friend-list and inbox avatars open the live right-side profile panel directly, while row clicks still open the DM.
+
+- Added hover/cursor treatment for profile avatars and clearer disabled states in the friend context menu.
