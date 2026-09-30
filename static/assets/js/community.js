@@ -900,75 +900,43 @@
   document.getElementById("cancel-edit-top").addEventListener("click", cancelEdit);
 
   document.getElementById("chat-image-button").addEventListener("click", () => document.getElementById("chat-image-file").click());
-  const chatPlus = document.getElementById("chat-plus");
-  const chatComposeMenu = document.getElementById("chat-compose-menu");
-  function closeChatComposeMenu() {
-    if (!chatComposeMenu) return;
-    chatComposeMenu.hidden = true;
-    chatPlus?.setAttribute("aria-expanded","false");
-  }
-  function positionChatComposeMenu(anchor) {
-    if (!chatComposeMenu || !anchor) return;
-    if (chatComposeMenu.parentElement !== document.body) document.body.appendChild(chatComposeMenu);
-    const rect = anchor.getBoundingClientRect();
-    const width = Math.min(250, window.innerWidth - 16);
-    chatComposeMenu.style.position = "fixed";
-    chatComposeMenu.style.width = width + "px";
-    chatComposeMenu.style.left = Math.max(8, Math.min(window.innerWidth - width - 8, rect.left)) + "px";
-    chatComposeMenu.style.right = "auto";
-    chatComposeMenu.style.bottom = "auto";
-    chatComposeMenu.style.top = "8px";
-    chatComposeMenu.hidden = false;
-    requestAnimationFrame(() => {
-      if (!chatComposeMenu || chatComposeMenu.hidden) return;
-      const menuRect = chatComposeMenu.getBoundingClientRect();
-      let top = rect.top - menuRect.height - 10;
-      if (top < 8) top = rect.bottom + 8;
-      if (top + menuRect.height > window.innerHeight - 8) top = Math.max(8, window.innerHeight - menuRect.height - 8);
-      chatComposeMenu.style.top = top + "px";
-    });
-  }
-  function positionChatToolPanel(panel, anchor) {
-    if (!panel || !anchor) return;
-    const rect = anchor.getBoundingClientRect();
-    const width = Math.min(420, window.innerWidth - 20);
-    const height = Math.min(500, window.innerHeight - 100);
-    let left = rect.left + rect.width / 2 - width / 2;
-    let top = rect.top - height - 10;
-    if (top < 8) top = rect.bottom + 8;
-    panel.style.width = width + "px";
-    panel.style.left = Math.max(8, Math.min(window.innerWidth - width - 8, left)) + "px";
-    panel.style.top = Math.max(8, Math.min(window.innerHeight - height - 8, top)) + "px";
-  }
+  const chatGifButton = document.getElementById("chat-gif-button");
+  const chatImageButton = document.getElementById("chat-image-button");
+  const chatStickerButton = document.getElementById("chat-sticker-button");
   function openChatGifs() {
     if (!currentUser) { location.href="/account"; return; }
-    closePopovers(); closeChatComposeMenu();
-    if (!giphyPanel) return;
-    giphyPanel.hidden = false; giphyPanel.removeAttribute("hidden"); giphyPanel.style.display = "flex";
-    positionChatToolPanel(giphyPanel, chatPlus);
-    loadGlobalGifs(); giphySearch?.focus();
-  }
-  function openChatImageUpload() { closeChatComposeMenu(); document.getElementById("chat-image-file")?.click(); }
-  function openChatStickers() { closeChatComposeMenu(); openUnifiedPicker("stickers", chatPlus, {type:"browse"}); }
-  chatPlus?.addEventListener("click", event => {
-    event.preventDefault(); event.stopPropagation();
-    const open = chatComposeMenu && !chatComposeMenu.hidden;
     closePopovers();
-    if (giphyPanel) { giphyPanel.hidden = true; giphyPanel.style.display = ""; }
-    if (open) closeChatComposeMenu();
-    else {
-      positionChatComposeMenu(chatPlus);
-      chatPlus.setAttribute("aria-expanded","true");
-    }
+    if (!giphyPanel) return;
+    giphyPanel.hidden = false;
+    giphyPanel.removeAttribute("hidden");
+    giphyPanel.style.display = "flex";
+    positionChatToolPanel(giphyPanel, chatGifButton);
+    loadGlobalGifs();
+    giphySearch?.focus();
+  }
+  function openChatImageUpload() {
+    closePopovers();
+    chatImageButton?.blur();
+    document.getElementById("chat-image-file")?.click();
+  }
+  function openChatStickers() {
+    closePopovers();
+    openStickerDrawer(chatStickerButton);
+  }
+  chatGifButton?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    openChatGifs();
   });
-  chatComposeMenu?.addEventListener("click", event => {
-    const item = event.target.closest("[data-compose-tool]");
-    if (!item) return;
-    event.preventDefault(); event.stopPropagation();
-    const tool = item.dataset.composeTool;
-    if (tool === "gif") openChatGifs();
-    else if (tool === "image") openChatImageUpload();
-    else if (tool === "sticker") openStickerDrawer(chatPlus);
+  chatImageButton?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    openChatImageUpload();
+  });
+  chatStickerButton?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    openChatStickers();
   });
   giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true;giphyPanel.style.display="";});
   giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
@@ -998,7 +966,7 @@
   });
   document.addEventListener("click", event => {
     const target = event.target;
-    if (chatComposeMenu && !chatComposeMenu.hidden && !chatComposeMenu.contains(target) && !target.closest("#chat-plus")) closeChatComposeMenu();
+    if (chatComposeMenu && !chatComposeMenu.hidden && !chatComposeMenu.contains(target) && !target.closest("#chat-gif-button") && !target.closest("#chat-image-button") && !target.closest("#chat-sticker-button")) closeChatComposeMenu();
     if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(target) && !target.closest("#chat-plus") && !target.closest("[data-action=\"react\"]")) closePopovers();
     if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(target) && !target.closest("#chat-plus")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
     if (reactionPicker && !reactionPicker.contains(target) && !target.closest("[data-action='react']")) reactionPicker.hidden = true;
