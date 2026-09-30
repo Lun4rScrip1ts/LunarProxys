@@ -899,7 +899,6 @@
   document.getElementById("cancel-reply").addEventListener("click", cancelReply);
   document.getElementById("cancel-edit-top").addEventListener("click", cancelEdit);
 
-  document.getElementById("chat-image-button").addEventListener("click", () => document.getElementById("chat-image-file").click());
   const chatGifButton = document.getElementById("chat-gif-button");
   const chatImageButton = document.getElementById("chat-image-button");
   const chatStickerButton = document.getElementById("chat-sticker-button");
@@ -980,7 +979,6 @@
   });
   document.addEventListener("click", event => {
     const target = event.target;
-    if (chatComposeMenu && !chatComposeMenu.hidden && !chatComposeMenu.contains(target) && !target.closest("#chat-gif-button") && !target.closest("#chat-image-button") && !target.closest("#chat-sticker-button")) closeChatComposeMenu();
     if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(target) && !target.closest("#chat-gif-button") && !target.closest("#chat-image-button") && !target.closest("#chat-sticker-button") && !target.closest("[data-action=\"react\"]")) closePopovers();
     if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(target) && !target.closest("#chat-plus")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
     if (reactionPicker && !reactionPicker.contains(target) && !target.closest("[data-action='react']")) reactionPicker.hidden = true;
