@@ -54,3 +54,5 @@
 - Corrected friend-state checks so a DM conversation with a non-friend is not incorrectly shown as an accepted friendship.
 
 - Added a subtle profile-panel backdrop so the right-side profile behaves like a Discord-style focused popout and can close by clicking outside it.
+
+- Removed the obsolete JavaScript handlers for the removed DM call, video, search, and more header controls.
