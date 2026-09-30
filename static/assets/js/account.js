@@ -19,6 +19,7 @@
     document.getElementById("auth-title").textContent=reg?"Create your Lunar account":"Welcome back";
     document.getElementById("auth-subtitle").textContent=reg?"Use an email, username, and password to create your profile.":"Log in with your username or email.";
     document.getElementById("auth-submit").textContent=reg?"Create Account":"Log In";
+    document.getElementById("forgot-password-button").hidden=reg;
     ["register-username-row","email-row","display-name-row"].forEach(id=>document.getElementById(id).hidden=!reg);
     document.getElementById("identifier-label").hidden=reg; document.getElementById("auth-identifier").required=!reg;
     document.getElementById("auth-username").required=reg; document.getElementById("auth-email").required=reg; errorEl.textContent="";};
