@@ -907,6 +907,27 @@
     chatComposeMenu.hidden = true;
     chatPlus?.setAttribute("aria-expanded","false");
   }
+  function positionChatComposeMenu(anchor) {
+    if (!chatComposeMenu || !anchor) return;
+    if (chatComposeMenu.parentElement !== document.body) document.body.appendChild(chatComposeMenu);
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(250, window.innerWidth - 16);
+    chatComposeMenu.style.position = "fixed";
+    chatComposeMenu.style.width = width + "px";
+    chatComposeMenu.style.left = Math.max(8, Math.min(window.innerWidth - width - 8, rect.left)) + "px";
+    chatComposeMenu.style.right = "auto";
+    chatComposeMenu.style.bottom = "auto";
+    chatComposeMenu.style.top = "8px";
+    chatComposeMenu.hidden = false;
+    requestAnimationFrame(() => {
+      if (!chatComposeMenu || chatComposeMenu.hidden) return;
+      const menuRect = chatComposeMenu.getBoundingClientRect();
+      let top = rect.top - menuRect.height - 10;
+      if (top < 8) top = rect.bottom + 8;
+      if (top + menuRect.height > window.innerHeight - 8) top = Math.max(8, window.innerHeight - menuRect.height - 8);
+      chatComposeMenu.style.top = top + "px";
+    });
+  }
   function positionChatToolPanel(panel, anchor) {
     if (!panel || !anchor) return;
     const rect = anchor.getBoundingClientRect();
@@ -936,12 +957,7 @@
     if (giphyPanel) { giphyPanel.hidden = true; giphyPanel.style.display = ""; }
     if (open) closeChatComposeMenu();
     else {
-      const rect = chatPlus.getBoundingClientRect();
-      const formRect = form.getBoundingClientRect();
-      chatComposeMenu.style.left = Math.max(0, rect.left - formRect.left) + "px";
-      chatComposeMenu.style.right = "auto";
-      chatComposeMenu.style.bottom = Math.max(formRect.bottom - rect.top + 8, 50) + "px";
-      chatComposeMenu.hidden = false;
+      positionChatComposeMenu(chatPlus);
       chatPlus.setAttribute("aria-expanded","true");
     }
   });
