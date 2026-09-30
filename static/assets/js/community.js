@@ -800,6 +800,7 @@
       }
       if (action.dataset.action === "menu") showChatMessageMenu(message, action);
       if (action.dataset.action === "delete" && message.userId === currentUser?.id && !message.deletedAt) {
+        if (!confirm("Delete this message?")) return;
         try { await api("/api/chat/messages/" + encodeURIComponent(message.id), {method:"DELETE"}); showToast("Message deleted."); await refresh(); }
         catch (error) { showToast(error.message); }
       }
@@ -915,7 +916,15 @@
     closePopovers();
     if (giphyPanel) { giphyPanel.hidden = true; giphyPanel.style.display = ""; }
     if (open) closeChatComposeMenu();
-    else { chatComposeMenu.hidden = false; chatPlus.setAttribute("aria-expanded","true"); }
+    else {
+      const rect = chatPlus.getBoundingClientRect();
+      const formRect = form.getBoundingClientRect();
+      chatComposeMenu.style.left = Math.max(0, rect.left - formRect.left) + "px";
+      chatComposeMenu.style.right = "auto";
+      chatComposeMenu.style.bottom = Math.max(formRect.bottom - rect.top + 8, 50) + "px";
+      chatComposeMenu.hidden = false;
+      chatPlus.setAttribute("aria-expanded","true");
+    }
   });
   chatComposeMenu?.addEventListener("click", event => {
     const item = event.target.closest("[data-compose-tool]");
