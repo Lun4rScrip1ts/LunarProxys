@@ -52,3 +52,5 @@
 - Added hover/cursor treatment for profile avatars and clearer disabled states in the friend context menu.
 
 - Corrected friend-state checks so a DM conversation with a non-friend is not incorrectly shown as an accepted friendship.
+
+- Added a subtle profile-panel backdrop so the right-side profile behaves like a Discord-style focused popout and can close by clicking outside it.
