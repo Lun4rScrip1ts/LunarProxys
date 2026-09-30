@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const api=async(url,opt={})=>{const r=await fetch(url,{credentials:"same-origin",...opt});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Something went wrong.");return d};
 const esc=v=>{const d=document.createElement("div");d.textContent=v??"";return d.innerHTML};
 const initials=n=>(n||"?").slice(0,2).toUpperCase();
-let me=null,friends=[],incoming=[],outgoing=[],blocked=[],threads=[],threadByUser={},unread=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,gifKey="",gifTab="trending",menuMessage=null,timer=null;
+let me=null,friends=[],incoming=[],outgoing=[],blocked=[],threads=[],threadByUser={},unread=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,imageDraft=null,gifKey="",gifTab="trending",menuMessage=null,timer=null;
 const toast=m=>{clearTimeout(timer);$("friends-toast").textContent=m;$("friends-toast").classList.add("show");timer=setTimeout(()=>$("friends-toast").classList.remove("show"),2200)};
 const avatar=u=>{
   const online=Boolean(u?.isOnline);
@@ -660,39 +660,32 @@ $("dm-form").onsubmit=async e=>{
     if(!text)return;
     try{
       await api("/api/friends/dms/messages/"+editing,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});
-      editing=null;$("dm-edit-bar").hidden=true;$("dm-input").value="";await loadMessages();
+      editing=null;
+      $("dm-edit-bar").hidden=true;
+      $("dm-input").value="";
+      await loadMessages();
     }catch(x){toast(x.message)}
     return;
   }
-  if(!text&&!gifDraft)return;
-  const attachment=imageDraft|| (gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null);
-  const temp={
-    id:"pending-"+Date.now(),
-    threadId:"",
-    senderId:me.id,
-    recipientId:active.id,
-    sender:publicFriendUserLocal(me),
-    message:text,
-    attachment,
-    reactions:[],
-    createdAt:new Date().toISOString(),
-    editedAt:"",
-    pending:true
-  };
-  messages.push(temp);
-  renderMessages();
-  $("dm-messages").scrollTop=$("dm-messages").scrollHeight;
-  const sendText=text;
-  $("dm-input").value="";gifDraft=null;imageDraft=null;$("gif-preview").hidden=true;$("dm-image-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;
+  if(!text&&!gifDraft&&!imageDraft)return;
+  const attachment=imageDraft || (gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null);
+  const replyId=reply?.id||"";
   try{
-    await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:sendText,attachment,replyTo:reply?.id||""})});
+    await api("/api/friends/dms/"+active.id+"/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text,attachment,replyTo:replyId})
+    });
+    $("dm-input").value="";
+    gifDraft=null;
+    imageDraft=null;
+    $("gif-preview").hidden=true;
+    $("dm-image-preview").hidden=true;
+    reply=null;
+    $("dm-reply-bar").hidden=true;
     await loadMessages(true);
     await bootstrap();
-  }catch(x){
-    messages=messages.filter(m=>m.id!==temp.id);
-    renderMessages();
-    toast(x.message);
-  }
+  }catch(x){toast(x.message)}
 };
 
 $("friend-context-menu").onclick=async e=>{
@@ -755,6 +748,25 @@ function openDmGifs(){
   loadGifs();
   $("gif-search-input").focus();
 }
+$("dm-image-file")?.addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file)return;
+  if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type)){toast("Use PNG, JPG, WEBP, or GIF.");e.target.value="";return}
+  if(file.size>8*1024*1024){toast("Images must be smaller than 8 MB.");e.target.value="";return}
+  try{
+    const reader=new FileReader();
+    const data=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read that image."));reader.readAsDataURL(file)});
+    imageDraft={kind:"image",url:data,name:file.name};
+    $("dm-image-preview-image").src=data;
+    $("dm-image-preview-name").textContent=file.name;
+    $("dm-image-preview").hidden=false;
+  }catch(error){toast(error.message)}
+  e.target.value="";
+});
+$("dm-image-preview-remove")?.addEventListener("click",()=>{
+  imageDraft=null;
+  $("dm-image-preview").hidden=true;
+});
 function openDmImageUpload(){
   closeReactionPopups();
   dmImageButton?.blur();
