@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const api=async(url,opt={})=>{const r=await fetch(url,{credentials:"same-origin",...opt});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Something went wrong.");return d};
 const esc=v=>{const d=document.createElement("div");d.textContent=v??"";return d.innerHTML};
 const initials=n=>(n||"?").slice(0,2).toUpperCase();
-let me=null,friends=[],incoming=[],outgoing=[],blocked=[],threads=[],threadByUser={},unread=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,imageDraft=null,gifKey="",gifTab="trending",menuMessage=null,timer=null;
+let me=null,friends=[],incoming=[],outgoing=[],blocked=[],threads=[],threadByUser={},unread=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,imageDraft=null,giphyKey="",giphyTab="trending",giphyItems=[],menuMessage=null,timer=null;
 const toast=m=>{clearTimeout(timer);$("friends-toast").textContent=m;$("friends-toast").classList.add("show");timer=setTimeout(()=>$("friends-toast").classList.remove("show"),2200)};
 const avatar=u=>{
   const online=Boolean(u?.isOnline);
@@ -726,58 +726,131 @@ $("dm-cancel-reply").onclick=()=>{reply=null;$("dm-reply-bar").hidden=true};$("d
 $("profile-block").onclick=async()=>{if(!active)return;if(!confirm("Block @"+active.username+"?"))return;try{await api("/api/friends/block/"+active.id,{method:"POST"});toast("User blocked.");await bootstrap();$("dm-back").click()}catch(e){toast(e.message)}};
 $("profile-report").onclick=async()=>{if(!active)return;try{await api("/api/friends/report/"+active.id,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reason:"Reported as spam"})});toast("Report submitted.")}catch(e){toast(e.message)}};
 $("profile-friend").onclick=async()=>{if(!active)return;try{await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:active.username})});toast("Friend request sent.")}catch(e){toast(e.message)}};
-async function setupGifs(){try{const d=await api("/api/friends/gifs/config");gifKey=d.apiKey;loadGifs()}catch(e){$("gif-status").textContent=e.message}}
-function gifObj(g){return{id:g.id,title:g.title||"GIF",url:g.images?.original?.url||g.images?.fixed_width?.url,preview:g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url}}
-async function loadGifs(){if(gifTab==="favorites"){const d=await api("/api/friends/bootstrap");renderGifs(d.gifFavorites||[]);return}if(!gifKey)return;const q=$("gif-search-input").value.trim();const url=q?"https://api.giphy.com/v1/gifs/search?api_key="+encodeURIComponent(gifKey)+"&q="+encodeURIComponent(q)+"&limit=30&rating=g&bundle=messaging_non_clips":"https://api.giphy.com/v1/gifs/trending?api_key="+encodeURIComponent(gifKey)+"&limit=30&rating=g&bundle=messaging_non_clips";try{const r=await fetch(url);const d=await r.json();if(!r.ok)throw Error(d.message||"GIF search failed.");renderGifs((d.data||[]).map(gifObj))}catch(e){$("gif-status").textContent=e.message}}
-function renderGifs(list){const favorites=gifTab==="favorites";$("gif-grid").innerHTML=(list||[]).map(g=>'<button type="button" class="gif-card" data-gif-id="'+esc(g.id)+'"><img src="'+esc(g.preview||g.url)+'" alt=""><span class="gif-fav '+(favorites?"is-saved":"")+'" title="'+(favorites?"Saved GIF":"Save GIF")+'"><i class="fa-'+(favorites?"solid":"regular")+' fa-bookmark"></i></span></button>').join("");$("gif-grid")._gifs=list||[];$("gif-status").textContent=list?.length?"":"No GIFs found."}
-$("gif-close").onclick=()=>{$("gif-panel").hidden=true};
-document.querySelectorAll(".gif-tab").forEach(t=>t.onclick=()=>{
-  document.querySelectorAll(".gif-tab").forEach(x=>x.classList.remove("active"));
-  t.classList.add("active");
-  gifTab=t.dataset.gifTab;
-  loadGifs();
-});
-$("gif-search-input").oninput=()=>{
-  clearTimeout(timer);
-  timer=setTimeout(loadGifs,300);
-};
-$("gif-search-clear").onclick=()=>{
-  $("gif-search-input").value="";
-  loadGifs();
-  $("gif-search-input").focus();
-};
-$("gif-grid").onclick=async e=>{
-  const card=e.target.closest(".gif-card");
-  if(!card)return;
-  const g=$("gif-grid")._gifs.find(x=>x.id===card.dataset.gifId);
-  if(!g)return;
-  if(e.target.closest(".gif-fav")){
-    try{
-      if(gifTab==="favorites"){
-        await api("/api/friends/gifs/favorites/"+encodeURIComponent(g.id),{method:"DELETE"});
-        toast("GIF removed from saved.");
-        await loadGifs();
-      }else{
-        await api("/api/friends/gifs/favorites",{
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({gif:g})
-        });
-        toast("GIF saved to favourites.");
-      }
-    }catch(x){toast(x.message)}
-    return;
+const giphyPanel=$("global-gif-panel"),giphySearch=$("global-gif-search-input"),giphyGrid=$("global-gif-grid"),giphyStatus=$("global-gif-status"),giphyClose=$("global-gif-close");
+
+function gifObject(g){
+  return {
+    id:g.id,
+    title:g.title||"GIF",
+    url:g.images?.original?.url||g.images?.fixed_width?.url,
+    preview:g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url
   }
-  gifDraft=g;
-  $("gif-preview-image").src=g.preview||g.url;
-  $("gif-preview").hidden=false;
-  $("gif-panel").hidden=true;
-  if(!$("dm-input").value.trim())$("dm-form").requestSubmit();
-};
-$("gif-preview-remove").onclick=()=>{
-  gifDraft=null;
-  $("gif-preview").hidden=true;
-};
+}
+async function loadGlobalGifs(){
+  if(!giphyPanel)return;
+  if(giphyTab==="favorites"){
+    try{
+      const d=await api("/api/friends/bootstrap");
+      giphyItems=d.gifFavorites||[];
+      renderGlobalGifs(giphyItems)
+    }catch(e){giphyStatus.textContent=e.message}
+    return
+  }
+  if(!giphyKey)return;
+  const q=giphySearch?.value.trim()||"";
+  const url=q
+    ?"https://api.giphy.com/v1/gifs/search?api_key="+encodeURIComponent(giphyKey)+"&q="+encodeURIComponent(q)+"&limit=30&rating=g&bundle=messaging_non_clips"
+    :"https://api.giphy.com/v1/gifs/trending?api_key="+encodeURIComponent(giphyKey)+"&limit=30&rating=g&bundle=messaging_non_clips";
+  try{
+    const r=await fetch(url);
+    const d=await r.json();
+    if(!r.ok)throw Error(d.message||"GIF search failed.");
+    giphyItems=(d.data||[]).map(gifObject);
+    renderGlobalGifs(giphyItems)
+  }catch(e){giphyStatus.textContent=e.message}
+}
+function renderGlobalGifs(list){
+  giphyGrid.innerHTML=(list||[]).map(g=>
+    '<button class="gif-card" data-global-gif-id="'+esc(g.id)+'"><img src="'+esc(g.preview||g.url)+'" alt=""><span class="gif-fav '+(giphyTab==="favorites"?"is-saved":"")+'" title="'+(giphyTab==="favorites"?"Saved GIF":"Save GIF")+'"><i class="fa-'+(giphyTab==="favorites"?"solid":"regular")+' fa-bookmark"></i></span></button>'
+  ).join("");
+  giphyStatus.textContent=list?.length?"":"No GIFs found.";
+}
+async function setupGlobalGifs(){
+  if(!giphyPanel)return;
+  try{
+    const d=await api("/api/friends/gifs/config");
+    giphyKey=d.apiKey;
+    loadGlobalGifs()
+  }catch(e){giphyStatus.textContent=e.message}
+}
+
+const dmGifButton=$("dm-gif-button"),dmImageButton=$("dm-image-button-direct"),dmStickerButton=$("dm-sticker-button-direct");
+function positionDmToolPanel(panel,anchor){
+  if(!panel||!anchor)return;
+  const rect=anchor.getBoundingClientRect();
+  const width=Math.min(420,window.innerWidth-20);
+  const height=Math.min(500,window.innerHeight-100);
+  let left=rect.left+rect.width/2-width/2;
+  let top=rect.top-height-10;
+  if(top<8)top=rect.bottom+8;
+  panel.style.setProperty("width",width+"px","important");
+  panel.style.setProperty("left",Math.max(8,Math.min(window.innerWidth-width-8,left))+"px","important");
+  panel.style.setProperty("right","auto","important");
+  panel.style.setProperty("bottom","auto","important");
+  panel.style.setProperty("top",Math.max(8,Math.min(window.innerHeight-height-8,top))+"px","important");
+}
+function openDmGifs(){
+  if(!me){location.href="/account";return}
+  closeReactionPopups();
+  if(!giphyPanel)return;
+  giphyPanel.hidden=false;
+  giphyPanel.removeAttribute("hidden");
+  giphyPanel.style.display="flex";
+  positionDmToolPanel(giphyPanel,dmGifButton);
+  loadGlobalGifs();
+  giphySearch?.focus();
+}
+giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true;giphyPanel.style.display=""});
+giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
+document.getElementById("global-gif-search-clear")?.addEventListener("click",()=>{
+  if(!giphySearch)return;
+  giphySearch.value="";
+  loadGlobalGifs();
+  giphySearch.focus();
+});
+document.querySelectorAll("[data-global-gif-tab]").forEach(tab=>tab.addEventListener("click",()=>{
+  document.querySelectorAll("[data-global-gif-tab]").forEach(x=>x.classList.remove("active"));
+  tab.classList.add("active");
+  giphyTab=tab.dataset.globalGifTab;
+  loadGlobalGifs()
+}));
+giphyGrid?.addEventListener("click",async event=>{
+  const card=event.target.closest("[data-global-gif-id]");
+  if(!card)return;
+  const gif=giphyItems.find(x=>x.id===card.dataset.globalGifId);
+  if(!gif)return;
+  const favorite=event.target.closest(".gif-fav");
+  if(favorite){
+    try{
+      await api("/api/friends/gifs/favorites",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({gif})
+      });
+      favorite.classList.add("is-saved");
+      favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';
+      favorite.title="Saved GIF";
+      toast("GIF saved to favourites.")
+    }catch(e){toast(e.message)}
+    return
+  }
+  if(!active){toast("Open a friend chat first.");return}
+  try{
+    await api("/api/friends/dms/"+active.id+"/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:"",attachment:{kind:"gif",url:gif.url,name:gif.title},replyTo:reply?.id||""})
+    });
+    reply=null;
+    $("dm-reply-bar").hidden=true;
+    giphyPanel.hidden=true;
+    giphyPanel.style.display="";
+    await loadMessages(true);
+    await bootstrap();
+  }catch(e){toast(e.message)}
+});
+setupGlobalGifs();
+
 const dmGifButton=$("dm-gif-button"),dmImageButton=$("dm-image-button-direct"),dmStickerButton=$("dm-sticker-button-direct");
 function positionDmToolPanel(panel,anchor){
   if(!panel||!anchor)return;
