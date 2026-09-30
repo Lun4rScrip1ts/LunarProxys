@@ -664,8 +664,19 @@ router.post("/chat/messages", requireUser, async (req, res) => {
   const attachment = req.body?.attachment && typeof req.body.attachment === "object" ? req.body.attachment : null;
   const replyId = cleanText(req.body?.replyTo, 80);
   if (!text && !attachment) return res.status(400).json({ error: "Message cannot be empty." });
-  if (attachment && (!["image","gif","sticker"].includes(attachment.kind) || typeof attachment.url !== "string" || !attachment.url.startsWith("/uploads/"))) {
-    return res.status(400).json({ error: "Invalid attachment." });
+  if (attachment) {
+    const url = typeof attachment.url === "string" ? attachment.url : "";
+    const validLocalAttachment = url.startsWith("/uploads/") && ["image","sticker"].includes(attachment.kind);
+    let validGif = false;
+    if (attachment.kind === "gif" && /^https:\/\//i.test(url)) {
+      try {
+        const host = new URL(url).hostname.toLowerCase();
+        validGif = host === "giphy.com" || host.endsWith(".giphy.com");
+      } catch {}
+    }
+    if (!validLocalAttachment && !validGif) {
+      return res.status(400).json({ error: "Invalid attachment." });
+    }
   }
 
   const now = Date.now();
