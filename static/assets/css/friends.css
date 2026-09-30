@@ -1285,3 +1285,4 @@
   transition:opacity .12s ease,transform .12s ease;
 }
 .lunar-friends-page .dm-message:hover .dm-message-actions:before{opacity:1;transform:none}
+.lunar-friends-page .dm-message-actions:before{display:none!important}.lunar-friends-page .quick-reactions{position:absolute;right:calc(100% + 5px);top:1px;display:flex;gap:2px;padding:3px;border:1px solid var(--friends-border-strong);border-radius:7px;background:#111318;box-shadow:0 7px 18px rgba(0,0,0,.35);opacity:0;transform:translateY(3px) scale(.96);pointer-events:none;transition:opacity .12s ease,transform .12s ease}.lunar-friends-page .dm-message:hover .quick-reactions{opacity:1;transform:none;pointer-events:auto}.lunar-friends-page .quick-reactions button{width:27px!important;height:25px!important;font-size:12px!important;padding:0!important}
