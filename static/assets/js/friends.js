@@ -734,6 +734,20 @@ function gifObj(g){return{id:g.id,title:g.title||"GIF",url:g.images?.original?.u
 async function loadGifs(){if(gifTab==="favorites"){const d=await api("/api/friends/bootstrap");renderGifs(d.gifFavorites||[]);return}if(!gifKey)return;const q=$("gif-search-input").value.trim();const url=q?"https://api.giphy.com/v1/gifs/search?api_key="+encodeURIComponent(gifKey)+"&q="+encodeURIComponent(q)+"&limit=30&rating=g&bundle=messaging_non_clips":"https://api.giphy.com/v1/gifs/trending?api_key="+encodeURIComponent(gifKey)+"&limit=30&rating=g&bundle=messaging_non_clips";try{const r=await fetch(url);const d=await r.json();if(!r.ok)throw Error(d.message||"GIF search failed.");renderGifs((d.data||[]).map(gifObj))}catch(e){$("gif-status").textContent=e.message}}
 function renderGifs(list){const favorites=gifTab==="favorites";$("gif-grid").innerHTML=(list||[]).map(g=>'<button class="gif-card" data-gif-id="'+esc(g.id)+'"><img src="'+esc(g.preview||g.url)+'" alt=""><span class="gif-fav '+(favorites?"is-saved":"")+'" title="'+(favorites?"Saved GIF":"Save GIF")+'"><i class="fa-'+(favorites?"solid":"regular")+' fa-bookmark"></i></span></button>').join("");$("gif-grid")._gifs=list||[];$("gif-status").textContent=list?.length?"":"No GIFs found."}
 const dmGifButton=$("dm-gif-button"),dmImageButton=$("dm-image-button-direct"),dmStickerButton=$("dm-sticker-button-direct");
+function positionDmToolPanel(panel,anchor){
+  if(!panel||!anchor)return;
+  const rect=anchor.getBoundingClientRect();
+  const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
+  let left=rect.left+rect.width/2-width/2,top=rect.top-height-8;
+  if(top<8)top=rect.bottom+8;
+  panel.style.setProperty("position","fixed","important");
+  panel.style.setProperty("width",width+"px","important");
+  panel.style.setProperty("left",Math.max(8,Math.min(innerWidth-width-8,left))+"px","important");
+  panel.style.setProperty("right","auto","important");
+  panel.style.setProperty("bottom","auto","important");
+  panel.style.setProperty("top",Math.max(8,Math.min(innerHeight-height-8,top))+"px","important");
+  panel.style.setProperty("z-index","2147483647","important");
+}
 function openDmGifs(){
   closeReactionPopups();
   $("gif-panel").hidden=false;
