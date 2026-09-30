@@ -646,7 +646,7 @@ $("dm-form").onsubmit=async e=>{
   const sendText=text;
   $("dm-input").value="";gifDraft=null;imageDraft=null;$("gif-preview").hidden=true;$("dm-image-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;
   try{
-    await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:sendText,attachment,replyTo:temp.replyTo?.id||""})});
+    await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:sendText,attachment,replyTo:reply?.id||""})});
     await loadMessages(true);
     await bootstrap();
   }catch(x){
