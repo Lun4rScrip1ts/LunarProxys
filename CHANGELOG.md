@@ -46,3 +46,5 @@
 - Completed friend-row context menu states for Add Friend, pending requests, accepted friends, and incoming request acceptance.
 
 - Reordered the DM plus menu to Sticker Collection, GIFs, then Emojis as requested.
+
+- Made friend-list and inbox avatars open the live right-side profile panel directly, while row clicks still open the DM.
