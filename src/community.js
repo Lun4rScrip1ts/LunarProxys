@@ -1037,8 +1037,9 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
   if (!text && !attachment) return res.status(400).json({ error: "Message cannot be empty." });
   if (attachment) {
     const validGif = attachment.kind === "gif" && typeof attachment.url === "string" && /^https:\/\//i.test(attachment.url);
+    const validImage = attachment.kind === "image" && typeof attachment.url === "string" && attachment.url.startsWith("/uploads/");
     const validSticker = attachment.kind === "sticker" && typeof attachment.url === "string" && attachment.url.startsWith("/uploads/");
-    if (!validGif && !validSticker) return res.status(400).json({ error: "Invalid attachment." });
+    if (!validGif && !validImage && !validSticker) return res.status(400).json({ error: "Invalid attachment." });
   }
 
   const thread = getDmThread(req.user.id, friend.id, true);
@@ -1052,7 +1053,7 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
     sender: publicFriendUser(req.user),
     message: text,
     attachment: attachment ? {
-      kind: attachment.kind === "sticker" ? "sticker" : "gif",
+      kind: attachment.kind === "sticker" ? "sticker" : (attachment.kind === "image" ? "image" : "gif"),
       url: cleanText(attachment.url, 1000),
       title: cleanText(attachment.title, 120),
       name: cleanText(attachment.name, 80)
