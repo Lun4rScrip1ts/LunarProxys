@@ -1124,3 +1124,125 @@
 
 .lunar-friends-page [hidden]{display:none!important}
 .lunar-friends-page .friend-sticker-drawer[aria-hidden="true"]{display:none!important}
+
+.lunar-friends-page .dm-message-actions{
+  top:4px!important;
+  right:8px!important;
+  opacity:0!important;
+  transform:translateY(-4px) scale(.96)!important;
+  pointer-events:none!important;
+  transition:opacity .14s ease,transform .14s ease!important;
+}
+.lunar-friends-page .dm-message:hover .dm-message-actions,
+.lunar-friends-page .dm-message:focus-within .dm-message-actions{
+  opacity:1!important;
+  transform:translateY(0) scale(1)!important;
+  pointer-events:auto!important;
+}
+.lunar-friends-page .dm-message-actions button{
+  width:28px!important;
+  height:27px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:0!important;
+  border-radius:5px!important;
+  background:transparent!important;
+  color:#b5bac1!important;
+  cursor:pointer!important;
+}
+.lunar-friends-page .dm-message-actions button:hover{
+  background:#343840!important;
+  color:#fff!important;
+}
+.lunar-friends-page .dm-message-actions button[data-action="delete"]:hover{
+  background:rgba(237,66,69,.16)!important;
+  color:#ff8a8d!important;
+}
+.lunar-friends-page .dm-message-editing{
+  background:transparent!important;
+}
+.lunar-friends-page .dm-inline-edit{
+  width:min(720px,calc(100% - 20px))!important;
+  padding:8px!important;
+  border:1px solid rgba(88,101,242,.55)!important;
+  border-radius:8px!important;
+  background:#111318!important;
+}
+.lunar-friends-page .dm-inline-edit textarea{
+  display:block!important;
+  width:100%!important;
+  min-height:58px!important;
+  resize:vertical!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:#dbdee1!important;
+  font:inherit!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+.lunar-friends-page .dm-inline-edit-actions{
+  display:flex!important;
+  justify-content:flex-end!important;
+  gap:5px!important;
+  margin-top:6px!important;
+}
+.lunar-friends-page .dm-inline-edit-actions button{
+  min-width:52px!important;
+  height:27px!important;
+  padding:0 9px!important;
+  border:0!important;
+  border-radius:5px!important;
+  background:#2b2f36!important;
+  color:#ddd!important;
+  font-size:9px!important;
+  font-weight:700!important;
+}
+.lunar-friends-page .dm-inline-edit-actions button[data-inline-edit="save"]{
+  background:var(--friends-accent)!important;
+  color:#fff!important;
+}
+.lunar-friends-page .dm-image{
+  display:block!important;
+  width:auto!important;
+  max-width:min(420px,80vw)!important;
+  max-height:320px!important;
+  margin-top:5px!important;
+  border-radius:8px!important;
+  object-fit:contain!important;
+  background:#111318!important;
+}
+.lunar-friends-page .dm-image-preview{
+  position:relative!important;
+  margin-bottom:6px!important;
+}
+.lunar-friends-page .dm-image-preview img{
+  width:54px!important;
+  height:40px!important;
+  object-fit:cover!important;
+  border-radius:4px!important;
+}
+.lunar-friends-page .dm-image-preview button{
+  width:25px!important;
+  height:25px!important;
+  border:0!important;
+  border-radius:5px!important;
+  background:#2b2f36!important;
+  color:#ddd!important;
+}
+@media(max-width:700px){
+  .lunar-friends-page .dm-message-actions{
+    opacity:1!important;
+    transform:none!important;
+    pointer-events:auto!important;
+  }
+  .lunar-friends-page .dm-message-actions button[data-action="copy"],
+  .lunar-friends-page .dm-message-actions button[data-action="forward"],
+  .lunar-friends-page .dm-message-actions button[data-action="react"],
+  .lunar-friends-page .dm-message-actions button[data-action="reply"],
+  .lunar-friends-page .dm-message-actions button[data-action="edit"],
+  .lunar-friends-page .dm-message-actions button[data-action="delete"]{
+    display:none!important;
+  }
+  .lunar-friends-page .dm-message-actions button[data-action="menu"]{display:grid!important}
+}
