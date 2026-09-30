@@ -102,6 +102,53 @@
     reactionUsers.hidden = true;
   }
 
+  function ensureChatMessageMenu() {
+    let menu = document.getElementById("chat-message-menu");
+    if (menu) return menu;
+    menu = document.createElement("div");
+    menu.id = "chat-message-menu";
+    menu.className = "chat-message-menu";
+    menu.hidden = true;
+    document.body.appendChild(menu);
+    menu.addEventListener("click", async event => {
+      const button = event.target.closest("[data-chat-mm]");
+      if (!button) return;
+      const message = messages.find(item => item.id === menu.dataset.messageId);
+      if (!message) return;
+      menu.hidden = true;
+      const action = button.dataset.chatMm;
+      if (action === "copy") {
+        try { await navigator.clipboard.writeText(message.message || ""); showToast("Copied."); }
+        catch (error) { showToast(error.message || "Could not copy message."); }
+      } else if (action === "forward") openForwardGlobal(message);
+      else if (action === "react") showReactionPicker(button, message.id);
+      else if (action === "reply") openReply(message);
+      else if (action === "edit") openEdit(message);
+      else if (action === "delete" && message.userId === currentUser?.id && !message.deletedAt) {
+        if (!confirm("Delete this message?")) return;
+        try { await api("/api/chat/messages/" + encodeURIComponent(message.id), {method:"DELETE"}); showToast("Message deleted."); await refresh(); }
+        catch (error) { showToast(error.message); }
+      }
+    });
+    return menu;
+  }
+
+  function showChatMessageMenu(message, anchor) {
+    const menu = ensureChatMessageMenu();
+    const own = message.userId === currentUser?.id;
+    menu.innerHTML =
+      '<button data-chat-mm="copy"><i class="fa-regular fa-copy"></i><span>Copy</span></button>' +
+      '<button data-chat-mm="forward"><i class="fa-solid fa-share"></i><span>Forward</span></button>' +
+      '<button data-chat-mm="react"><i class="fa-regular fa-face-smile"></i><span>React</span></button>' +
+      '<button data-chat-mm="reply"><i class="fa-solid fa-reply"></i><span>Reply</span></button>' +
+      (own && !message.deletedAt ? '<button data-chat-mm="edit"><i class="fa-solid fa-pen"></i><span>Edit</span></button><button data-chat-mm="delete"><i class="fa-regular fa-trash-can"></i><span>Delete</span></button>' : '');
+    const rect = anchor.getBoundingClientRect();
+    menu.style.left = Math.max(8, Math.min(window.innerWidth - 190, rect.left)) + "px";
+    menu.style.top = Math.max(8, Math.min(window.innerHeight - 230, rect.bottom + 5)) + "px";
+    menu.dataset.messageId = message.id;
+    menu.hidden = false;
+  }
+
   function openReply(message) {
     if (!currentUser) return;
     editingId = null;
@@ -191,7 +238,9 @@
           <button type="button" data-action="react" title="Add reaction"><i class="fa-regular fa-face-smile"></i></button>
           <button type="button" data-action="reply" title="Reply"><i class="fa-solid fa-reply"></i></button>
           <button type="button" data-action="forward" title="Forward"><i class="fa-solid fa-share"></i></button>
+          <button type="button" data-action="copy" title="Copy"><i class="fa-regular fa-copy"></i></button>
           ${message.userId === currentUser?.id && !message.deletedAt ? `<button type="button" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button><button type="button" data-action="delete" title="Delete"><i class="fa-regular fa-trash-can"></i></button>` : ""}
+          <button type="button" data-action="menu" title="More"><i class="fa-solid fa-ellipsis"></i></button>
         </div>
       </article>
     `).join("");
@@ -745,6 +794,11 @@
       if (action.dataset.action === "reply") openReply(message);
       if (action.dataset.action === "edit") openEdit(message);
       if (action.dataset.action === "forward") openForwardGlobal(message);
+      if (action.dataset.action === "copy") {
+        try { await navigator.clipboard.writeText(message.message || ""); showToast("Copied."); }
+        catch (error) { showToast(error.message || "Could not copy message."); }
+      }
+      if (action.dataset.action === "menu") showChatMessageMenu(message, action);
       if (action.dataset.action === "delete" && message.userId === currentUser?.id && !message.deletedAt) {
         try { await api("/api/chat/messages/" + encodeURIComponent(message.id), {method:"DELETE"}); showToast("Message deleted."); await refresh(); }
         catch (error) { showToast(error.message); }
@@ -853,7 +907,7 @@
     positionChatToolPanel(giphyPanel, chatPlus);
     loadGlobalGifs(); giphySearch?.focus();
   }
-  function openChatEmoji() { closeChatComposeMenu(); openUnifiedPicker("emoji", chatPlus, {type:"compose"}); }
+  function openChatImageUpload() { closeChatComposeMenu(); document.getElementById("chat-image-file")?.click(); }
   function openChatStickers() { closeChatComposeMenu(); openUnifiedPicker("stickers", chatPlus, {type:"browse"}); }
   chatPlus?.addEventListener("click", event => {
     event.preventDefault(); event.stopPropagation();
@@ -869,7 +923,7 @@
     event.preventDefault(); event.stopPropagation();
     const tool = item.dataset.composeTool;
     if (tool === "gif") openChatGifs();
-    else if (tool === "emoji") openChatEmoji();
+    else if (tool === "image") openChatImageUpload();
     else if (tool === "sticker") openChatStickers();
   });
   giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true;giphyPanel.style.display="";});
@@ -906,4 +960,9 @@
   setupGlobalGifs();
   refresh();
   setInterval(refresh, 3000);
+  document.addEventListener("click", event => {
+    const menu = document.getElementById("chat-message-menu");
+    if (menu && !menu.hidden && !menu.contains(event.target) && !event.target.closest("[data-action=\"menu\"]")) menu.hidden = true;
+  });
+
 })();
