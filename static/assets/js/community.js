@@ -670,7 +670,7 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
 
   function setPickerTab(tab) {
     const stickerTab = document.querySelector("#reaction-picker [data-picker-tab=\"stickers\"]");
-    const stickersAllowed = pickerContext.type === "reaction" || pickerContext.type === "browse";
+    const stickersAllowed = pickerContext.type === "reaction" || pickerContext.type === "browse" || pickerContext.type === "compose";
     if (stickerTab) stickerTab.hidden = !stickersAllowed;
     if (!stickersAllowed && tab === "stickers") tab = "emoji";
     document.querySelectorAll("#reaction-picker [data-picker-tab]").forEach(button => button.classList.toggle("active", button.dataset.pickerTab === tab));
@@ -767,13 +767,25 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
     if (tab) { setPickerTab(tab.dataset.pickerTab); return; }
     if (event.target.closest("#emoji-sticker-close")) { closePopovers(); return; }
     const sticker = event.target.closest("[data-send-sticker]");
-    if (sticker && pickerContext.type === "reaction") {
-      await reactWithPickerSticker(pickerContext.messageId, {
-        url: sticker.dataset.sendSticker,
-        name: sticker.dataset.stickerName
-      });
-    } else if (sticker && pickerContext.type === "browse") {
-      showToast("Sticker collection opened. Use a message's reaction button to send a sticker reaction.");
+    if (!sticker) return;
+
+    const stickerData = {
+      url: sticker.dataset.sendSticker,
+      name: sticker.dataset.stickerName || "Sticker"
+    };
+
+    if (pickerContext.type === "reaction") {
+      await reactWithPickerSticker(pickerContext.messageId, stickerData);
+      return;
+    }
+
+    if (pickerContext.type === "compose") {
+      try {
+        await sendMessage("", {kind:"sticker", url:stickerData.url, name:stickerData.name});
+        closePopovers();
+      } catch (error) {
+        showToast(error.message);
+      }
     }
   });
   function showReactionUsers(button, reaction) {
@@ -994,14 +1006,39 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
   });
   document.getElementById("global-gif-search-clear")?.addEventListener("click",()=>{if(!giphySearch)return;giphySearch.value="";loadGlobalGifs();giphySearch.focus();});
   document.querySelectorAll("[data-global-gif-tab]").forEach(tab=>tab.addEventListener("click",()=>{document.querySelectorAll("[data-global-gif-tab]").forEach(x=>x.classList.remove("active"));tab.classList.add("active");giphyTab=tab.dataset.globalGifTab;loadGlobalGifs()}));
-  giphyGrid?.addEventListener("click",async event=>{const card=event.target.closest("[data-global-gif-id]");if(!card)return;const gif=giphyItems.find(x=>x.id===card.dataset.globalGifId);if(!gif)return;const favorite=event.target.closest(".gif-fav");if(favorite){try{await api("/api/friends/gifs/favorites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gif})});favorite.classList.add("is-saved");favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';favorite.title="Saved GIF";showToast("GIF saved to favourites.")}catch(e){showToast(e.message)}return}try{await sendMessage("",{url:gif.url,kind:"gif",name:gif.title});giphyPanel.hidden=true}catch(e){showToast(e.message)}});
+  giphyGrid?.addEventListener("click",async event=>{
+    const card=event.target.closest("[data-global-gif-id]");
+    if(!card)return;
+    const gif=giphyItems.find(x=>x.id===card.dataset.globalGifId);
+    if(!gif)return;
+    const favorite=event.target.closest(".gif-fav");
+    if(favorite){
+      try{
+        await api("/api/friends/gifs/favorites",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({gif})
+        });
+        favorite.classList.add("is-saved");
+        favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';
+        favorite.title="Saved GIF";
+        showToast("GIF saved to favourites.")
+      }catch(e){showToast(e.message)}
+      return;
+    }
+    try{
+      await sendMessage("",{url:gif.url,kind:"gif",name:gif.title});
+      giphyPanel.hidden=true;
+      giphyPanel.style.display="";
+    }catch(e){showToast(e.message)}
+  });
   document.getElementById("chat-image-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "image").finally(() => event.target.value=""));
   cancelAttachmentButton.addEventListener("click", clearAttachmentDraft);
 
-  function openStickerDrawer(anchor = document.getElementById("chat-plus")) {
+  function openStickerDrawer(anchor = document.getElementById("chat-sticker-button")) {
     closePopovers();
     renderStickers(currentUser?.stickers || []);
-    return openUnifiedPicker("stickers", anchor, {type:"browse"});
+    return openUnifiedPicker("stickers", anchor, {type:"compose"});
   }
   function closeStickerDrawer() { closePopovers(); stickerDrawer?.setAttribute("aria-hidden","true"); }
   document.getElementById("close-sticker-drawer").addEventListener("click", closeStickerDrawer);
