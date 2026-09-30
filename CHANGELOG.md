@@ -40,3 +40,5 @@
 - Added a final CSS visibility guard so the Friends DM view and closed sticker drawer cannot override the HTML `hidden` state.
 - Corrected the right-side profile panel positioning so it no longer receives stale centered inline coordinates from the old modal implementation.
 - Added the profile Report action and updated the conversation search placeholder to the requested Discord-style wording.
+
+- Fixed the profile Message action to open the actual DM conversation, including conversations with users who are not friends.
