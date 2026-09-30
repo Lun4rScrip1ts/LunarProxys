@@ -12,7 +12,7 @@ const avatar=u=>{
     ? '<div class="friend-avatar friend-profile-avatar-trigger" data-profile-user="'+esc(u.username||"")+'"><img src="'+esc(u.avatarUrl)+'" alt=""><i class="'+(online?"is-online":"")+'"></i></div>'
     : '<div class="friend-avatar friend-profile-avatar-trigger" data-profile-user="'+esc(u.username||"")+'">'+esc(initials(name))+'<i class="'+(online?"is-online":"")+'"></i></div>';
 };
-const friendOf=id=>friends.some(x=>x.id===id);
+const friendOf=id=>Boolean(friends.some(x=>x.id===id&&x.isFriend));
 function renderFriends(){
   const e=$("friends-list");
   const filter=($("friends-filter")?.value||"").trim().toLowerCase();
