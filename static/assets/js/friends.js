@@ -214,6 +214,7 @@ try{
   $("friends-profile-username").textContent="@"+u.username;
   $("friends-profile-status").textContent=u.isOnline?"Online":(u.status||"Offline");
   $("friends-profile-status").classList.toggle("is-online",Boolean(u.isOnline));
+  $("friends-profile-member").textContent=u.createdAt?"Member since "+new Date(u.createdAt).toLocaleDateString([], {month:"short",year:"numeric"}):"";
   $("friends-profile-bio").textContent=u.bio||"No bio yet.";
   $("friends-profile-owner").hidden=!u.isOwner;
   $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
