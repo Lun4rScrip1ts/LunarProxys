@@ -1211,3 +1211,58 @@ body.interface-glass .lunar-community-page .chat-form{
   overflow-wrap:anywhere!important;
   word-break:break-word!important;
 }
+
+
+.chat-message-menu{
+  position:fixed;
+  z-index:15000;
+  min-width:170px;
+  padding:5px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  background:#111318;
+  box-shadow:0 16px 45px rgba(0,0,0,.5);
+  animation:chatMessageMenuPop .14s ease;
+}
+.chat-message-menu button{
+  width:100%;
+  min-height:31px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 9px;
+  border:0;
+  border-radius:5px;
+  background:transparent;
+  color:#dbdee1;
+  text-align:left;
+  cursor:pointer;
+}
+.chat-message-menu button:hover{background:#2b2f36;color:#fff}
+@keyframes chatMessageMenuPop{from{opacity:0;transform:scale(.96) translateY(3px)}to{opacity:1;transform:none}}
+.chat-message .message-actions{
+  opacity:0;
+  transform:translateY(-4px) scale(.96);
+  pointer-events:none;
+  transition:opacity .14s ease,transform .14s ease;
+}
+.chat-message:hover .message-actions,
+.chat-message:focus-within .message-actions{
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+}
+@media(max-width:700px){
+  .chat-message .message-actions{
+    opacity:1;
+    transform:none;
+    pointer-events:auto;
+  }
+  .chat-message .message-actions button[data-action="copy"],
+  .chat-message .message-actions button[data-action="forward"],
+  .chat-message .message-actions button[data-action="react"],
+  .chat-message .message-actions button[data-action="reply"],
+  .chat-message .message-actions button[data-action="edit"],
+  .chat-message .message-actions button[data-action="delete"]{display:none}
+  .chat-message .message-actions button[data-action="menu"]{display:grid}
+}
