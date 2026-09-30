@@ -149,7 +149,11 @@ $("dm-emoji-button")?.addEventListener("click",e=>openUnifiedPicker("emoji",e.cu
 $("dm-sticker-button")?.addEventListener("click",e=>openUnifiedPicker("stickers",e.currentTarget,{type:"browse"}));
 $("friend-close-sticker-drawer")?.addEventListener("click",()=>closeReactionPopups());
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCreateInline&&!friendStickerCreateInline.hidden)closeFriendStickerCreator();else closeReactionPopups();}});
-document.addEventListener("click",e=>{const t=e.target;if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(t)&&!t.closest("#dm-gif-button")&&!t.closest("#dm-image-button-direct")&&!t.closest("#dm-sticker-button-direct")&&!t.closest("[data-action=\"react\"]"))closeReactionPopups();if($("gif-panel")&&!$("gif-panel").hidden&&!$("gif-panel").contains(t)&&!t.closest("#dm-gif-button"))$("gif-panel").hidden=true;});
+document.addEventListener("click",e=>{
+  const t=e.target;
+  if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(t)&&!t.closest("#dm-gif-button")&&!t.closest("#dm-image-button-direct")&&!t.closest("#dm-sticker-button-direct")&&!t.closest("[data-action=\"react\"]"))closeReactionPopups();
+  if($("gif-panel")&&!$("gif-panel").hidden&&!$("gif-panel").contains(t)&&!t.closest("#dm-gif-button"))$("gif-panel").hidden=true;
+});
 $("friend-open-sticker-create")?.addEventListener("click",async()=>{
   const context=(pickerContext.type==="reaction"||pickerContext.type==="browse")?pickerContext:{type:"browse",messageId:"",anchor:$("dm-sticker-button")};
   await openUnifiedPicker("stickers",context.anchor||$("dm-emoji-button"),context);
@@ -725,7 +729,55 @@ $("profile-friend").onclick=async()=>{if(!active)return;try{await api("/api/frie
 async function setupGifs(){try{const d=await api("/api/friends/gifs/config");gifKey=d.apiKey;loadGifs()}catch(e){$("gif-status").textContent=e.message}}
 function gifObj(g){return{id:g.id,title:g.title||"GIF",url:g.images?.original?.url||g.images?.fixed_width?.url,preview:g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url}}
 async function loadGifs(){if(gifTab==="favorites"){const d=await api("/api/friends/bootstrap");renderGifs(d.gifFavorites||[]);return}if(!gifKey)return;const q=$("gif-search-input").value.trim();const url=q?"https://api.giphy.com/v1/gifs/search?api_key="+encodeURIComponent(gifKey)+"&q="+encodeURIComponent(q)+"&limit=30&rating=g&bundle=messaging_non_clips":"https://api.giphy.com/v1/gifs/trending?api_key="+encodeURIComponent(gifKey)+"&limit=30&rating=g&bundle=messaging_non_clips";try{const r=await fetch(url);const d=await r.json();if(!r.ok)throw Error(d.message||"GIF search failed.");renderGifs((d.data||[]).map(gifObj))}catch(e){$("gif-status").textContent=e.message}}
-function renderGifs(list){const favorites=gifTab==="favorites";$("gif-grid").innerHTML=(list||[]).map(g=>'<button class="gif-card" data-gif-id="'+esc(g.id)+'"><img src="'+esc(g.preview||g.url)+'" alt=""><span class="gif-fav '+(favorites?"is-saved":"")+'" title="'+(favorites?"Saved GIF":"Save GIF")+'"><i class="fa-'+(favorites?"solid":"regular")+' fa-bookmark"></i></span></button>').join("");$("gif-grid")._gifs=list||[];$("gif-status").textContent=list?.length?"":"No GIFs found."}
+function renderGifs(list){const favorites=gifTab==="favorites";$("gif-grid").innerHTML=(list||[]).map(g=>'<button type="button" class="gif-card" data-gif-id="'+esc(g.id)+'"><img src="'+esc(g.preview||g.url)+'" alt=""><span class="gif-fav '+(favorites?"is-saved":"")+'" title="'+(favorites?"Saved GIF":"Save GIF")+'"><i class="fa-'+(favorites?"solid":"regular")+' fa-bookmark"></i></span></button>').join("");$("gif-grid")._gifs=list||[];$("gif-status").textContent=list?.length?"":"No GIFs found."}
+$("gif-close").onclick=()=>{$("gif-panel").hidden=true};
+document.querySelectorAll(".gif-tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".gif-tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  gifTab=t.dataset.gifTab;
+  loadGifs();
+});
+$("gif-search-input").oninput=()=>{
+  clearTimeout(timer);
+  timer=setTimeout(loadGifs,300);
+};
+$("gif-search-clear").onclick=()=>{
+  $("gif-search-input").value="";
+  loadGifs();
+  $("gif-search-input").focus();
+};
+$("gif-grid").onclick=async e=>{
+  const card=e.target.closest(".gif-card");
+  if(!card)return;
+  const g=$("gif-grid")._gifs.find(x=>x.id===card.dataset.gifId);
+  if(!g)return;
+  if(e.target.closest(".gif-fav")){
+    try{
+      if(gifTab==="favorites"){
+        await api("/api/friends/gifs/favorites/"+encodeURIComponent(g.id),{method:"DELETE"});
+        toast("GIF removed from saved.");
+        await loadGifs();
+      }else{
+        await api("/api/friends/gifs/favorites",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({gif:g})
+        });
+        toast("GIF saved to favourites.");
+      }
+    }catch(x){toast(x.message)}
+    return;
+  }
+  gifDraft=g;
+  $("gif-preview-image").src=g.preview||g.url;
+  $("gif-preview").hidden=false;
+  $("gif-panel").hidden=true;
+  if(!$("dm-input").value.trim())$("dm-form").requestSubmit();
+};
+$("gif-preview-remove").onclick=()=>{
+  gifDraft=null;
+  $("gif-preview").hidden=true;
+};
 const dmGifButton=$("dm-gif-button"),dmImageButton=$("dm-image-button-direct"),dmStickerButton=$("dm-sticker-button-direct");
 function positionDmToolPanel(panel,anchor){
   if(!panel||!anchor)return;
@@ -755,9 +807,18 @@ $("dm-image-file")?.addEventListener("change",async e=>{
   if(file.size>8*1024*1024){toast("Images must be smaller than 8 MB.");e.target.value="";return}
   try{
     const reader=new FileReader();
-    const data=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read that image."));reader.readAsDataURL(file)});
-    imageDraft={kind:"image",url:data,name:file.name};
-    $("dm-image-preview-image").src=data;
+    const data=await new Promise((resolve,reject)=>{
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>reject(new Error("Could not read that image."));
+      reader.readAsDataURL(file);
+    });
+    const uploaded=await api("/api/chat/uploads",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({data,kind:"image"})
+    });
+    imageDraft={kind:"image",url:uploaded.url,name:file.name};
+    $("dm-image-preview-image").src=uploaded.url;
     $("dm-image-preview-name").textContent=file.name;
     $("dm-image-preview").hidden=false;
   }catch(error){toast(error.message)}
