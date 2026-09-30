@@ -933,7 +933,7 @@
     const tool = item.dataset.composeTool;
     if (tool === "gif") openChatGifs();
     else if (tool === "image") openChatImageUpload();
-    else if (tool === "sticker") openChatStickers();
+    else if (tool === "sticker") openStickerDrawer(chatPlus);
   });
   giphyClose?.addEventListener("click",()=>{giphyPanel.hidden=true;giphyPanel.style.display="";});
   giphySearch?.addEventListener("input",()=>{clearTimeout(window.__lunarGiphyTimer);window.__lunarGiphyTimer=setTimeout(loadGlobalGifs,300)});
@@ -948,7 +948,11 @@
   document.getElementById("chat-image-file").addEventListener("change", event => setAttachmentDraft(event.target.files?.[0], "image").finally(() => event.target.value=""));
   cancelAttachmentButton.addEventListener("click", clearAttachmentDraft);
 
-  function openStickerDrawer(anchor = document.getElementById("chat-emoji-button")) { return openUnifiedPicker("stickers", anchor, {type:"compose"}); }
+  function openStickerDrawer(anchor = document.getElementById("chat-plus")) {
+    closePopovers();
+    renderStickers(currentUser?.stickers || []);
+    return openUnifiedPicker("stickers", anchor, {type:"browse"});
+  }
   function closeStickerDrawer() { closePopovers(); stickerDrawer?.setAttribute("aria-hidden","true"); }
   document.getElementById("close-sticker-drawer").addEventListener("click", closeStickerDrawer);
   document.addEventListener("keydown", event => {
