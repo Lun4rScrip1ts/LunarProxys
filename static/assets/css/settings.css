@@ -441,3 +441,6 @@ body.interface-glass .settings-card.interface-settings-card label{
     min-height:0;
   }
 }
+
+
+.interface-performance-note{display:flex!important;align-items:flex-start;gap:9px;margin:12px 0 16px!important;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-input);color:var(--text-muted)!important;font-size:12px;line-height:1.55}.interface-performance-note i{color:var(--accent);margin-top:2px}.interface-performance-note strong{color:var(--text)!important}
