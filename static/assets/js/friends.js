@@ -152,7 +152,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(friendStickerCre
 document.addEventListener("click",e=>{
   const t=e.target;
   if($("reaction-picker")&&!$("reaction-picker").hidden&&!$("reaction-picker").contains(t)&&!t.closest("#dm-gif-button")&&!t.closest("#dm-image-button-direct")&&!t.closest("#dm-sticker-button-direct")&&!t.closest("[data-action=\"react\"]"))closeReactionPopups();
-  if($("gif-panel")&&!$("gif-panel").hidden&&!$("gif-panel").contains(t)&&!t.closest("#dm-gif-button"))$("gif-panel").hidden=true;
+  if($("global-gif-panel")&&!$("global-gif-panel").hidden&&!$("global-gif-panel").contains(t)&&!t.closest("#dm-gif-button")){$("global-gif-panel").hidden=true;$("global-gif-panel").style.display=""};
 });
 $("friend-open-sticker-create")?.addEventListener("click",async()=>{
   const context=(pickerContext.type==="reaction"||pickerContext.type==="browse")?pickerContext:{type:"browse",messageId:"",anchor:$("dm-sticker-button")};
@@ -851,32 +851,6 @@ giphyGrid?.addEventListener("click",async event=>{
 });
 setupGlobalGifs();
 
-const dmGifButton=$("dm-gif-button"),dmImageButton=$("dm-image-button-direct"),dmStickerButton=$("dm-sticker-button-direct");
-function positionDmToolPanel(panel,anchor){
-  if(!panel||!anchor)return;
-  const rect=anchor.getBoundingClientRect();
-  const width=Math.min(420,window.innerWidth-20);
-  const height=Math.min(500,window.innerHeight-100);
-  let left=rect.left+rect.width/2-width/2;
-  let top=rect.top-height-10;
-  if(top<8)top=rect.bottom+8;
-  panel.style.setProperty("width",width+"px","important");
-  panel.style.setProperty("left",Math.max(8,Math.min(window.innerWidth-width-8,left))+"px","important");
-  panel.style.setProperty("right","auto","important");
-  panel.style.setProperty("bottom","auto","important");
-  panel.style.setProperty("top",Math.max(8,Math.min(window.innerHeight-height-8,top))+"px","important");
-}
-function openDmGifs(){
-  closeReactionPopups();
-  const panel=$("gif-panel");
-  if(!panel)return;
-  panel.hidden=false;
-  panel.removeAttribute("hidden");
-  panel.style.display="flex";
-  positionDmToolPanel(panel,dmGifButton);
-  loadGifs();
-  $("gif-search-input")?.focus();
-}
 $("dm-image-file")?.addEventListener("change",async e=>{
   const file=e.target.files?.[0];
   if(!file)return;
