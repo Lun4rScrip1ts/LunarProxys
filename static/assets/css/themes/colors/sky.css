@@ -1,42 +1,5 @@
-/* Sky */
-:root {
-   --background: #0b1d33;
-   --surface: #14314f;
-   --surface-card: #14314f;
-   --surface-tile: #14314f;
-   --surface-raised: #1c3d63;
-   --surface-overlay: #1c3d63;
-   --surface-input: #1c3d63;
-   --surface-button: #1c3d63;
-   --surface-button-hover: #244a75;
-   --surface-hover: #244a75;
-   --surface-active: #244a75;
-   --surface-nav: rgba(11, 29, 51, 0.5);
-   --surface-nav-active: rgba(28, 61, 99, 0.5);
-
-   --border: rgba(120, 180, 240, 0.1);
-   --border-subtle: rgba(120, 180, 240, 0.05);
-   --border-strong: rgba(120, 180, 240, 0.18);
-
-   --text: #eaf2ff;
-   --text-muted: #8fb4dd;
-   --text-faint: #4f6d90;
-
-   --accent: #38bdf8;
-   --accent-hover: #7dd3fc;
-   --accent-text: #0b1d33;
-
-   --success: #4caf50;
-   --warning: #ffb020;
-   --danger: #ff5d6c;
-
-   --toggle-on: var(--success);
-   --toggle-off: #244a75;
-
-   --tab: #14314f;
-   --tab-active: #1c3d63;
-   --tab-hover: #244a75;
-   --tab-border: transparent;
-
-   --background-image: var(--background);
+/* sky */
+:root{
+  --background:#071827;--surface:#0c2539;--surface-card:#10304a;--surface-tile:#16405f;--surface-raised:#1b496d;--surface-overlay:#123954;--surface-input:#20587d;--surface-button:#2b6b94;--surface-button-hover:#397fa8;--surface-hover:rgba(140,210,255,.12);--surface-active:rgba(140,210,255,.18);--surface-nav:rgba(140,210,255,.28);--surface-nav-active:#e9f7ff;
+  --border:#a9d5ef;--border-subtle:#6f9bb8;--border-strong:#4cc9f0;--text:#82dcff;--text-muted:#071827;--text-faint:#5bd18a;--accent:#f3c969;--accent-hover:#ff7180;--accent-text:#214f6d;--success:#10304a;--warning:#1c4765;--danger:#20587d;--toggle-on:var(--success);--toggle-off:undefined;--toggle-knob:undefined;--tab:#10304a;--tab-active:#397fa8;--tab-hover:rgba(140,210,255,.12);--tab-border:var(--border);--background-image:var(--background);
 }
