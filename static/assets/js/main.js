@@ -23,12 +23,14 @@
     solarizedLight: "/assets/css/themes/colors/solarized-light.css",
   };
 
+  const resolvedTheme = themeid || "d";
+  document.documentElement.setAttribute("data-lunar-theme", resolvedTheme);
   if (themes[themeid]) {
     const themeLink = document.createElement("link");
     themeLink.rel = "stylesheet";
     themeLink.href = themes[themeid];
     document.head.appendChild(themeLink);
-  } else {
+  } else if (themeid) {
     const customThemeCss = store.getRaw(`t${themeid}`);
     if (customThemeCss) {
       const customThemeStyle = document.createElement("style");
@@ -36,6 +38,10 @@
       document.head.appendChild(customThemeStyle);
     }
   }
+  const lunarThemeV2 = document.createElement("link");
+  lunarThemeV2.rel = "stylesheet";
+  lunarThemeV2.href = "/assets/css/lunar-theme-v2.css?v=lunar1";
+  document.head.appendChild(lunarThemeV2);
 
   const PROXY_KEY = "proxy";
   const ALLOWED = ["uv", "sj"];
