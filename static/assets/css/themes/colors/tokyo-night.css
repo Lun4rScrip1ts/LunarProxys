@@ -1,42 +1,5 @@
-/* Tokyo Night */
-:root {
-   --background: #1a1b26;
-   --surface: #16161e;
-   --surface-card: #16161e;
-   --surface-tile: #13141c;
-   --surface-raised: #292e42;
-   --surface-overlay: #292e42;
-   --surface-input: #292e42;
-   --surface-button: #292e42;
-   --surface-button-hover: #3b4261;
-   --surface-hover: #3b4261;
-   --surface-active: #3b4261;
-   --surface-nav: rgba(22, 22, 30, 0.5);
-   --surface-nav-active: rgba(41, 46, 66, 0.5);
-
-   --border: rgba(192, 202, 245, 0.08);
-   --border-subtle: rgba(192, 202, 245, 0.04);
-   --border-strong: rgba(192, 202, 245, 0.16);
-
-   --text: #c0caf5;
-   --text-muted: #a9b1d6;
-   --text-faint: #565f89;
-
-   --accent: #7aa2f7;
-   --accent-hover: #7dcfff;
-   --accent-text: #1a1b26;
-
-   --success: #9ece6a;
-   --warning: #e0af68;
-   --danger: #f7768e;
-
-   --toggle-on: var(--success);
-   --toggle-off: #3b4261;
-
-   --tab: #16161e;
-   --tab-active: #292e42;
-   --tab-hover: #292e42;
-   --tab-border: transparent;
-
-   --background-image: var(--background);
+/* tokyo-night */
+:root{
+  --background:#161821;--surface:#1b1d2a;--surface-card:#202331;--surface-tile:#24283b;--surface-raised:#2d334d;--surface-overlay:#24283b;--surface-input:#343b5b;--surface-button:#414a70;--surface-button-hover:#53618d;--surface-hover:rgba(192,202,245,.10);--surface-active:rgba(192,202,245,.15);--surface-nav:rgba(192,202,245,.24);--surface-nav-active:#d7dcf7;
+  --border:#aeb7d8;--border-subtle:#68729a;--border-strong:#7aa2f7;--text:#9ab8ff;--text-muted:#161821;--text-faint:#9ece6a;--accent:#e0af68;--accent-hover:#f7768e;--accent-text:#3b4261;--success:#202331;--warning:#2d334d;--danger:#343b5b;--toggle-on:var(--success);--toggle-off:undefined;--toggle-knob:undefined;--tab:#202331;--tab-active:#53618d;--tab-hover:rgba(192,202,245,.10);--tab-border:var(--border);--background-image:var(--background);
 }
