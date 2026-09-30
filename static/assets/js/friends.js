@@ -372,14 +372,20 @@ function openFriendContextMenu(id,event){
   const user=friends.find(x=>x.id===id);
   if(!user)return;
   const menu=$("friend-context-menu");
-  const isFriend=friends.some(x=>x.id===id)&&areFriendLocally(id);
+  const isFriend=areFriendLocally(id);
+  const incomingRequest=incoming.find(x=>x.from?.id===id);
+  const outgoingRequest=outgoing.find(x=>x.to?.id===id);
+  const friendLabel=isFriend?"Friends":incomingRequest?"Accept Friend Request":outgoingRequest?"Friend Request Sent":"Add Friend";
+  const friendAction=isFriend?"":incomingRequest?"accept":"friend";
+  const friendDisabled=isFriend||Boolean(outgoingRequest);
   menu.innerHTML='<button data-fcm="message"><i class="fa-regular fa-message"></i><span>Message</span></button>'+
-    '<button data-fcm="friend" '+(isFriend?'disabled':'')+'><i class="fa-solid fa-user-plus"></i><span>'+(isFriend?'Friends':'Add Friend')+'</span></button>'+
+    '<button data-fcm="'+friendAction+'" '+(friendDisabled?'disabled':'')+'><i class="fa-solid fa-user-plus"></i><span>'+friendLabel+'</span></button>'+
     '<button data-fcm="profile"><i class="fa-regular fa-id-card"></i><span>View Profile</span></button>'+
     '<button data-fcm="copy-name"><i class="fa-regular fa-copy"></i><span>Copy Username</span></button>'+
     '<button data-fcm="copy-id"><i class="fa-regular fa-id-badge"></i><span>Copy User ID</span></button>'+
     '<button data-fcm="block"><i class="fa-solid fa-ban"></i><span>Block User</span></button>';
   menu.dataset.userId=id;
+  menu.dataset.requestId=incomingRequest?.id||"";
   positionFriendContextMenu(menu,event.clientX,event.clientY);
 }
 function areFriendLocally(id){
@@ -601,6 +607,10 @@ $("friend-context-menu").onclick=async e=>{
     else if(b.dataset.fcm==="friend"){
       await api("/api/friends/requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user.username})});
       toast("Friend request sent.");await bootstrap();
+    }else if(b.dataset.fcm==="accept"){
+      const requestId=$("friend-context-menu").dataset.requestId;
+      await api("/api/friends/requests/"+encodeURIComponent(requestId),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"accept"})});
+      toast("Friend request accepted.");await bootstrap();
     }else if(b.dataset.fcm==="block"){
       if(confirm("Block @"+user.username+"?")){await api("/api/friends/block/"+user.id,{method:"POST"});toast("User blocked.");await bootstrap();}
     }
