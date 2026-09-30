@@ -323,12 +323,14 @@ function renderMessages(){
     const deleted=Boolean(m.deletedAt);
     const own=m.senderId===me.id;
     const attachment=deleted?"":(m.attachment
-      ? (m.attachment.kind==="sticker"
+      ? (m.attachment.kind==="image"
+        ? '<img class="dm-image" src="'+esc(m.attachment.url)+'" alt="'+esc(m.attachment.name||"Image")+'" loading="lazy">'
+        : m.attachment.kind==="sticker"
         ? '<div class="dm-sticker-attachment" data-sticker-url="'+esc(m.attachment.url)+'" data-sticker-name="'+esc(m.attachment.name||"Sticker")+'"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"><button type="button" class="sticker-save-badge '+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"is-saved":"")+'" title="Sticker collection" aria-label="Sticker collection"><i class="fa-'+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"solid":"regular")+' fa-bookmark"></i></button></div>'
         : '<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">')
       : "");
     const pending=m.pending?'<span class="dm-pending">Sending...</span>':"";
-    html.push('<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time>'+pending+'</div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted&&!m.pending?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button></div></article>');
+    html.push('<article class="dm-message '+(deleted?"is-deleted":"")+'" data-mid="'+m.id+'" data-own-message="'+(own?"true":"false")+'"><button class="dm-avatar dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'">'+(m.sender.avatarUrl?'<img src="'+esc(m.sender.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(m.sender.displayName)))+'</button><div class="dm-message-content"><div class="dm-message-meta"><button class="dm-profile-trigger" data-profile-user="'+esc(m.sender.username)+'"><strong>'+esc(m.sender.displayName)+'</strong></button><time>'+new Date(m.createdAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+'</time>'+pending+'</div>'+(m.forwarded?'<div class="dm-edited">Forwarded</div>':"")+(m.replyTo&&!deleted?'<div class="dm-edited">↪ @'+esc(m.replyTo.sender.username)+': '+esc(m.replyTo.message)+'</div>':"")+(deleted?'<div class="dm-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>':((m.message?'<div class="dm-text">'+esc(m.message)+'</div>':"")+attachment+(m.editedAt?'<span class="dm-edited"> (edited)</span>':"")+'<div class="dm-reactions">'+reactionHtml(m)+'</div>'))+'</div><div class="dm-message-actions"><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted&&!m.pending?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button><button data-action="menu"><i class="fa-solid fa-ellipsis"></i></button></div></article>');
   }
   e.innerHTML=html.join("");
 }
@@ -513,11 +515,20 @@ $("dm-messages").onclick=async e=>{
   if(!action)return;
   const m=messages.find(x=>x.id===action.closest("[data-mid]")?.dataset.mid);
   if(!m)return;
-  if(action.dataset.action==="react"){showReactionPicker(m,action);return}if(action.dataset.action==="delete"&&m.senderId===me.id&&!m.deletedAt){try{await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});toast("Message deleted.");await loadMessages()}catch(x){toast(x.message)}return}
-  showMenu(m,action)
+  if(action.dataset.action==="react"){showReactionPicker(m,action);return}
+  if(action.dataset.action==="copy"){await navigator.clipboard.writeText(m.message||"");toast("Copied.");return}
+  if(action.dataset.action==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[attachment]").slice(0,90);$("dm-input").focus();return}
+  if(action.dataset.action==="forward"){openForward(m);return}
+  if(action.dataset.action==="edit"&&m.senderId===me.id&&!m.deletedAt){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus();return}
+  if(action.dataset.action==="delete"&&m.senderId===me.id&&!m.deletedAt){
+    if(!confirm("Delete this message?"))return;
+    try{await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});toast("Message deleted.");await loadMessages()}catch(x){toast(x.message)}
+    return
+  }
+  if(action.dataset.action==="menu"){showMenu(m,action);return}
 };
 $("dm-messages").oncontextmenu=e=>{const reaction=e.target.closest("[data-react]");if(reaction){e.preventDefault();const m=messages.find(x=>x.id===reaction.dataset.react);if(m)showReactionUsers(m,reaction);return}const a=e.target.closest("[data-mid]");if(!a)return;e.preventDefault();const m=messages.find(x=>x.id===a.dataset.mid);if(m)showMenu(m,e.target)};
-$("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||m.attachment?.url||"");toast("Copied.")}else if(b.dataset.mm==="delete"){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
+$("message-menu").onclick=async e=>{const b=e.target.closest("[data-mm]");if(!b||!menuMessage)return;const m=menuMessage;$("message-menu").hidden=true;try{if(b.dataset.mm==="copy"){await navigator.clipboard.writeText(m.message||"");toast("Copied.")}else if(b.dataset.mm==="delete"){if(confirm("Delete this message?")){await api("/api/friends/dms/messages/"+m.id,{method:"DELETE"});await loadMessages()}}else if(b.dataset.mm==="edit"){editing=m.id;$("dm-edit-bar").hidden=false;$("dm-input").value=m.message||"";$("dm-input").focus()}else if(b.dataset.mm==="reply"){reply=m;$("dm-reply-bar").hidden=false;$("dm-reply-label").textContent="@"+m.sender.username+": "+(m.message||"[GIF]").slice(0,70);$("dm-input").focus()}else if(b.dataset.mm==="react"){showReactionPicker(m,b)}else if(b.dataset.mm==="forward"){openForward(m)}}catch(x){toast(x.message)}};
 let forwardContext={sourceType:"dm",messageId:"",excludeId:""};
 function renderForwardTargets(){
   const wrap=$("forward-friends");
@@ -564,7 +575,7 @@ $("dm-form").onsubmit=async e=>{
     return;
   }
   if(!text&&!gifDraft)return;
-  const attachment=gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null;
+  const attachment=imageDraft|| (gifDraft?{kind:"gif",url:gifDraft.url,title:gifDraft.title}:null);
   const temp={
     id:"pending-"+Date.now(),
     threadId:"",
@@ -582,7 +593,7 @@ $("dm-form").onsubmit=async e=>{
   renderMessages();
   $("dm-messages").scrollTop=$("dm-messages").scrollHeight;
   const sendText=text;
-  $("dm-input").value="";gifDraft=null;$("gif-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;
+  $("dm-input").value="";gifDraft=null;imageDraft=null;$("gif-preview").hidden=true;$("dm-image-preview").hidden=true;reply=null;$("dm-reply-bar").hidden=true;
   try{
     await api("/api/friends/dms/"+active.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:sendText,attachment,replyTo:temp.replyTo?.id||""})});
     await loadMessages(true);
@@ -636,11 +647,31 @@ $("dm-gif").remove();
 const dmPlus=$("dm-plus"),dmComposeMenu=$("dm-compose-menu");
 function closeDmComposeMenu(){if(!dmComposeMenu)return;dmComposeMenu.hidden=true;dmPlus?.setAttribute("aria-expanded","false");}
 function positionDmToolPanel(panel,anchor){if(!panel||!anchor)return;const rect=anchor.getBoundingClientRect(),width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);let left=rect.left+rect.width/2-width/2,top=rect.top-height-10;if(top<8)top=rect.bottom+8;panel.style.width=width+"px";panel.style.left=Math.max(8,Math.min(innerWidth-width-8,left))+"px";panel.style.top=Math.max(8,Math.min(innerHeight-height-8,top))+"px";}
-function openDmGifs(){closeReactionPopups();closeDmComposeMenu();$("gif-panel").hidden=false;positionDmToolPanel($("gif-panel"),dmPlus);loadGifs();$("gif-search-input").focus();}
-function openDmEmoji(){closeDmComposeMenu();openUnifiedPicker("emoji",dmPlus,{type:"compose"});}
+function openDmGifs(){
+  closeReactionPopups();closeDmComposeMenu();
+  $("gif-panel").hidden=false;positionDmToolPanel($("gif-panel"),dmPlus);loadGifs();$("gif-search-input").focus();
+}
+function openDmImageUpload(){closeReactionPopups();closeDmComposeMenu();$("dm-image-file")?.click();}
 function openDmStickers(){closeDmComposeMenu();openUnifiedPicker("stickers",dmPlus,{type:"browse"});}
-dmPlus?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const open=dmComposeMenu&&!dmComposeMenu.hidden;closeReactionPopups();$("gif-panel").hidden=true;if(open)closeDmComposeMenu();else{dmComposeMenu.hidden=false;dmPlus.setAttribute("aria-expanded","true");}});
-dmComposeMenu?.addEventListener("click",e=>{const item=e.target.closest("[data-compose-tool]");if(!item)return;e.preventDefault();e.stopPropagation();const tool=item.dataset.composeTool;if(tool==="gif")openDmGifs();else if(tool==="emoji")openDmEmoji();else if(tool==="sticker")openDmStickers();});
+dmPlus?.addEventListener("click",e=>{
+  e.preventDefault();e.stopPropagation();
+  const open=dmComposeMenu&&!dmComposeMenu.hidden;
+  if(open)closeDmComposeMenu();
+  else{
+    closeReactionPopups();
+    $("gif-panel").hidden=true;
+    dmComposeMenu.hidden=false;
+    dmPlus.setAttribute("aria-expanded","true");
+  }
+});
+dmComposeMenu?.addEventListener("click",e=>{
+  const item=e.target.closest("[data-compose-tool]");if(!item)return;
+  e.preventDefault();e.stopPropagation();
+  const tool=item.dataset.composeTool;
+  if(tool==="gif")openDmGifs();
+  else if(tool==="image")openDmImageUpload();
+  else if(tool==="sticker")openDmStickers();
+});
 $("dm-emoji-button")?.remove();$("dm-sticker-button")?.remove();
 $("gif-close").onclick=()=>{$("gif-panel").hidden=true;};
 document.querySelectorAll(".gif-tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".gif-tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");gifTab=t.dataset.gifTab;loadGifs()});
@@ -648,6 +679,30 @@ $("gif-search-input").oninput=()=>{clearTimeout(timer);timer=setTimeout(loadGifs
 $("gif-search-clear").onclick=()=>{$("gif-search-input").value="";loadGifs();$("gif-search-input").focus()};
 $("gif-grid").onclick=async e=>{const card=e.target.closest(".gif-card");if(!card)return;const g=$("gif-grid")._gifs.find(x=>x.id===card.dataset.gifId);if(!g)return;const favorite=e.target.closest(".gif-fav");if(favorite){try{await api("/api/friends/gifs/favorites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gif:g})});favorite.classList.add("is-saved");favorite.innerHTML='<i class="fa-solid fa-bookmark"></i>';favorite.title="Saved GIF";toast("GIF saved to favourites.")}catch(x){toast(x.message)}return}gifDraft=g;$("gif-preview-image").src=g.preview||g.url;$("gif-preview").hidden=false;$("gif-panel").hidden=true;if(!$("dm-input").value.trim())$("dm-form").requestSubmit()};
 $("gif-preview-remove").onclick=()=>{gifDraft=null;$("gif-preview").hidden=true};
+let imageDraft=null;
+const dmImageFile=$("dm-image-file");
+dmImageFile?.addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file)return;
+  if(!/^image\/(png|jpeg|webp|gif)$/i.test(file.type)){toast("Use PNG, JPG, WEBP, or GIF.");dmImageFile.value="";return;}
+  if(file.size>8*1024*1024){toast("Images must be smaller than 8 MB.");dmImageFile.value="";return;}
+  try{
+    const data=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>reject(new Error("Could not read that image."));
+      reader.readAsDataURL(file);
+    });
+    const uploaded=await api("/api/chat/uploads",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"image",data})});
+    imageDraft={kind:"image",url:uploaded.url,name:file.name};
+    $("dm-image-preview-image").src=uploaded.url;
+    $("dm-image-preview-name").textContent=file.name;
+    $("dm-image-preview").hidden=false;
+    toast("Image attached.");
+  }catch(x){toast(x.message)}
+  finally{dmImageFile.value=""}
+});
+$("dm-image-preview-remove")?.addEventListener("click",()=>{imageDraft=null;$("dm-image-preview").hidden=true;$("dm-image-preview-image").removeAttribute("src")});
 document.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=closeModals);document.querySelector("[data-close-forward]").onclick=closeModals;
 document.addEventListener("click",e=>{
   if(!e.target.closest("#message-menu")&&!e.target.closest("[data-action]")&&!e.target.closest("#reaction-picker")&&!e.target.closest(".dm-reaction-users")){$("message-menu").hidden=true;closeReactionPopups()}
