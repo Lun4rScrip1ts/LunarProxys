@@ -1,42 +1,5 @@
-/* Nord */
-:root {
-   --background: #242933;
-   --surface: #2e3440;
-   --surface-card: #2e3440;
-   --surface-tile: #2e3440;
-   --surface-raised: #3b4252;
-   --surface-overlay: #3b4252;
-   --surface-input: #3b4252;
-   --surface-button: #3b4252;
-   --surface-button-hover: #434c5e;
-   --surface-hover: #434c5e;
-   --surface-active: #434c5e;
-   --surface-nav: rgba(36, 41, 51, 0.5);
-   --surface-nav-active: rgba(59, 66, 82, 0.5);
-
-   --border: rgba(236, 239, 244, 0.09);
-   --border-subtle: rgba(236, 239, 244, 0.05);
-   --border-strong: rgba(236, 239, 244, 0.18);
-
-   --text: #eceff4;
-   --text-muted: #d8dee9;
-   --text-faint: #7b88a1;
-
-   --accent: #88c0d0;
-   --accent-hover: #8fbcbb;
-   --accent-text: #2e3440;
-
-   --success: #7bc96f;
-   --warning: #ebcb8b;
-   --danger: #bf616a;
-
-   --toggle-on: var(--success);
-   --toggle-off: #4c566a;
-
-   --tab: #2e3440;
-   --tab-active: #434c5e;
-   --tab-hover: #3b4252;
-   --tab-border: transparent;
-
-   --background-image: var(--background);
+/* nord */
+:root{
+  --background:#242933;--surface:#2e3440;--surface-card:#353c4a;--surface-tile:#3b4252;--surface-raised:#434c5e;--surface-overlay:#394150;--surface-input:#4b566a;--surface-button:#56627a;--surface-button-hover:#66738d;--surface-hover:rgba(236,239,244,.10);--surface-active:rgba(236,239,244,.15);--surface-nav:rgba(236,239,244,.23);--surface-nav-active:#eceff4;
+  --border:#d8dee9;--border-subtle:#8b98ad;--border-strong:#88c0d0;--text:#9fd5e2;--text-muted:#24313b;--text-faint:#8fbc8f;--accent:#ebcb8b;--accent-hover:#bf616a;--accent-text:#4c566a;--success:#353c4a;--warning:#434c5e;--danger:#3b4252;--toggle-on:var(--success);--toggle-off:undefined;--toggle-knob:undefined;--tab:#353c4a;--tab-active:#66738d;--tab-hover:rgba(236,239,244,.10);--tab-border:var(--border);--background-image:var(--background);
 }
