@@ -44,3 +44,5 @@
 - Fixed the profile Message action to open the actual DM conversation, including conversations with users who are not friends.
 
 - Completed friend-row context menu states for Add Friend, pending requests, accepted friends, and incoming request acceptance.
+
+- Reordered the DM plus menu to Sticker Collection, GIFs, then Emojis as requested.
