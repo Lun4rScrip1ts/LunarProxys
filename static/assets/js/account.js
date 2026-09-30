@@ -57,10 +57,25 @@
   const renderStickerCatalog=stickers=>{
     const grid=document.getElementById("account-sticker-grid"),empty=document.getElementById("account-sticker-empty"),count=document.getElementById("account-sticker-count");
     if(!grid)return;
-    grid.innerHTML=(stickers||[]).map(s=>'<div class="profile-public-sticker" title="'+String(s.name||"Sticker").replace(/"/g,"&quot;")+'"><img src="'+String(s.url||"").replace(/"/g,"&quot;")+'" alt="'+String(s.name||"Sticker").replace(/"/g,"&quot;")+'" loading="lazy"></div>').join("");
+    grid.innerHTML=(stickers||[]).map(s=>'<div class="profile-public-sticker account-sticker-item" title="'+String(s.name||"Sticker").replace(/"/g,"&quot;")+'"><img src="'+String(s.url||"").replace(/"/g,"&quot;")+'" alt="'+String(s.name||"Sticker").replace(/"/g,"&quot;")+'" loading="lazy"><button type="button" class="account-sticker-remove" data-sticker-id="'+String(s.id||"").replace(/[^A-Za-z0-9_-]/g,"")+'" aria-label="Remove '+String(s.name||"sticker").replace(/"/g,"&quot;")+'"><i class="fa-solid fa-xmark"></i></button></div>').join("");
     empty.hidden=Boolean(stickers?.length);
     count.textContent=stickers?.length?" · "+stickers.length:"";
   };
+  document.getElementById("account-sticker-grid")?.addEventListener("click",async e=>{
+    const button=e.target.closest(".account-sticker-remove");
+    if(!button)return;
+    const stickerId=button.dataset.stickerId;
+    if(!stickerId)return;
+    button.disabled=true;
+    try{
+      const data=await api("/api/stickers/"+encodeURIComponent(stickerId),{method:"DELETE"});
+      user.stickers=data.stickers||[];
+      renderStickerCatalog(user.stickers);
+    }catch(error){
+      button.disabled=false;
+      document.getElementById("profile-error").textContent=error.message;
+    }
+  });
   const fileData=async id=>{const f=document.getElementById(id).files?.[0];if(!f)return "";
     if(!["image/png","image/jpeg","image/webp","image/gif"].includes(f.type))throw new Error("Use PNG, JPG, WEBP, or GIF images.");
     if(f.size>8*1024*1024)throw new Error("Each image must be smaller than 8 MB.");
