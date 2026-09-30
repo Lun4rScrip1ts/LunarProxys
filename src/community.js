@@ -63,6 +63,7 @@ async function loadState() {
         user.stickers = Array.isArray(user.stickers) ? user.stickers.slice(0, MAX_STICKERS) : [];
         user.gifFavorites = Array.isArray(user.gifFavorites) ? user.gifFavorites.slice(0, 200) : [];
         user.blockedUsers = Array.isArray(user.blockedUsers) ? user.blockedUsers.slice(0, 500) : [];
+        user.dmReadAt = user.dmReadAt && typeof user.dmReadAt === "object" ? user.dmReadAt : {};
         user.settings = user.settings && typeof user.settings === "object" ? user.settings : {};
       }
       for (const message of state.messages) {
@@ -361,7 +362,7 @@ router.post("/auth/register", async (req, res) => {
   const user = {
     id: randomUUID(), username, email, displayName,
     avatarUrl: "", bannerUrl: "", backgroundUrl: "", bio: "", status: "",
-    stickers: [], gifFavorites: [], blockedUsers: [], salt: credentials.salt, hash: credentials.hash, createdAt: new Date().toISOString(),
+    stickers: [], gifFavorites: [], blockedUsers: [], dmReadAt: {}, salt: credentials.salt, hash: credentials.hash, createdAt: new Date().toISOString(),
   };
 
   state.users[user.id] = user;
@@ -715,6 +716,16 @@ function findUser(id) {
   return state.users[id] || null;
 }
 
+function isUserOnline(userId) {
+  const cutoff = Date.now() - 2 * 60 * 1000;
+  return Object.values(state.sessions).some(session =>
+    session?.kind === "active" &&
+    session.userId === userId &&
+    session.lastSeen &&
+    session.lastSeen > cutoff
+  );
+}
+
 function publicFriendUser(user) {
   return {
     id: user.id,
@@ -722,6 +733,7 @@ function publicFriendUser(user) {
     displayName: user.displayName,
     avatarUrl: user.avatarUrl || "",
     status: user.status || "",
+    isOnline: isUserOnline(user.id),
   };
 }
 
@@ -813,13 +825,30 @@ function publicGifFavorite(gif) {
 
 router.get("/friends/bootstrap", requireUser, (req, res) => {
   const me = req.user;
-  const friends = state.friendships
-    .map(key => key.split(":"))
-    .filter(ids => ids.includes(me.id))
-    .map(ids => findUser(ids.find(id => id !== me.id)))
+  if (!me.dmReadAt || typeof me.dmReadAt !== "object") me.dmReadAt = {};
+
+  const ids = new Set();
+  for (const key of state.friendships) {
+    const pair = key.split(":");
+    if (pair.includes(me.id)) {
+      const id = pair.find(value => value !== me.id);
+      if (id) ids.add(id);
+    }
+  }
+  for (const thread of Object.values(state.dmThreads)) {
+    if (thread?.userIds?.includes(me.id)) {
+      const id = thread.userIds.find(value => value !== me.id);
+      if (id) ids.add(id);
+    }
+  }
+
+  const conversationUsers = [...ids]
+    .map(findUser)
     .filter(Boolean)
-    .filter(user => !me.blockedUsers?.includes(user.id))
-    .map(user => publicFriendUserForViewer(user, me.id));
+    .filter(user => user.id !== me.id)
+    .filter(user => !me.blockedUsers?.includes(user.id));
+
+  const friends = conversationUsers.map(user => publicFriendUserForViewer(user, me.id));
 
   const incoming = state.friendRequests
     .filter(item => item.toUserId === me.id && item.status === "pending")
@@ -831,17 +860,49 @@ router.get("/friends/bootstrap", requireUser, (req, res) => {
     .map(item => ({ ...item, to: publicFriendUser(findUser(item.toUserId)) }))
     .filter(item => item.to);
 
-  const threads = friends.map(friend => {
+  const threads = conversationUsers.map(friend => {
     const thread = getDmThread(me.id, friend.id, false);
     const last = thread ? state.dmMessages.slice().reverse().find(message =>
-      thread.userIds.includes(message.senderId) && thread.userIds.includes(message.recipientId) &&
+      thread.userIds.includes(message.senderId) &&
+      thread.userIds.includes(message.recipientId) &&
       !(message.deletedFor || []).includes(me.id)
     ) : null;
+    const unreadSince = Number(me.dmReadAt?.[thread?.id] || 0);
+    const unreadCount = thread
+      ? state.dmMessages.filter(message =>
+          message.threadId === thread.id &&
+          message.recipientId === me.id &&
+          !message.deletedAt &&
+          Date.parse(message.createdAt) > unreadSince &&
+          !me.blockedUsers?.includes(message.senderId)
+        ).length
+      : 0;
     return {
       friend,
       lastMessage: last ? publicDmMessage(last, me.id) : null,
+      unreadCount,
     };
   });
+
+  const unread = state.dmMessages
+    .filter(message =>
+      message.recipientId === me.id &&
+      !message.deletedAt &&
+      !me.blockedUsers?.includes(message.senderId) &&
+      Date.parse(message.createdAt) > Number(me.dmReadAt?.[message.threadId] || 0)
+    )
+    .slice(-50)
+    .map(message => ({
+      id: message.id,
+      threadId: message.threadId,
+      sender: publicFriendUser(findUser(message.senderId)),
+      message: message.message || (message.attachment?.kind === "gif" ? "Sent a GIF" : "Sent a sticker"),
+      createdAt: message.createdAt,
+    }))
+    .filter(item => item.sender);
+
+  const blocked = (me.blockedUsers || []).map(findUser).filter(Boolean).map(publicFriendUser);
+  const unreadCount = incoming.length + unread.length;
 
   res.json({
     user: publicUser(me, true),
@@ -849,6 +910,9 @@ router.get("/friends/bootstrap", requireUser, (req, res) => {
     incoming,
     outgoing,
     threads,
+    blocked,
+    unread,
+    unreadCount,
     gifFavorites: (me.gifFavorites || []).map(publicGifFavorite),
   });
 });
@@ -912,6 +976,17 @@ router.delete("/friends/:userId", requireUser, async (req, res) => {
   res.json({ ok: true });
 });
 
+router.get("/friends/blocked", requireUser, (req, res) => {
+  const blocked = (req.user.blockedUsers || []).map(findUser).filter(Boolean).map(publicFriendUser);
+  res.json({ users: blocked });
+});
+
+router.delete("/friends/blocked/:userId", requireUser, async (req, res) => {
+  req.user.blockedUsers = (req.user.blockedUsers || []).filter(id => id !== req.params.userId);
+  await persist();
+  res.json({ ok: true });
+});
+
 router.post("/friends/block/:userId", requireUser, async (req, res) => {
   const target = findUser(req.params.userId);
   if (!target || target.id === req.user.id) return res.status(404).json({ error: "User not found." });
@@ -939,7 +1014,7 @@ router.post("/friends/report/:userId", requireUser, async (req, res) => {
 router.get("/friends/dms/:friendId/messages", requireUser, (req, res) => {
   const friend = findUser(req.params.friendId);
   if (!friend || friend.id === req.user.id) return res.status(404).json({ error: "User not found." });
-  if (!areFriends(req.user.id, friend.id)) return res.status(403).json({ error: "You are not friends with this user." });
+  if (isBlocked(req.user.id, friend.id)) return res.status(403).json({ error: "Messaging is blocked." });
   const thread = getDmThread(req.user.id, friend.id, false);
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 100, 1), 100);
   const messages = thread
@@ -952,7 +1027,6 @@ router.get("/friends/dms/:friendId/messages", requireUser, (req, res) => {
 router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => {
   const friend = findUser(req.params.friendId);
   if (!friend || friend.id === req.user.id) return res.status(404).json({ error: "User not found." });
-  if (!areFriends(req.user.id, friend.id)) return res.status(403).json({ error: "You are not friends with this user." });
   if (isBlocked(req.user.id, friend.id)) return res.status(403).json({ error: "Messaging is blocked." });
 
   const text = cleanText(req.body?.message, MAX_MESSAGE_LENGTH);
@@ -992,6 +1066,18 @@ router.post("/friends/dms/:friendId/messages", requireUser, async (req, res) => 
   if (state.dmMessages.length > 5000) state.dmMessages = state.dmMessages.slice(-5000);
   await persist();
   res.status(201).json({ message: publicDmMessage(message, req.user.id) });
+});
+
+router.post("/friends/dms/:friendId/read", requireUser, async (req, res) => {
+  const friend = findUser(req.params.friendId);
+  if (!friend || friend.id === req.user.id) return res.status(404).json({ error: "User not found." });
+  if (isBlocked(req.user.id, friend.id)) return res.status(403).json({ error: "Messaging is blocked." });
+  const thread = getDmThread(req.user.id, friend.id, false);
+  if (!thread) return res.json({ ok: true });
+  if (!req.user.dmReadAt || typeof req.user.dmReadAt !== "object") req.user.dmReadAt = {};
+  req.user.dmReadAt[thread.id] = Date.now();
+  await persist();
+  res.json({ ok: true });
 });
 
 router.patch("/friends/dms/messages/:id", requireUser, async (req, res) => {
