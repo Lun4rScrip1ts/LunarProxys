@@ -235,6 +235,9 @@
           <div class="reaction-row">${reactionHtml(message)}</div>`}
         </div>
         <div class="message-actions" aria-label="Message actions">
+          <div class="quick-reactions" aria-label="Quick reactions">
+            <button type="button" data-quick-reaction="😀">😀</button><button type="button" data-quick-reaction="❤️">❤️</button><button type="button" data-quick-reaction="😂">😂</button><button type="button" data-quick-reaction="😮">😮</button><button type="button" data-quick-reaction="😢">😢</button><button type="button" data-quick-reaction="👍">👍</button>
+          </div>
           <button type="button" data-action="react" title="Add reaction"><i class="fa-regular fa-face-smile"></i></button>
           <button type="button" data-action="reply" title="Reply"><i class="fa-solid fa-reply"></i></button>
           <button type="button" data-action="forward" title="Forward"><i class="fa-solid fa-share"></i></button>
@@ -779,6 +782,22 @@
           : {kind:"emoji",emoji:reactionButton.dataset.reactionEmoji};
         await api(`/api/chat/messages/${encodeURIComponent(id)}/reactions`, {
           method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+        });
+        await refresh();
+      } catch (error) { showToast(error.message); }
+      return;
+    }
+
+    const quick = event.target.closest("[data-quick-reaction]");
+    if (quick) {
+      const article = quick.closest("[data-message-id]");
+      const message = messages.find(item => item.id === article?.dataset.messageId);
+      if (!message) return;
+      try {
+        await api(`/api/chat/messages/${encodeURIComponent(message.id)}/reactions`, {
+          method:"PATCH",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({kind:"emoji",emoji:quick.dataset.quickReaction})
         });
         await refresh();
       } catch (error) { showToast(error.message); }
