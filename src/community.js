@@ -143,6 +143,7 @@ function publicUser(user, includeEmail = true) {
     backgroundUrl: user.backgroundUrl || "",
     bio: user.bio || "",
     status: user.status || "",
+    isOnline: isUserOnline(user.id),
     createdAt: user.createdAt,
     stickers: Array.isArray(user.stickers) ? user.stickers : [],
     isOwner: user.username.toLowerCase() === "lunar",
