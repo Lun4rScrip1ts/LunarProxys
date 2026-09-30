@@ -37,8 +37,8 @@
   };
 
   function userRole(username){const name=String(username||"").toLowerCase();return name==="lunar"?"Owner":name==="lunarstudios"?"Co-Owner":""}
-  function roleBadge(username){const role=userRole(username);return role?'<span class="chat-role-badge '+(role==="Owner"?"owner":"co-owner")+'">'+escape(role)+'</span>':""}
-  const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
+function roleBadge(username){const role=userRole(username);return role?'<span class="chat-role-badge '+(role==="Owner"?"owner":"co-owner")+'">'+escape(role)+'</span>':""}
+const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
   const initials = name => (name || "?").trim().slice(0, 2).toUpperCase();
   const avatar = user => user.avatarUrl
     ? `<img src="${escapeAttr(user.avatarUrl)}" alt="">`
@@ -226,7 +226,7 @@
         <div class="chat-message-body">
           <div class="chat-meta">
             <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
-            ${userRole(message.username)?"":`<span class="chat-username">@${escape(message.username)}</span>`}${roleBadge(message.username)}
+            <span class="chat-username">@${escape(message.username)}</span>${roleBadge(message.username)}
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
           </div>
           ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
@@ -316,20 +316,9 @@
       const block = document.getElementById("friends-profile-block");
 
       message.onclick = () => { location.href = "/friends?user=" + encodeURIComponent(u.username); };
-      friend.textContent = u.isFriend ? "Remove Friend" : (u.friendRequestPending ? "Pending" : "Friend");
-      friend.disabled = !!u.friendRequestPending;
+      friend.textContent = u.isFriend ? "Added" : (u.friendRequestPending ? "Pending" : "Friend");
+      friend.disabled = !!u.isFriend || !!u.friendRequestPending;
       friend.onclick = async () => {
-        if (u.isFriend) {
-          if (!confirm("Remove @" + u.username + " from your friends?")) return;
-          try {
-            await api("/api/friends/" + encodeURIComponent(u.id), {method:"DELETE"});
-            u.isFriend = false;
-            friend.textContent = "Friend";
-            friend.disabled = false;
-            showToast("Friend removed.");
-          } catch (e) { showToast(e.message); }
-          return;
-        }
         try {
           await api("/api/friends/requests", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
           friend.textContent = "Pending";
