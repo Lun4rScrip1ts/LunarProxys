@@ -212,7 +212,8 @@ try{
   $("friends-profile-avatar").innerHTML=profileAvatarHtml(u);
   $("friends-profile-display").textContent=u.displayName||u.username;
   $("friends-profile-username").textContent="@"+u.username;
-  $("friends-profile-status").textContent=u.status||"Online";
+  $("friends-profile-status").textContent=u.isOnline?"Online":(u.status||"Offline");
+  $("friends-profile-status").classList.toggle("is-online",Boolean(u.isOnline));
   $("friends-profile-bio").textContent=u.bio||"No bio yet.";
   $("friends-profile-owner").hidden=!u.isOwner;
   $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
@@ -282,7 +283,7 @@ await loadMessages(true);
 /* Keep the mini-profile actions useful even when this view is opened for a non-friend. */
 const miniFriendButton=$("profile-friend");
 const miniBlockButton=$("profile-block");
-const miniIsFriend=f.isFriend !== false;
+const miniIsFriend=Boolean(f.isFriend);
 miniFriendButton.textContent=miniIsFriend ? "Friended" : "Friend";
 miniFriendButton.disabled=miniIsFriend;
 miniFriendButton.onclick=async()=>{
@@ -379,8 +380,7 @@ function openFriendContextMenu(id,event){
   positionFriendContextMenu(menu,event.clientX,event.clientY);
 }
 function areFriendLocally(id){
-  const request=friends.find(x=>x.id===id);
-  return Boolean(request&&request.id===id&&threads.some(t=>t.friend.id===id&&t.friend.isFriend));
+  return Boolean(friends.find(x=>x.id===id)?.isFriend);
 }
 function showMenu(m,el){menuMessage=m;const q=$("message-menu");q.innerHTML='<button data-mm="copy">Copy</button><button data-mm="forward">Forward</button><button data-mm="react">React</button>'+(m.senderId===me.id&&!m.deletedAt?'<button data-mm="delete">Delete</button><button data-mm="edit">Edit</button>':"")+'<button data-mm="reply">Reply</button>';const r=el.getBoundingClientRect();q.style.left=Math.min(innerWidth-205,Math.max(6,r.left))+"px";q.style.top=Math.min(innerHeight-250,r.bottom+4)+"px";q.hidden=false}
 let pickerContext={type:"compose",messageId:"",anchor:null};
