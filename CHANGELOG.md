@@ -56,3 +56,15 @@
 - Added a subtle profile-panel backdrop so the right-side profile behaves like a Discord-style focused popout and can close by clicking outside it.
 
 - Removed the obsolete JavaScript handlers for the removed DM call, video, search, and more header controls.
+
+### Friends DM Composer and Message Action Fixes
+- Fixed the DM + button so it reliably toggles a popup directly above the composer.
+- Changed the popup to exactly three tools: GIFs, Image / Upload, and Sticker Container, wired to the existing GIF, upload, and sticker systems.
+- Added image attachment upload through the existing `/api/chat/uploads` endpoint and enabled image attachments in DM messages.
+- Added image previews before sending and image rendering inside DM messages.
+- Fixed message hover actions so Copy, React, Reply, Forward, Edit, Delete, and the mobile overflow menu are wired to working handlers.
+- Added optimistic reaction updates with rollback on backend failure.
+- Added inline Save / Cancel editing for the user's own messages.
+- Added confirmation before deleting a message.
+- Fixed optimistic reply metadata so replies are sent with the original message ID.
+- Refreshed Friends page CSS/JavaScript cache versions.
