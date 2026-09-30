@@ -371,6 +371,8 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
       }
 
       modal.hidden = false;
+      modal.onclick = e => { if (e.target === modal) closeChatProfile(); };
+      document.getElementById("friends-profile-close").onclick = closeChatProfile;
     } catch (e) {
       showToast(e.message);
     }
