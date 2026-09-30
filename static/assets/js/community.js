@@ -681,7 +681,7 @@
   }
 
   function positionPicker(anchor) {
-    const rect = (anchor || document.getElementById("chat-plus"))?.getBoundingClientRect();
+    const rect = (anchor || document.getElementById("chat-gif-button"))?.getBoundingClientRect();
     const width = Math.min(420, window.innerWidth - 20);
     const height = Math.min(500, window.innerHeight - 100);
     let left = rect ? rect.left + rect.width / 2 - width / 2 : (window.innerWidth - width) / 2;
@@ -967,7 +967,7 @@
   document.addEventListener("click", event => {
     const target = event.target;
     if (chatComposeMenu && !chatComposeMenu.hidden && !chatComposeMenu.contains(target) && !target.closest("#chat-gif-button") && !target.closest("#chat-image-button") && !target.closest("#chat-sticker-button")) closeChatComposeMenu();
-    if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(target) && !target.closest("#chat-plus") && !target.closest("[data-action=\"react\"]")) closePopovers();
+    if (reactionPicker && !reactionPicker.hidden && !reactionPicker.contains(target) && !target.closest("#chat-gif-button") && !target.closest("#chat-image-button") && !target.closest("#chat-sticker-button") && !target.closest("[data-action=\"react\"]")) closePopovers();
     if (giphyPanel && !giphyPanel.hidden && !giphyPanel.contains(target) && !target.closest("#chat-plus")) { giphyPanel.hidden=true; giphyPanel.style.display=""; }
     if (reactionPicker && !reactionPicker.contains(target) && !target.closest("[data-action='react']")) reactionPicker.hidden = true;
     if (reactionUsers && !reactionUsers.contains(target) && !target.closest("[data-reaction-message]")) reactionUsers.hidden = true;
