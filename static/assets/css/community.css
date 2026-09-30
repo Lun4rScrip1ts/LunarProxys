@@ -1289,3 +1289,4 @@ body.interface-glass .lunar-community-page .chat-form{
   transition:opacity .12s ease,transform .12s ease;
 }
 .lunar-community-page .chat-message:hover .message-actions:before{opacity:1;transform:none}
+.lunar-community-page .message-actions:before{display:none!important}.lunar-community-page .quick-reactions{position:absolute;right:calc(100% + 5px);top:1px;display:flex;gap:2px;padding:3px;border:1px solid var(--border);border-radius:8px;background:#111318;box-shadow:0 10px 25px rgba(0,0,0,.35);opacity:0;transform:translateY(3px) scale(.96);pointer-events:none;transition:opacity .14s ease,transform .14s ease}.lunar-community-page .chat-message:hover .quick-reactions{opacity:1;transform:none;pointer-events:auto}.lunar-community-page .quick-reactions button{width:27px;height:25px;padding:0;border:0;border-radius:5px;background:transparent;color:#fff;cursor:pointer}.lunar-community-page .quick-reactions button:hover{background:rgba(255,255,255,.1)}
