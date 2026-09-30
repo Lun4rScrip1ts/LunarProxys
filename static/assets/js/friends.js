@@ -782,23 +782,27 @@ const dmGifButton=$("dm-gif-button"),dmImageButton=$("dm-image-button-direct"),d
 function positionDmToolPanel(panel,anchor){
   if(!panel||!anchor)return;
   const rect=anchor.getBoundingClientRect();
-  const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
-  let left=rect.left+rect.width/2-width/2,top=rect.top-height-8;
+  const width=Math.min(420,window.innerWidth-20);
+  const height=Math.min(500,window.innerHeight-100);
+  let left=rect.left+rect.width/2-width/2;
+  let top=rect.top-height-10;
   if(top<8)top=rect.bottom+8;
-  panel.style.setProperty("position","fixed","important");
   panel.style.setProperty("width",width+"px","important");
-  panel.style.setProperty("left",Math.max(8,Math.min(innerWidth-width-8,left))+"px","important");
+  panel.style.setProperty("left",Math.max(8,Math.min(window.innerWidth-width-8,left))+"px","important");
   panel.style.setProperty("right","auto","important");
   panel.style.setProperty("bottom","auto","important");
-  panel.style.setProperty("top",Math.max(8,Math.min(innerHeight-height-8,top))+"px","important");
-  panel.style.setProperty("z-index","2147483647","important");
+  panel.style.setProperty("top",Math.max(8,Math.min(window.innerHeight-height-8,top))+"px","important");
 }
 function openDmGifs(){
   closeReactionPopups();
-  $("gif-panel").hidden=false;
-  positionDmToolPanel($("gif-panel"),dmGifButton);
+  const panel=$("gif-panel");
+  if(!panel)return;
+  panel.hidden=false;
+  panel.removeAttribute("hidden");
+  panel.style.display="flex";
+  positionDmToolPanel(panel,dmGifButton);
   loadGifs();
-  $("gif-search-input").focus();
+  $("gif-search-input")?.focus();
 }
 $("dm-image-file")?.addEventListener("change",async e=>{
   const file=e.target.files?.[0];
