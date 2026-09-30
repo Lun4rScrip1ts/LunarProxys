@@ -1122,7 +1122,7 @@ router.patch("/friends/dms/messages/:id/reactions", requireUser, async (req, res
   const stickerUrl = cleanText(req.body?.stickerUrl, 1000);
   const stickerName = cleanText(req.body?.stickerName, 80) || "Sticker";
 
-  if (kind === "emoji" && !ALLOWED_REACTIONS.includes(emoji)) {
+  if (kind === "emoji" && (!emoji || Array.from(emoji).length > MAX_REACTION_TEXT)) {
     return res.status(400).json({ error: "Reaction is not available." });
   }
   if (kind === "sticker" && !stickerUrl.startsWith("/uploads/")) {
