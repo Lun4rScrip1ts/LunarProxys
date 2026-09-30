@@ -137,6 +137,18 @@ $("friend-open-sticker-create")?.addEventListener("click",async()=>{
 });
 $("friend-close-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
 $("friend-cancel-sticker-create")?.addEventListener("click",closeFriendStickerCreator);
+$("friend-sticker-grid")?.addEventListener("click",async e=>{
+  const sticker=e.target.closest("[data-friend-send-sticker]");
+  if(!sticker||!active)return;
+  try{
+    const attachment={kind:"sticker",url:sticker.dataset.friendSendSticker,name:sticker.dataset.stickerName||"Sticker"};
+    const data=await api("/api/friends/dms/"+encodeURIComponent(active.id)+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:"",attachment})});
+    messages.push(data.message);
+    closeFriendStickerDrawer();
+    renderMessages();
+    $("dm-messages").scrollTop=$("dm-messages").scrollHeight;
+  }catch(error){toast(error.message)}
+});
 $("friend-sticker-create-form")?.addEventListener("submit",async e=>{
   e.preventDefault();
   if(!friendStickerCreateData)return toast("Upload a sticker image first.");
@@ -703,7 +715,11 @@ function openDmGifs(){
   $("gif-panel").hidden=false;positionDmToolPanel($("gif-panel"),dmPlus);loadGifs();$("gif-search-input").focus();
 }
 function openDmImageUpload(){closeReactionPopups();closeDmComposeMenu();$("dm-image-file")?.click();}
-function openDmStickers(){closeDmComposeMenu();openUnifiedPicker("stickers",dmPlus,{type:"browse"});}
+function openDmStickers(){
+  closeReactionPopups();closeDmComposeMenu();
+  renderFriendStickers(me?.stickers||[]);
+  openFriendStickerDrawer();
+}
 dmPlus?.addEventListener("click",e=>{
   e.preventDefault();e.stopPropagation();
   const open=dmComposeMenu&&!dmComposeMenu.hidden;
