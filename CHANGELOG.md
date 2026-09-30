@@ -68,3 +68,5 @@
 - Added confirmation before deleting a message.
 - Fixed optimistic reply metadata so replies are sent with the original message ID.
 - Refreshed Friends page CSS/JavaScript cache versions.
+
+- Added immediate local reaction/deletion updates with backend rollback if the request fails.
