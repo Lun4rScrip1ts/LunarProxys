@@ -903,6 +903,20 @@
   const chatGifButton = document.getElementById("chat-gif-button");
   const chatImageButton = document.getElementById("chat-image-button");
   const chatStickerButton = document.getElementById("chat-sticker-button");
+  function positionChatToolPanel(panel, anchor) {
+    if (!panel || !anchor) return;
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(420, window.innerWidth - 20);
+    const height = Math.min(500, window.innerHeight - 100);
+    let left = rect.left + rect.width / 2 - width / 2;
+    let top = rect.top - height - 10;
+    if (top < 8) top = rect.bottom + 8;
+    panel.style.setProperty("width", width + "px", "important");
+    panel.style.setProperty("left", Math.max(8, Math.min(window.innerWidth - width - 8, left)) + "px", "important");
+    panel.style.setProperty("right", "auto", "important");
+    panel.style.setProperty("bottom", "auto", "important");
+    panel.style.setProperty("top", Math.max(8, Math.min(window.innerHeight - height - 8, top)) + "px", "important");
+  }
   function openChatGifs() {
     if (!currentUser) { location.href="/account"; return; }
     closePopovers();
