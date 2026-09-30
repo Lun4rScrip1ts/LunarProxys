@@ -1034,6 +1034,11 @@
   background:var(--friends-grey)!important;
 }
 .lunar-friends-page .friends-profile-status.is-online:before{background:var(--friends-green)!important}
+.lunar-friends-page .friends-profile-member{
+  margin-top:7px!important;
+  color:#777d87!important;
+  font-size:8px!important;
+}
 .lunar-friends-page .friends-profile-bio{
   margin:14px 0!important;
   color:#dbdee1!important;
