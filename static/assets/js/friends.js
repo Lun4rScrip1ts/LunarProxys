@@ -82,10 +82,30 @@ function renderFriendStickers(stickers){
   $("friend-sticker-empty").hidden=Boolean(stickers?.length);
   $("friend-sticker-count").textContent=(stickers?.length||0)+" saved sticker"+(stickers?.length===1?"":"s");
 }
-function openFriendStickerDrawer(){
+function openFriendStickerDrawer(anchor){
   renderFriendStickers(me?.stickers||[]);
   const drawer=$("friend-sticker-drawer");
-  drawer?.classList.add("open");
+  if(drawer&&anchor){
+    const rect=anchor.getBoundingClientRect();
+    const width=Math.min(390,innerWidth-20);
+    drawer.style.setProperty("position","fixed","important");
+    drawer.style.setProperty("width",width+"px","important");
+    drawer.style.setProperty("left",Math.max(10,Math.min(innerWidth-width-10,rect.left+rect.width/2-width/2))+"px","important");
+    drawer.style.setProperty("right","auto","important");
+    drawer.style.setProperty("bottom","auto","important");
+    drawer.style.setProperty("top","10px","important");
+    drawer.classList.add("open");
+    requestAnimationFrame(()=>{
+      if(!drawer.classList.contains("open"))return;
+      const h=drawer.getBoundingClientRect().height;
+      let top=rect.top-h-8;
+      if(top<10)top=rect.bottom+8;
+      if(top+h>innerHeight-10)top=Math.max(10,innerHeight-h-10);
+      drawer.style.setProperty("top",top+"px","important");
+    });
+  }else{
+    drawer?.classList.add("open");
+  }
   drawer?.setAttribute("aria-hidden","false");
 }
 function closeFriendStickerDrawer(){
@@ -459,7 +479,7 @@ async function ensureEmojiPicker(){
 function positionUnifiedPicker(anchor){
   const rect=(anchor||$("dm-gif-button"))?.getBoundingClientRect();const width=Math.min(420,innerWidth-20),height=Math.min(500,innerHeight-100);
   let left=rect?rect.left+rect.width/2-width/2:(innerWidth-width)/2,top=rect?rect.top-height-8:80;if(top<8)top=rect?rect.bottom+8:80;
-  const p=$("reaction-picker");p.style.width=width+"px";p.style.left=Math.max(8,Math.min(innerWidth-width-8,left))+"px";p.style.top=Math.max(8,Math.min(innerHeight-height-8,top))+"px";
+  const p=$("reaction-picker");p.style.setProperty("width",width+"px","important");p.style.setProperty("left",Math.max(8,Math.min(innerWidth-width-8,left))+"px","important");p.style.setProperty("right","auto","important");p.style.setProperty("bottom","auto","important");p.style.setProperty("top",Math.max(8,Math.min(innerHeight-height-8,top))+"px","important");
 }
 async function openUnifiedPicker(tab="emoji",anchor=null,context={type:"compose"}){
   if(!me){location.href="/account";return;}
@@ -730,7 +750,7 @@ function openDmImageUpload(){
 function openDmStickers(){
   closeReactionPopups();
   renderFriendStickers(me?.stickers||[]);
-  openFriendStickerDrawer();
+  openFriendStickerDrawer(dmStickerButton);
 }
 dmGifButton?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openDmGifs();});
 dmImageButton?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openDmImageUpload();});
