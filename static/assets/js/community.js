@@ -226,7 +226,7 @@
         <div class="chat-message-body">
           <div class="chat-meta">
             <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
-            <span class="chat-username">@${escape(message.username)}</span>${roleBadge(message.username)}
+            ${userRole(message.username)?"":`<span class="chat-username">@${escape(message.username)}</span>`}${roleBadge(message.username)}
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
           </div>
           ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
