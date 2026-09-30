@@ -1268,3 +1268,24 @@ body.interface-glass .lunar-community-page .chat-form{
 }
 .chat-compose-menu{animation:chatComposePop .14s ease}
 @keyframes chatComposePop{from{opacity:0;transform:translateY(4px) scale(.97)}to{opacity:1;transform:none}}
+
+.lunar-community-page .message-actions:before{
+  content:"😀  ❤️  😂  😮  😢  👍";
+  display:block;
+  position:absolute;
+  right:calc(100% + 5px);
+  top:2px;
+  white-space:nowrap;
+  padding:5px 7px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#111318;
+  color:#b5bac1;
+  font-size:11px;
+  letter-spacing:2px;
+  opacity:0;
+  transform:translateY(3px) scale(.96);
+  pointer-events:none;
+  transition:opacity .12s ease,transform .12s ease;
+}
+.lunar-community-page .chat-message:hover .message-actions:before{opacity:1;transform:none}
