@@ -6,6 +6,87 @@
   const resetCodeForm=document.getElementById("reset-code-form");
   const resetPasswordForm=document.getElementById("reset-password-form");
   let resetEmail="",resetToken="";
+  const profileImageDrafts={avatar:"",banner:"",background:""};
+  let profileImageEditorCropper=null,profileImageEditorResolve=null,profileImageEditorKind="";
+  const profileImageEditorConfig={
+    avatar:{label:"Profile picture",width:512,height:512,aspect:1},
+    banner:{label:"Profile banner",width:1200,height:400,aspect:3},
+    background:{label:"Profile background",width:1600,height:900,aspect:16/9}
+  };
+  const readFileData=file=>new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=()=>reject(new Error("Could not read image."));
+    reader.readAsDataURL(file);
+  });
+  const imageEditorModal=document.getElementById("profile-image-editor");
+  const imageEditorImage=document.getElementById("profile-image-editor-image");
+  const imageEditorTitle=document.getElementById("profile-image-editor-title");
+  const imageEditorSubtitle=document.getElementById("profile-image-editor-subtitle");
+  const imageEditorStatus=document.getElementById("profile-image-editor-status");
+  const imageEditorSize=document.getElementById("profile-image-editor-size");
+  const imageEditorStretchX=document.getElementById("profile-image-editor-stretch-x");
+  const imageEditorStretchY=document.getElementById("profile-image-editor-stretch-y");
+  const imageEditorSizeValue=document.getElementById("profile-image-editor-size-value");
+  const imageEditorStretchXValue=document.getElementById("profile-image-editor-stretch-x-value");
+  const imageEditorStretchYValue=document.getElementById("profile-image-editor-stretch-y-value");
+  const setImageEditorButton=(id,active)=>document.getElementById(id)?.classList.toggle("active",active);
+  const resetImageEditorControls=()=>{
+    imageEditorSize.value="100";imageEditorStretchX.value="100";imageEditorStretchY.value="100";
+    imageEditorSizeValue.textContent="100%";imageEditorStretchXValue.textContent="100%";imageEditorStretchYValue.textContent="100%";
+    setImageEditorButton("profile-image-editor-crop",true);setImageEditorButton("profile-image-editor-move",false);
+  };
+  const closeImageEditor=()=>{
+    if(profileImageEditorCropper){profileImageEditorCropper.destroy();profileImageEditorCropper=null;}
+    if(imageEditorModal)imageEditorModal.hidden=true;
+    const resolve=profileImageEditorResolve;profileImageEditorResolve=null;
+    if(resolve)resolve(null);
+  };
+  async function openImageEditor(kind,file){
+    if(!file)return null;
+    if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type))throw new Error("Use PNG, JPG, WEBP, or GIF images.");
+    if(file.size>8*1024*1024)throw new Error("Images must be smaller than 8 MB.");
+    if(!window.Cropper)throw new Error("The image editor could not load. Please reload the page and try again.");
+    const data=await readFileData(file);
+    const cfg=profileImageEditorConfig[kind];
+    return new Promise(resolve=>{
+      profileImageEditorResolve=resolve;profileImageEditorKind=kind;
+      imageEditorTitle.textContent="Edit "+cfg.label;
+      imageEditorSubtitle.textContent="Crop, move, rotate, stretch, and resize your "+cfg.label.toLowerCase()+" before uploading.";
+      imageEditorStatus.textContent="Drag the image to move it. Resize the crop frame when Crop is active.";
+      resetImageEditorControls();
+      imageEditorImage.src=data;imageEditorModal.hidden=false;
+      requestAnimationFrame(()=>{profileImageEditorCropper=new Cropper(imageEditorImage,{
+        aspectRatio:cfg.aspect,viewMode:1,autoCropArea:.9,background:false,responsive:true,restore:false,guides:true,center:true,highlight:true,
+        movable:true,rotatable:true,scalable:true,zoomable:true,zoomOnWheel:true,cropBoxMovable:true,cropBoxResizable:true,
+        ready(){const imageData=this.cropper.getImageData();const ratio=Math.max(.25,Math.min(3,imageData.width/Math.max(1,imageData.naturalWidth)));imageEditorSize.value=String(Math.round(ratio*100));imageEditorSizeValue.textContent=Math.round(ratio*100)+"%";}
+      });});
+    });
+  }
+  document.getElementById("profile-image-editor-close")?.addEventListener("click",closeImageEditor);
+  document.getElementById("profile-image-editor-cancel")?.addEventListener("click",closeImageEditor);
+  imageEditorModal?.addEventListener("click",e=>{if(e.target===imageEditorModal)closeImageEditor();});
+  document.getElementById("profile-image-editor-crop")?.addEventListener("click",()=>{profileImageEditorCropper?.setDragMode("crop");setImageEditorButton("profile-image-editor-crop",true);setImageEditorButton("profile-image-editor-move",false);});
+  document.getElementById("profile-image-editor-move")?.addEventListener("click",()=>{profileImageEditorCropper?.setDragMode("move");setImageEditorButton("profile-image-editor-crop",false);setImageEditorButton("profile-image-editor-move",true);});
+  document.getElementById("profile-image-editor-rotate-left")?.addEventListener("click",()=>profileImageEditorCropper?.rotate(-90));
+  document.getElementById("profile-image-editor-rotate-right")?.addEventListener("click",()=>profileImageEditorCropper?.rotate(90));
+  document.getElementById("profile-image-editor-reset")?.addEventListener("click",()=>{profileImageEditorCropper?.reset();resetImageEditorControls();});
+  imageEditorSize?.addEventListener("input",()=>{const value=Number(imageEditorSize.value);imageEditorSizeValue.textContent=value+"%";profileImageEditorCropper?.zoomTo(value/100);});
+  imageEditorStretchX?.addEventListener("input",()=>{const value=Number(imageEditorStretchX.value);imageEditorStretchXValue.textContent=value+"%";profileImageEditorCropper?.scaleX(value/100);});
+  imageEditorStretchY?.addEventListener("input",()=>{const value=Number(imageEditorStretchY.value);imageEditorStretchYValue.textContent=value+"%";profileImageEditorCropper?.scaleY(value/100);});
+  document.getElementById("profile-image-editor-save")?.addEventListener("click",()=>{
+    if(!profileImageEditorCropper||!profileImageEditorResolve)return;
+    const cfg=profileImageEditorConfig[profileImageEditorKind];
+    const canvas=profileImageEditorCropper.getCroppedCanvas({width:cfg.width,height:cfg.height,maxWidth:4096,maxHeight:4096,imageSmoothingEnabled:true,imageSmoothingQuality:"high"});
+    const type=profileImageEditorKind==="avatar"?"image/png":"image/jpeg";
+    const data=canvas.toDataURL(type,type==="image/jpeg"?.92:undefined);
+    const resolve=profileImageEditorResolve;profileImageEditorResolve=null;profileImageEditorCropper.destroy();profileImageEditorCropper=null;imageEditorModal.hidden=true;resolve(data);
+  });
+  const applyProfileDraftPreview=(kind,data)=>{
+    if(!data)return;
+    if(kind==="avatar")document.getElementById("profile-avatar").innerHTML='<img src="'+data+'" alt="">';
+    else document.getElementById("profile-"+kind).style.backgroundImage='url("'+data+'")';
+  };
   const profileForm=document.getElementById("profile-form"), profileSaveButton=document.getElementById("save-profile-button");
   const tabs=[...document.querySelectorAll(".auth-tab")]; let mode="login", user=null;
   const switcher=document.getElementById("account-switcher");
@@ -85,10 +166,12 @@
       document.getElementById("profile-error").textContent=error.message;
     }
   });
-  const fileData=async id=>{const f=document.getElementById(id).files?.[0];if(!f)return "";
-    if(!["image/png","image/jpeg","image/webp","image/gif"].includes(f.type))throw new Error("Use PNG, JPG, WEBP, or GIF images.");
-    if(f.size>8*1024*1024)throw new Error("Each image must be smaller than 8 MB.");
-    return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error("Could not read image."));r.readAsDataURL(f);});};
+  const profileImageInputMap={avatar:"profile-avatar-file",banner:"profile-banner-file",background:"profile-background-file"};
+  Object.entries(profileImageInputMap).forEach(([kind,id])=>document.getElementById(id)?.addEventListener("change",async e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    try{const data=await openImageEditor(kind,file);if(!data){e.target.value="";return;}profileImageDrafts[kind]=data;applyProfileDraftPreview(kind,data);}
+    catch(error){e.target.value="";document.getElementById("profile-error").textContent=error.message;}
+  }));
   const returnTo = new URLSearchParams(location.search).get("returnTo") || "/";
   const savedLogin = localStorage.getItem("ls_login_identifier") || "";
   const identifierInput = document.getElementById("auth-identifier");
@@ -119,12 +202,15 @@
     if(!displayName){err.textContent="Display name cannot be empty.";return;}
     profileSaveButton.disabled=true;
     profileSaveButton.textContent="Saving...";
-    try{const [avatarData,bannerData,backgroundData]=await Promise.all([fileData("profile-avatar-file"),fileData("profile-banner-file"),fileData("profile-background-file")]);
+    try{
       const data=await api("/api/profile",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         username,email,
         displayName,status:document.getElementById("profile-status").value.trim(),
-        bio:document.getElementById("profile-bio").value.trim(),avatarData,bannerData,backgroundData})});
-      user=data.user;setProfile();["profile-avatar-file","profile-banner-file","profile-background-file"].forEach(id=>document.getElementById(id).value="");ok.textContent="Profile saved.";
+        bio:document.getElementById("profile-bio").value.trim(),
+        avatarData:profileImageDrafts.avatar,
+        bannerData:profileImageDrafts.banner,
+        backgroundData:profileImageDrafts.background})});
+      user=data.user;profileImageDrafts.avatar="";profileImageDrafts.banner="";profileImageDrafts.background="";setProfile();["profile-avatar-file","profile-banner-file","profile-background-file"].forEach(id=>document.getElementById(id).value="");ok.textContent="Profile saved."
     }catch(e2){err.textContent=e2.message;}finally{profileSaveButton.disabled=false;profileSaveButton.textContent="Save Profile";}});
   document.getElementById("switch-accounts-button")?.addEventListener("click",openAccountSwitcher);
   document.getElementById("close-account-switcher")?.addEventListener("click",()=>{switcher.hidden=true;});
