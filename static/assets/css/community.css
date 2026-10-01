@@ -1379,3 +1379,9 @@ body.lunar-community-page > .chat-compose-menu[hidden]{display:none!important;}
   .profile-image-editor-foot>div{width:100%}
   .profile-image-editor-foot button{flex:1}
 }
+
+.profile-image-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.profile-image-action{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:31px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--accent);color:var(--accent-text);font-size:11px;font-weight:700;cursor:pointer;transition:transform .15s ease,filter .15s ease,background .15s ease}
+.profile-image-action:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.profile-image-action.secondary{background:var(--surface-button);color:var(--text);border-color:var(--border)}
+.profile-image-action i{font-size:10px}
