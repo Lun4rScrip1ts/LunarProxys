@@ -268,6 +268,9 @@ function updateMessagesForUser(user) {
       message.replyTo.displayName = user.displayName;
     }
   }
+  for (const message of state.dmMessages) {
+    if (message.senderId === user.id) message.sender = publicFriendUser(user);
+  }
 }
 
 function findMessage(id) {
