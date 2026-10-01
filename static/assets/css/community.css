@@ -1385,3 +1385,15 @@ body.lunar-community-page > .chat-compose-menu[hidden]{display:none!important;}
 .profile-image-action:hover{transform:translateY(-1px);filter:brightness(1.06)}
 .profile-image-action.secondary{background:var(--surface-button);color:var(--text);border-color:var(--border)}
 .profile-image-action i{font-size:10px}
+
+
+/* Profile image editor is a true viewport-level panel, never part of the profile scroll flow. */
+body.profile-image-editor-open{overflow:hidden!important}
+.profile-image-editor{position:fixed!important;inset:0!important;z-index:2147483000!important;width:100vw!important;height:100vh!important;min-width:100vw!important;min-height:100vh!important;display:grid!important;place-items:center!important;padding:16px!important;overflow:hidden!important;isolation:isolate!important}
+.profile-image-editor[hidden]{display:none!important}
+.profile-image-editor-card{position:relative!important;width:min(980px,calc(100vw - 32px))!important;height:min(900px,calc(100vh - 32px))!important;max-height:calc(100vh - 32px)!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+.profile-image-editor-stage{height:min(46vh,440px)!important;min-height:240px!important;flex:0 0 auto!important;overflow:hidden!important}
+.profile-image-editor-stage .cropper-container{max-width:100%!important;max-height:100%!important}
+.profile-image-editor-controls{flex:0 0 auto!important}
+.profile-image-editor-foot{flex:0 0 auto!important}
+@media(max-width:700px){.profile-image-editor{padding:8px!important}.profile-image-editor-card{width:calc(100vw - 16px)!important;height:calc(100vh - 16px)!important;max-height:calc(100vh - 16px)!important}.profile-image-editor-stage{height:38vh!important;min-height:210px!important}.profile-image-editor-foot{padding:10px 14px!important}}
