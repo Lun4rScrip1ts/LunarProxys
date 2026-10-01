@@ -167,6 +167,29 @@
     }
   });
   const profileImageInputMap={avatar:"profile-avatar-file",banner:"profile-banner-file",background:"profile-background-file"};
+  const profileImageCurrentUrl=kind=>profileImageDrafts[kind]||({avatar:user?.avatarUrl,banner:user?.bannerUrl,background:user?.backgroundUrl}[kind]||"");
+  async function editExistingProfileImage(kind){
+    const url=profileImageCurrentUrl(kind);
+    if(!url){
+      document.getElementById(profileImageInputMap[kind])?.click();
+      return;
+    }
+    try{
+      const response=await fetch(url,{credentials:"same-origin"});
+      if(!response.ok)throw new Error("Could not load that image for editing.");
+      const blob=await response.blob();
+      const file=new File([blob],"profile-image."+((blob.type||"image/jpeg").split("/")[1]||"jpg"),{type:blob.type||"image/jpeg"});
+      const data=await openImageEditor(kind,file);
+      if(data){profileImageDrafts[kind]=data;applyProfileDraftPreview(kind,data);}
+    }catch(error){document.getElementById("profile-error").textContent=error.message;}
+  }
+  document.querySelectorAll("[data-profile-image-choose]").forEach(button=>button.addEventListener("click",()=>{
+    document.getElementById(profileImageInputMap[button.dataset.profileImageChoose])?.click();
+  }));
+  document.querySelectorAll("[data-profile-image-edit]").forEach(button=>button.addEventListener("click",()=>{
+    editExistingProfileImage(button.dataset.profileImageEdit);
+  }));
+
   Object.entries(profileImageInputMap).forEach(([kind,id])=>document.getElementById(id)?.addEventListener("change",async e=>{
     const file=e.target.files?.[0];if(!file)return;
     try{const data=await openImageEditor(kind,file);if(!data){e.target.value="";return;}profileImageDrafts[kind]=data;applyProfileDraftPreview(kind,data);}
