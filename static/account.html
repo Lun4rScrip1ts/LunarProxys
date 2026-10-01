@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/assets/css/global.css">
   <link rel="stylesheet" href="/assets/css/nav.css?v=lunar7">
   <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar4">
-  <link rel="stylesheet" href="/assets/css/community.css?v=lunar6">
+  <link rel="stylesheet" href="/assets/css/community.css?v=lunar7">
   <script src="/assets/js/storage.js?v=lunar7"></script>
   <script src="/assets/js/main.js?v=lunar7"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -118,17 +118,29 @@
           <label class="upload-box">
             <span><i class="fa-solid fa-user"></i> Profile picture</span>
             <input id="profile-avatar-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-            <small>PNG, JPG, WEBP, or GIF · max 8 MB</small>
+            <div class="profile-image-actions">
+              <button type="button" class="profile-image-action" data-profile-image-edit="avatar"><i class="fa-solid fa-pen"></i> Edit PFP</button>
+              <button type="button" class="profile-image-action secondary" data-profile-image-choose="avatar"><i class="fa-solid fa-upload"></i> Choose image</button>
+            </div>
+            <small>Crop, move, rotate, stretch, and resize before saving.</small>
           </label>
           <label class="upload-box">
             <span><i class="fa-solid fa-panorama"></i> Profile banner</span>
             <input id="profile-banner-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-            <small>Displayed at the top of your profile.</small>
+            <div class="profile-image-actions">
+              <button type="button" class="profile-image-action" data-profile-image-edit="banner"><i class="fa-solid fa-pen"></i> Edit Banner</button>
+              <button type="button" class="profile-image-action secondary" data-profile-image-choose="banner"><i class="fa-solid fa-upload"></i> Choose image</button>
+            </div>
+            <small>Crop, move, rotate, stretch, and resize before saving.</small>
           </label>
           <label class="upload-box">
             <span><i class="fa-solid fa-image"></i> Profile background</span>
             <input id="profile-background-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-            <small>Used behind your profile card.</small>
+            <div class="profile-image-actions">
+              <button type="button" class="profile-image-action" data-profile-image-edit="background"><i class="fa-solid fa-pen"></i> Edit Background</button>
+              <button type="button" class="profile-image-action secondary" data-profile-image-choose="background"><i class="fa-solid fa-upload"></i> Choose image</button>
+            </div>
+            <small>Crop, move, rotate, stretch, and resize before saving.</small>
           </label>
         </div>
 
