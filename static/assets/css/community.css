@@ -1347,3 +1347,35 @@ body.lunar-community-page > .chat-compose-menu[hidden]{display:none!important;}
 @media(max-width:700px){.lunar-community-page .friends-profile-card{width:100%!important}.lunar-community-page .friends-profile-body{padding:0 18px 22px!important}}
 
 .forgot-password-link,.reset-back-button{border:0;background:transparent;color:#b9aaff;font:inherit;font-size:12px;font-weight:800;cursor:pointer;text-align:center;padding:4px}.forgot-password-link:hover,.reset-back-button:hover{color:#fff;text-decoration:underline}.password-reset-card{animation:passwordResetIn .18s ease}.reset-progress{display:flex;gap:6px;margin:24px 0 18px;padding:4px;border:1px solid var(--lunar-border);border-radius:12px;background:rgba(255,255,255,.025)}.reset-progress span{flex:1;padding:8px 5px;border-radius:8px;text-align:center;color:#6f7889;font-size:10px;font-weight:800}.reset-progress span.active{background:rgba(145,117,255,.14);color:#d8d0ff}.reset-step-form{animation:passwordResetStep .16s ease}.reset-back-button{display:block;margin:10px auto 0}@keyframes passwordResetIn{from{opacity:0;transform:translateY(6px) scale(.99)}to{opacity:1;transform:none}}@keyframes passwordResetStep{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:none}}@media(max-width:600px){.reset-progress span{font-size:8px}.password-reset-card{padding:22px}}
+.profile-image-editor{position:fixed;inset:0;z-index:50000;display:grid;place-items:center;padding:20px;background:rgba(5,7,11,.78);backdrop-filter:blur(10px)}
+.profile-image-editor[hidden]{display:none!important}
+.profile-image-editor-card{width:min(920px,96vw);max-height:94vh;overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:#10131a;color:#f4f5f8;box-shadow:0 28px 90px rgba(0,0,0,.55)}
+.profile-image-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.profile-image-editor-head h2{margin:4px 0 4px;font-size:21px}
+.profile-image-editor-head p{margin:0;color:#8992a5;font-size:12px}
+.profile-image-editor-close{width:34px;height:34px;border:0;border-radius:9px;background:rgba(255,255,255,.06);color:#d8dce5;cursor:pointer}
+.profile-image-editor-stage{height:min(54vh,520px);min-height:300px;padding:14px;background:#080a0f;display:flex;align-items:center;justify-content:center}
+.profile-image-editor-stage img{display:block;max-width:100%}
+.profile-image-editor-controls{padding:14px 20px;border-top:1px solid rgba(255,255,255,.06)}
+.profile-image-editor-tools{display:flex;flex-wrap:wrap;gap:7px}
+.profile-image-editor-tools button{height:34px;padding:0 11px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:#1b1f28;color:#cfd4de;font-size:11px;font-weight:700;cursor:pointer}
+.profile-image-editor-tools button:hover,.profile-image-editor-tools button.active{background:#5865f2;border-color:#6975ff;color:#fff}
+.profile-image-editor-sliders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.profile-image-editor-sliders label{display:grid;gap:6px;color:#9da5b5;font-size:11px;font-weight:700}
+.profile-image-editor-sliders label span{display:flex;justify-content:space-between;gap:8px}
+.profile-image-editor-sliders b{color:#f1f3f7}
+.profile-image-editor-sliders input{width:100%;accent-color:#5865f2}
+.profile-image-editor-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.profile-image-editor-foot>span{color:#7f899c;font-size:10px;line-height:1.45}
+.profile-image-editor-foot>div{display:flex;gap:8px;flex:none}
+.profile-image-editor-foot button{min-height:36px}
+.profile-image-editor .cropper-view-box,.profile-image-editor .cropper-face{border-radius:0}
+@media(max-width:700px){
+  .profile-image-editor{padding:8px}
+  .profile-image-editor-card{width:100%;border-radius:14px}
+  .profile-image-editor-stage{height:45vh;min-height:250px}
+  .profile-image-editor-sliders{grid-template-columns:1fr}
+  .profile-image-editor-foot{align-items:flex-start;flex-direction:column}
+  .profile-image-editor-foot>div{width:100%}
+  .profile-image-editor-foot button{flex:1}
+}
