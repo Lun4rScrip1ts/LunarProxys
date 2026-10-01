@@ -37,13 +37,13 @@
 }
 .lunar-friends-page .friends-app{
   position:fixed!important;
-  top:56px!important;
+  top:62px!important;
   left:50%!important;
   right:auto!important;
   bottom:auto!important;
-  width:min(1280px,calc(100vw - 24px))!important;
-  height:min(720px,calc(100vh - 70px))!important;
-  max-height:calc(100vh - 70px)!important;
+  width:min(1100px,calc(100vw - 40px))!important;
+  height:min(640px,calc(100vh - 78px))!important;
+  max-height:calc(100vh - 78px)!important;
   transform:translateX(-50%)!important;
   display:flex!important;
   overflow:hidden!important;
