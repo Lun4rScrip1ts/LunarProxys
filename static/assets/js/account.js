@@ -20,6 +20,7 @@
     reader.readAsDataURL(file);
   });
   const imageEditorModal=document.getElementById("profile-image-editor");
+  if(imageEditorModal && imageEditorModal.parentElement!==document.body)document.body.appendChild(imageEditorModal);
   const imageEditorImage=document.getElementById("profile-image-editor-image");
   const imageEditorTitle=document.getElementById("profile-image-editor-title");
   const imageEditorSubtitle=document.getElementById("profile-image-editor-subtitle");
@@ -39,6 +40,7 @@
   const closeImageEditor=()=>{
     if(profileImageEditorCropper){profileImageEditorCropper.destroy();profileImageEditorCropper=null;}
     if(imageEditorModal)imageEditorModal.hidden=true;
+    document.body.classList.remove("profile-image-editor-open");
     const resolve=profileImageEditorResolve;profileImageEditorResolve=null;
     if(resolve)resolve(null);
   };
@@ -55,7 +57,7 @@
       imageEditorSubtitle.textContent="Crop, move, rotate, stretch, and resize your "+cfg.label.toLowerCase()+" before uploading.";
       imageEditorStatus.textContent="Drag the image to move it. Resize the crop frame when Crop is active.";
       resetImageEditorControls();
-      imageEditorImage.src=data;imageEditorModal.hidden=false;
+      imageEditorImage.src=data;imageEditorModal.hidden=false;document.body.classList.add("profile-image-editor-open");
       requestAnimationFrame(()=>{profileImageEditorCropper=new Cropper(imageEditorImage,{
         aspectRatio:cfg.aspect,viewMode:1,autoCropArea:.9,background:false,responsive:true,restore:false,guides:true,center:true,highlight:true,
         movable:true,rotatable:true,scalable:true,zoomable:true,zoomOnWheel:true,cropBoxMovable:true,cropBoxResizable:true,
@@ -77,10 +79,16 @@
   document.getElementById("profile-image-editor-save")?.addEventListener("click",()=>{
     if(!profileImageEditorCropper||!profileImageEditorResolve)return;
     const cfg=profileImageEditorConfig[profileImageEditorKind];
-    const canvas=profileImageEditorCropper.getCroppedCanvas({width:cfg.width,height:cfg.height,maxWidth:4096,maxHeight:4096,imageSmoothingEnabled:true,imageSmoothingQuality:"high"});
-    const type=profileImageEditorKind==="avatar"?"image/png":"image/jpeg";
-    const data=canvas.toDataURL(type,type==="image/jpeg"?.92:undefined);
-    const resolve=profileImageEditorResolve;profileImageEditorResolve=null;profileImageEditorCropper.destroy();profileImageEditorCropper=null;imageEditorModal.hidden=true;resolve(data);
+    try{
+      const canvas=profileImageEditorCropper.getCroppedCanvas({width:cfg.width,height:cfg.height,maxWidth:4096,maxHeight:4096,imageSmoothingEnabled:true,imageSmoothingQuality:"high"});
+      if(!canvas)throw new Error("The edited image could not be created.");
+      const type=profileImageEditorKind==="avatar"?"image/png":"image/jpeg";
+      const data=canvas.toDataURL(type,type==="image/jpeg"?.92:undefined);
+      const resolve=profileImageEditorResolve;profileImageEditorResolve=null;
+      profileImageEditorCropper.destroy();profileImageEditorCropper=null;imageEditorModal.hidden=true;document.body.classList.remove("profile-image-editor-open");resolve(data);
+    }catch(error){
+      imageEditorStatus.textContent=error.message||"Could not save the edited image.";
+    }
   });
   const applyProfileDraftPreview=(kind,data)=>{
     if(!data)return;
