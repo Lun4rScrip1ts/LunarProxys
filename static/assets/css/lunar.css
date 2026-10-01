@@ -686,3 +686,8 @@ body:not(#no)::after{
 .account-sticker-item:hover .account-sticker-remove,.account-sticker-remove:focus-visible{opacity:1!important;transform:scale(1)!important}
 .account-sticker-remove:hover:not(:disabled){background:rgba(237,66,69,.92)!important}
 .account-sticker-remove:disabled{opacity:.55!important;cursor:wait!important}
+
+
+/* Background layering: image first, animated effects above it, page UI above both. */
+#lunar-background-image{z-index:0!important}
+#lunar-background-effect{z-index:1!important}
