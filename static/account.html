@@ -12,6 +12,7 @@
   <script src="/assets/js/storage.js?v=lunar7"></script>
   <script src="/assets/js/main.js?v=lunar7"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body class="lunar-community-page">
   <div class="nav-bar"></div>
@@ -168,6 +169,43 @@
       </section>
     </section>
   </main>
-  <script src="/assets/js/account.js?v=lunar5"></script>
+  <div id="profile-image-editor" class="profile-image-editor" hidden>
+    <div class="profile-image-editor-card" role="dialog" aria-modal="true" aria-labelledby="profile-image-editor-title">
+      <div class="profile-image-editor-head">
+        <div>
+          <span class="community-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> IMAGE EDITOR</span>
+          <h2 id="profile-image-editor-title">Edit image</h2>
+          <p id="profile-image-editor-subtitle">Crop, move, rotate, stretch, and resize before uploading.</p>
+        </div>
+        <button type="button" id="profile-image-editor-close" class="profile-image-editor-close" aria-label="Cancel"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="profile-image-editor-stage">
+        <img id="profile-image-editor-image" alt="Image being edited">
+      </div>
+      <div class="profile-image-editor-controls">
+        <div class="profile-image-editor-tools">
+          <button type="button" id="profile-image-editor-crop" class="active"><i class="fa-solid fa-crop-simple"></i> Crop</button>
+          <button type="button" id="profile-image-editor-move"><i class="fa-solid fa-up-down-left-right"></i> Move</button>
+          <button type="button" id="profile-image-editor-rotate-left"><i class="fa-solid fa-rotate-left"></i></button>
+          <button type="button" id="profile-image-editor-rotate-right"><i class="fa-solid fa-rotate-right"></i></button>
+          <button type="button" id="profile-image-editor-reset"><i class="fa-solid fa-arrow-rotate-left"></i> Reset</button>
+        </div>
+        <div class="profile-image-editor-sliders">
+          <label><span>Size <b id="profile-image-editor-size-value">100%</b></span><input id="profile-image-editor-size" type="range" min="25" max="300" value="100"></label>
+          <label><span>Stretch X <b id="profile-image-editor-stretch-x-value">100%</b></span><input id="profile-image-editor-stretch-x" type="range" min="50" max="200" value="100"></label>
+          <label><span>Stretch Y <b id="profile-image-editor-stretch-y-value">100%</b></span><input id="profile-image-editor-stretch-y" type="range" min="50" max="200" value="100"></label>
+        </div>
+      </div>
+      <div class="profile-image-editor-foot">
+        <span id="profile-image-editor-status">Drag the image to move it. Resize the crop frame when Crop is active.</span>
+        <div>
+          <button type="button" id="profile-image-editor-cancel" class="community-secondary">Cancel</button>
+          <button type="button" id="profile-image-editor-save" class="community-primary"><i class="fa-solid fa-check"></i> Save Image</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <script src="/assets/js/account.js?v=lunar6"></script>
 </body>
 </html>
