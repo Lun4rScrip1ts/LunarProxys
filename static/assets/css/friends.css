@@ -1311,3 +1311,8 @@
 .chat-role-badge{display:inline-flex;align-items:center;margin-left:3px;padding:1px 3px;border-radius:3px;font-size:6px;font-weight:800;line-height:1.1;letter-spacing:.04em;vertical-align:middle;text-transform:uppercase}
 .chat-role-badge.owner{background:rgba(255,193,7,.14);color:#ffd76a;border:1px solid rgba(255,193,7,.24)}
 .chat-role-badge.co-owner{background:rgba(145,117,255,.14);color:#c8baff;border:1px solid rgba(145,117,255,.24)}
+
+.lunar-friends-page .friend-avatar{position:relative!important;display:grid!important;place-items:center!important;flex:0 0 32px!important;width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;min-height:32px!important;max-height:32px!important;overflow:hidden!important;box-sizing:border-box!important}
+.lunar-friends-page .friend-avatar img{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important}
+.lunar-friends-page .mini-avatar,.lunar-friends-page .large-avatar,.lunar-friends-page .friends-profile-avatar{position:relative!important;overflow:hidden!important;box-sizing:border-box!important}
+.lunar-friends-page .mini-avatar img,.lunar-friends-page .large-avatar img,.lunar-friends-page .friends-profile-avatar img{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important}
