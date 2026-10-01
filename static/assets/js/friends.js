@@ -896,6 +896,21 @@ dmImageButton?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation
 dmStickerButton?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openDmStickers();});
 $("friends-profile-close").onclick=closeUserProfile;
 $("friends-profile-modal").addEventListener("click",e=>{if(e.target===$("friends-profile-modal"))closeUserProfile();});
+let realtimeBusy=false;
+async function refreshFriendsRealtime(){
+  if(realtimeBusy||document.hidden)return;
+  realtimeBusy=true;
+  try{
+    await bootstrap();
+    if(active){
+      await loadMessages(false);
+      await api("/api/friends/dms/"+encodeURIComponent(active.id)+"/read",{method:"POST"}).catch(()=>{});
+    }
+  }catch{}
+  finally{realtimeBusy=false;}
+}
+setInterval(refreshFriendsRealtime,2500);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshFriendsRealtime();});
 const requestedProfile=new URLSearchParams(location.search).get("user");
 if(requestedProfile){
   setTimeout(()=>openUserProfile(requestedProfile),300);
