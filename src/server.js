@@ -13,6 +13,7 @@ import { mountAnalytics } from "./analytics.js";
 import { mountGhGames } from "./games.js";
 import { injectVersionInfo, resolveVersionInfo } from "./version.js";
 import communityRouter from "./community.js";
+import memberCounterRouter from "./member-counter.js";
 
 console.log(chalk.yellow("🚀 Starting server..."));
 
@@ -24,7 +25,6 @@ const STATIC_DIR = path.join(__dirname, "static");
 
 const VENDOR_MAP_PATH = path.join(DIST_DIR, ".runtime", "vendor-map.cjs");
 const vendorMap = existsSync(VENDOR_MAP_PATH) ? require(VENDOR_MAP_PATH) : null;
-
 const SERVE_DIR = vendorMap ? DIST_DIR : STATIC_DIR;
 console.log(chalk.blue(`Serving from ${path.relative(__dirname, SERVE_DIR)}/`));
 if (vendorMap) {
@@ -62,6 +62,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: "12mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/api", generalLimiter, memberCounterRouter);
 app.use("/api", generalLimiter, communityRouter);
 
 const communityDataDir = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(process.cwd(), "data");
@@ -117,6 +118,7 @@ const routes = [
   { path: "/apps", file: "apps.html" },
   { path: "/games", file: "games.html" },
   { path: "/movies", file: "movies.html" },
+  { path: "/spotify", file: "spotify.html" },
   { path: "/play.html", file: "games.html" },
   { path: "/settings", file: "settings.html" },
   { path: "/chat", file: "chat.html" },
@@ -127,9 +129,6 @@ const routes = [
   { path: "/", file: "index.html" },
 ];
 
-// In dist the build randomizes the page routes and records them in the vendor map, so serve each
-// page at its opaque path (build id vendorMap.routes). "/" and "/play.html" have no entry and stay
-// clean. In static/dev vendorMap is null, so the clean routes are used as-is.
 routes.forEach(route => {
   const servePath = vendorMap?.routes?.[route.path] || route.path;
   app.get(servePath, generalLimiter, (_req, res) => {
