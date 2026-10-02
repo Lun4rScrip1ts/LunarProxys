@@ -1,0 +1,130 @@
+/* Lunar Motion System — clean, restrained motion across the site. */
+:root{
+  --lunar-motion-fast:150ms;
+  --lunar-motion-base:220ms;
+  --lunar-motion-slow:360ms;
+  --lunar-motion-ease:cubic-bezier(.22,.8,.2,1);
+  --lunar-motion-spring:cubic-bezier(.2,.9,.25,1.15);
+}
+
+html{scroll-behavior:smooth}
+body{opacity:0;animation:lunarPageIn 360ms var(--lunar-motion-ease) forwards}
+
+@keyframes lunarPageIn{from{opacity:0}to{opacity:1}}
+@keyframes lunarRiseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes lunarSoftScale{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+@keyframes lunarNavIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes lunarPop{0%{transform:scale(.97)}60%{transform:scale(1.015)}100%{transform:scale(1)}}
+
+/* Shared navigation */
+.nav-bar{
+  animation:lunarNavIn 360ms var(--lunar-motion-ease) both;
+  will-change:transform,opacity;
+}
+.navbar-link{
+  transition:
+    color var(--lunar-motion-fast) ease,
+    background-color var(--lunar-motion-fast) ease,
+    border-color var(--lunar-motion-fast) ease,
+    transform var(--lunar-motion-fast) var(--lunar-motion-spring),
+    box-shadow var(--lunar-motion-base) ease;
+}
+.navbar-link:hover{transform:translateY(-1px)}
+.navbar-link:active{transform:translateY(0) scale(.97)!important}
+.navbar-link .navbar-icon{transition:transform var(--lunar-motion-base) var(--lunar-motion-spring)}
+.navbar-link:hover .navbar-icon{transform:scale(1.08)}
+
+/* Page-level content entrance */
+.main,.settings-container,#apps-container,.input-c,.lunar-home .main{
+  animation:lunarRiseIn 430ms var(--lunar-motion-ease) 50ms both;
+}
+
+/* Cards and tiles enter subtly instead of popping in. */
+.settings-card,.column,.support-card,.cash-card,.donate-hero,.donate-panel,.donate-bottom,
+.game-card,.movie-card,.app-card,.friend-card,.profile-card,.chat-card,.feature-card{
+  animation:lunarRiseIn 360ms var(--lunar-motion-ease) both;
+  transition:
+    transform var(--lunar-motion-base) var(--lunar-motion-ease),
+    opacity var(--lunar-motion-base) ease,
+    box-shadow var(--lunar-motion-base) ease,
+    border-color var(--lunar-motion-base) ease,
+    background-color var(--lunar-motion-base) ease;
+}
+
+/* A small stagger gives grids a composed feel without making pages feel slow. */
+.settings-card:nth-child(2),.column:nth-child(2),.game-card:nth-child(2),.movie-card:nth-child(2),.app-card:nth-child(2),.friend-card:nth-child(2){animation-delay:70ms}
+.settings-card:nth-child(3),.column:nth-child(3),.game-card:nth-child(3),.movie-card:nth-child(3),.app-card:nth-child(3),.friend-card:nth-child(3){animation-delay:110ms}
+.settings-card:nth-child(4),.column:nth-child(4),.game-card:nth-child(4),.movie-card:nth-child(4),.app-card:nth-child(4),.friend-card:nth-child(4){animation-delay:150ms}
+.settings-card:nth-child(n+5),.column:nth-child(n+5),.game-card:nth-child(n+5),.movie-card:nth-child(n+5),.app-card:nth-child(n+5),.friend-card:nth-child(n+5){animation-delay:185ms}
+
+/* Interactive surfaces: no exaggerated bouncing or layout jumps. */
+button,.key-button,.lunar-select-trigger,.background-file-label,.donate-action,
+input,select,textarea,a[role="button"]{
+  transition:
+    transform var(--lunar-motion-fast) var(--lunar-motion-spring),
+    box-shadow var(--lunar-motion-base) ease,
+    border-color var(--lunar-motion-base) ease,
+    background-color var(--lunar-motion-base) ease,
+    color var(--lunar-motion-fast) ease,
+    opacity var(--lunar-motion-fast) ease;
+}
+button:hover,.key-button:hover,.lunar-select-trigger:hover,.donate-action:hover,a[role="button"]:hover{transform:translateY(-1px)}
+button:active,.key-button:active,.lunar-select-trigger:active,.donate-action:active,a[role="button"]:active{transform:translateY(0) scale(.975)!important}
+button:focus-visible,.key-button:focus-visible,.lunar-select-trigger:focus-visible,.donate-action:focus-visible,a[role="button"]:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--accent) 70%,white 30%);
+  outline-offset:3px;
+}
+
+/* Inputs get a calm focus transition rather than a sudden glow. */
+input,select,textarea{transition:box-shadow var(--lunar-motion-base) ease,border-color var(--lunar-motion-base) ease,background-color var(--lunar-motion-base) ease,transform var(--lunar-motion-fast) ease}
+input:focus,select:focus,textarea:focus{transform:translateY(-1px)}
+
+/* Dropdowns */
+.lunar-select-menu{transform-origin:top center}
+.lunar-select.is-open .lunar-select-menu{animation:lunarSoftScale 180ms var(--lunar-motion-ease) both}
+.lunar-select-option{transition:background-color var(--lunar-motion-fast) ease,transform var(--lunar-motion-fast) var(--lunar-motion-spring),color var(--lunar-motion-fast) ease}
+.lunar-select-option:hover{transform:translateX(2px)!important}
+
+/* Common overlays/modals/popups. */
+.modal,.modal-content,.popup,.popup-content,.overlay-panel,.profile-panel,.sticker-panel,.gif-panel,
+#lunar-auth-panel,#lunar-auth-gate .lunar-auth-panel,.lunar-context-menu{
+  animation:lunarSoftScale 240ms var(--lunar-motion-ease) both;
+}
+
+/* Images and media */
+img:not(.navbar-icon){transition:transform var(--lunar-motion-slow) var(--lunar-motion-ease),filter var(--lunar-motion-base) ease,opacity var(--lunar-motion-base) ease}
+.column img:hover,.game-card img:hover,.movie-card img:hover,.app-card img:hover,.friend-card img:hover{transform:scale(1.018)}
+
+/* Chat/friend surfaces */
+.message,.chat-message,.message-row,.friend-item,.conversation-item,.reaction,.sticker-item,.gif-item{
+  transition:background-color var(--lunar-motion-fast) ease,transform var(--lunar-motion-fast) var(--lunar-motion-spring),opacity var(--lunar-motion-fast) ease,box-shadow var(--lunar-motion-base) ease;
+}
+.message:hover,.chat-message:hover,.message-row:hover,.friend-item:hover,.conversation-item:hover{transform:translateX(2px)}
+
+/* Toasts and transient status UI */
+.toast,.notification,.alert,.lunar-toast{animation:lunarRiseIn 230ms var(--lunar-motion-ease) both}
+
+/* Page exit hook used by the motion controller. */
+body.lunar-page-leaving{animation:lunarPageOut 180ms ease both!important;pointer-events:none}
+@keyframes lunarPageOut{from{opacity:1}to{opacity:0}}
+
+/* Respect both the OS preference and Lunar's settings. */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  body,.nav-bar,.main,.settings-container,#apps-container,.input-c,.lunar-home .main,
+  .settings-card,.column,.support-card,.cash-card,.donate-hero,.donate-panel,.donate-bottom,
+  .game-card,.movie-card,.app-card,.friend-card,.profile-card,.chat-card,.feature-card,
+  .modal,.modal-content,.popup,.popup-content,.overlay-panel,.profile-panel,.sticker-panel,.gif-panel,
+  .toast,.notification,.alert,.lunar-toast{animation:none!important}
+  *,*::before,*::after{transition-duration:0.01ms!important;scroll-behavior:auto!important}
+}
+
+body.reduce-interface-motion *,body.reduce-interface-motion *::before,body.reduce-interface-motion *::after{
+  animation:none!important;
+  transition-duration:0.01ms!important;
+}
+body.reduce-interface-effects .lunar-motion-decorative{display:none!important}
+body.disable-interface-effects .lunar-motion-decorative{display:none!important}
+
+/* Keep motion off when the user explicitly disables both animation and visual effects. */
+body.reduce-interface-motion,body.disable-interface-effects{animation:none!important}
