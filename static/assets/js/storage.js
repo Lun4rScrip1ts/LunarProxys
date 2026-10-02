@@ -153,3 +153,19 @@ window.addEventListener("contextmenu", event => {
   script.async = true;
   document.head.appendChild(script);
 })();
+
+// Global glass dropdowns: every native <select> on Lunar pages gets the same
+// readable glass menu while its native control remains the source of truth for forms.
+(() => {
+  if (document.getElementById("lunar-dropdown-css")) return;
+  const css = document.createElement("link");
+  css.id = "lunar-dropdown-css";
+  css.rel = "stylesheet";
+  css.href = "/assets/css/lunar-dropdowns.css?v=lunar1";
+  document.head.appendChild(css);
+  const script = document.createElement("script");
+  script.id = "lunar-dropdown-script";
+  script.src = "/assets/js/lunar-dropdowns.js?v=lunar1";
+  script.async = true;
+  document.head.appendChild(script);
+})();
