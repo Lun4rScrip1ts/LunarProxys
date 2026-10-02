@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Spotify · Lunar</title>
+  <link rel="stylesheet" href="/assets/css/global.css">
+  <link rel="stylesheet" href="/assets/css/nav.css?v=lunar8">
+  <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar9">
+  <link rel="stylesheet" href="/assets/css/spotify.css?v=lunar1">
+  <script src="/assets/js/storage.js?v=lunar8"></script>
+  <script src="/assets/js/main.js?v=lunar15"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="lunar-spotify-page">
+  <div class="nav-bar"></div>
+
+  <main class="spotify-shell">
+    <section class="spotify-hero">
+      <div class="spotify-hero-copy">
+        <span class="spotify-kicker"><i class="fa-brands fa-spotify"></i> LUNAR MUSIC</span>
+        <h1>Listen to music.</h1>
+        <p>Open Spotify playlists, albums, artists, or tracks right inside Lunar.</p>
+      </div>
+      <div class="spotify-orb" aria-hidden="true"><i class="fa-brands fa-spotify"></i></div>
+    </section>
+
+    <section class="spotify-workspace">
+      <div class="spotify-library">
+        <div class="spotify-section-title">
+          <div><span>Library</span><small>Choose something to play</small></div>
+          <button id="open-spotify" class="spotify-secondary" type="button"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Spotify</button>
+        </div>
+
+        <div class="spotify-presets">
+          <button class="spotify-preset active" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M">
+            <span class="preset-icon"><i class="fa-solid fa-music"></i></span><span><strong>Today's Top Hits</strong><small>Spotify playlist</small></span>
+          </button>
+          <button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DX4JAvHpjipBk">
+            <span class="preset-icon"><i class="fa-solid fa-fire"></i></span><span><strong>RapCaviar</strong><small>Spotify playlist</small></span>
+          </button>
+          <button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd">
+            <span class="preset-icon"><i class="fa-solid fa-headphones"></i></span><span><strong>Rap Workout</strong><small>Spotify playlist</small></span>
+          </button>
+        </div>
+
+        <div class="spotify-url-box">
+          <label for="spotify-url">Play a Spotify link</label>
+          <div class="spotify-url-row">
+            <input id="spotify-url" type="url" placeholder="Paste a Spotify track, album, artist, or playlist link…" autocomplete="off">
+            <button id="load-spotify" class="spotify-primary" type="button"><i class="fa-solid fa-play"></i> Load</button>
+          </div>
+          <p id="spotify-status" role="status">Spotify embeds stay inside Lunar so you can keep browsing.</p>
+        </div>
+      </div>
+
+      <section class="spotify-player-card" aria-label="Spotify player">
+        <div class="spotify-player-head">
+          <div><span>Now playing</span><small id="spotify-current-label">Today's Top Hits</small></div>
+          <i class="fa-brands fa-spotify"></i>
+        </div>
+        <div class="spotify-frame-wrap" id="spotify-frame-wrap">
+          <iframe id="spotify-frame" title="Spotify player" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0" width="100%" height="100%" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          <div class="spotify-empty" id="spotify-empty" hidden><i class="fa-brands fa-spotify"></i><strong>Choose something to play</strong><span>Paste a Spotify link or select a playlist.</span></div>
+        </div>
+      </section>
+    </section>
+
+    <p class="spotify-note"><i class="fa-solid fa-circle-info"></i> Playback is provided by Spotify's official embedded player. Availability and playback controls are determined by Spotify.</p>
+  </main>
+
+  <script src="/assets/js/spotify.js?v=lunar1"></script>
+  <script src="/assets/js/lunar.js"></script>
+</body>
+</html>
