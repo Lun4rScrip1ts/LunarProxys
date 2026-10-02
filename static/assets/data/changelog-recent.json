@@ -1,0 +1,63 @@
+{
+  "updatedAt": "2026-10-02T22:00:00-04:00",
+  "entries": [
+    {
+      "id": "2026-10-02-spotify-persistent-player",
+      "timestamp": "2026-10-02T22:00:00-04:00",
+      "title": "Spotify Persistent Player & Queue",
+      "tag": "Major Update",
+      "items": [
+        "Added a persistent Spotify mini-player that follows you across Lunar pages until you press X.",
+        "Improved the drag behavior and saved the player's screen position so it stays where you left it.",
+        "Added Spotify iFrame API playback tracking so the current song position is saved and restored when returning to Lunar.",
+        "Added automatic next-song playback for songs started from a Lunar playlist queue.",
+        "Restored the browser-window popout using a dedicated Spotify player page while keeping the normal URL bar and window controls.",
+        "Connected Spotify playlist song controls to the persistent player instead of the old page-only player."
+      ]
+    },
+    {
+      "id": "2026-10-02-spotify-playlist-detail",
+      "timestamp": "2026-10-02T21:45:00-04:00",
+      "title": "Spotify Playlist Song View",
+      "tag": "Feature",
+      "items": [
+        "Clicking a Lunar playlist now opens the songs saved inside it.",
+        "Added individual Play controls for playlist songs.",
+        "Added per-song remove controls while keeping the existing Lunar playlist system."
+      ]
+    },
+    {
+      "id": "2026-10-02-member-counter-auto",
+      "timestamp": "2026-10-02T21:30:00-04:00",
+      "title": "Automatic Home Member Counters",
+      "tag": "Fix",
+      "items": [
+        "Removed manual member-counter editing from the home page.",
+        "Online, offline, and total member counts now come directly from the server and refresh automatically.",
+        "Removed the manual reset/edit behavior so the counters remain read-only."
+      ]
+    },
+    {
+      "id": "2026-10-02-friends-dm-avatars",
+      "timestamp": "2026-10-02T21:15:00-04:00",
+      "title": "Friends DM Avatar Fix",
+      "tag": "Fix",
+      "items": [
+        "Improved avatar loading for Friends direct-message messages.",
+        "Added fallback avatar lookup and observation for newly rendered DM messages.",
+        "Kept the existing Friends profile and message layout intact."
+      ]
+    },
+    {
+      "id": "2026-10-02-interface-motion",
+      "timestamp": "2026-10-02T21:00:00-04:00",
+      "title": "Interface Motion & Effects Controls",
+      "tag": "UI",
+      "items": [
+        "Expanded the interface appearance controls for animations and visual effects.",
+        "Turning both animations and visual effects off now provides a much lighter interface for lower-end devices.",
+        "Updated motion handling so page transitions and visual effects respect the selected settings."
+      ]
+    }
+  ]
+}
