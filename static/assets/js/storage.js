@@ -123,18 +123,16 @@ window.addEventListener("contextmenu", event => {
   };
 })();
 
-// storage.js is loaded by Lunar pages before main.js. Loading the player here keeps it
-// available on every page without changing the synchronous settings API above.
 (() => {
   const loadGlobalSpotifyPlayer = () => {
     if (document.getElementById("lunar-global-spotify-css")) return;
     const css = document.createElement("link");
     css.id = "lunar-global-spotify-css";
     css.rel = "stylesheet";
-    css.href = "/assets/css/spotify-global-player.css?v=lunar1";
+    css.href = "/assets/css/spotify-global-player.css?v=lunar2";
     document.head.appendChild(css);
     const script = document.createElement("script");
-    script.src = "/assets/js/spotify-global-player.js?v=lunar1";
+    script.src = "/assets/js/spotify-global-player.js?v=lunar2";
     script.async = true;
     document.head.appendChild(script);
   };
@@ -142,9 +140,6 @@ window.addEventListener("contextmenu", event => {
   else loadGlobalSpotifyPlayer();
 })();
 
-// Keep already-open Lunar tabs aware of deployments. The checker compares the
-// running deployment against Railway's current deployment ID and refreshes the
-// same route automatically when a newer deployment is detected.
 (() => {
   if (document.getElementById("lunar-update-checker")) return;
   const script = document.createElement("script");
@@ -154,18 +149,16 @@ window.addEventListener("contextmenu", event => {
   document.head.appendChild(script);
 })();
 
-// Global glass dropdowns: every native <select> on Lunar pages gets the same
-// readable glass menu while its native control remains the source of truth for forms.
 (() => {
   if (document.getElementById("lunar-dropdown-css")) return;
   const css = document.createElement("link");
   css.id = "lunar-dropdown-css";
   css.rel = "stylesheet";
-  css.href = "/assets/css/lunar-dropdowns.css?v=lunar1";
+  css.href = "/assets/css/lunar-dropdowns.css?v=lunar2";
   document.head.appendChild(css);
   const script = document.createElement("script");
   script.id = "lunar-dropdown-script";
-  script.src = "/assets/js/lunar-dropdowns.js?v=lunar1";
+  script.src = "/assets/js/lunar-dropdowns.js?v=lunar2";
   script.async = true;
   document.head.appendChild(script);
 })();
