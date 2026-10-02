@@ -34,68 +34,47 @@
     }
     if (splash) splash.textContent = "A cleaner way to explore the web.";
   };
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyLunarHome);
-  else applyLunarHome();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyLunarHome); else applyLunarHome();
   window.setTimeout(applyLunarHome, 150);
 
-  let memberRequestInFlight = false;
-  let memberTimer = null;
+  let memberRequestInFlight = false, memberTimer = null;
   const counterIds = { online: "lunar-online-count", offline: "lunar-offline-count", members: "lunar-member-count" };
-
   const setCounterText = (data) => {
     for (const [key, id] of Object.entries(counterIds)) {
-      const el = document.getElementById(id);
-      if (!el) continue;
+      const el = document.getElementById(id); if (!el) continue;
       el.textContent = Number(data[key] || 0).toLocaleString();
-      el.removeAttribute("contenteditable");
-      el.removeAttribute("role");
-      el.removeAttribute("aria-label");
-      el.removeAttribute("title");
+      el.removeAttribute("contenteditable"); el.removeAttribute("role"); el.removeAttribute("aria-label"); el.removeAttribute("title");
     }
-    const reset = document.getElementById("lunar-counter-reset");
-    if (reset) reset.hidden = true;
+    const reset = document.getElementById("lunar-counter-reset"); if (reset) reset.hidden = true;
     document.getElementById("lunar-member-status")?.classList.remove("counter-editor");
   };
-
   const updateMemberStatus = async () => {
-    const status = document.getElementById("lunar-member-status");
-    if (!status || memberRequestInFlight) return;
+    const status = document.getElementById("lunar-member-status"); if (!status || memberRequestInFlight) return;
     memberRequestInFlight = true;
     try {
       const response = await fetch("/api/member-display", { cache: "no-store", credentials: "same-origin", headers: { "Cache-Control": "no-cache" } });
-      if (!response.ok) return;
-      const data = await response.json();
-      setCounterText(data);
-    } catch {
-      // Keep the last known values during temporary network failures.
-    } finally {
-      memberRequestInFlight = false;
-    }
+      if (!response.ok) return; setCounterText(await response.json());
+    } catch {} finally { memberRequestInFlight = false; }
   };
-
-  const startMemberUpdates = () => {
-    if (memberTimer) window.clearInterval(memberTimer);
-    updateMemberStatus();
-    memberTimer = window.setInterval(updateMemberStatus, 5000);
-  };
-
+  const startMemberUpdates = () => { if (memberTimer) clearInterval(memberTimer); updateMemberStatus(); memberTimer = setInterval(updateMemberStatus, 5000); };
   startMemberUpdates();
   document.addEventListener("visibilitychange", () => { if (!document.hidden) updateMemberStatus(); });
   window.addEventListener("focus", updateMemberStatus);
 
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char]);
   const loadChangelog = async () => {
-    const list = document.getElementById("lunar-changelog-list");
-    if (!list) return;
+    const list = document.getElementById("lunar-changelog-list"); if (!list) return;
     try {
-      const response = await fetch("/assets/data/changelog.json?v=lunar2", { cache: "no-store" });
-      if (!response.ok) throw new Error("Could not load updates.");
-      const data = await response.json();
-      const entries = Array.isArray(data.entries) ? data.entries : [];
+      const [baseResult, recentResult] = await Promise.allSettled([
+        fetch("/assets/data/changelog.json?v=lunar2", { cache: "no-store" }).then(r => r.ok ? r.json() : {entries:[]}),
+        fetch("/assets/data/changelog-recent.json?v=lunar1", { cache: "no-store" }).then(r => r.ok ? r.json() : {entries:[]})
+      ]);
+      const base = baseResult.status === "fulfilled" && Array.isArray(baseResult.value.entries) ? baseResult.value.entries : [];
+      const recent = recentResult.status === "fulfilled" && Array.isArray(recentResult.value.entries) ? recentResult.value.entries : [];
+      const entries = [...recent, ...base].sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       list.innerHTML = entries.map((entry, index) => {
         const date = new Date(entry.timestamp);
-        const formatted = Number.isNaN(date.getTime()) ? escapeHtml(entry.timestamp) : date.toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+        const formatted = Number.isNaN(date.getTime()) ? escapeHtml(entry.timestamp) : date.toLocaleString([], { month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit" });
         const items = Array.isArray(entry.items) ? entry.items : [];
         return '<article class="lunar-changelog-entry ' + (index === 0 ? "latest" : "") + '"><div class="lunar-changelog-entry-head"><div class="lunar-changelog-entry-title"><i class="fa-solid fa-satellite-dish"></i><span>' + escapeHtml(entry.title || "Lunar Update") + '</span></div><span class="lunar-changelog-tag">' + escapeHtml(entry.tag || "Update") + '</span></div><div class="lunar-changelog-time">' + formatted + '</div><ul class="lunar-changelog-items">' + items.map(item => '<li>' + escapeHtml(item) + '</li>').join("") + '</ul></article>';
       }).join("") || '<div class="lunar-changelog-loading">No updates have been posted yet.</div>';
