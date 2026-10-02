@@ -47,17 +47,20 @@ async function readOverrides() {
   return readJson(COUNTER_FILE, { enabled: false, online: null, offline: null, members: null });
 }
 
-router.get("/member-display", async (req, res) => {
-  const actual = await actualCounts();
-  const overrides = await readOverrides();
-  // Old counter files may contain 0/0/0 from the previous implementation.
-  // Treat those as unset unless an explicit override session was saved.
+function displayCounts(actual, overrides) {
   const enabled = overrides.enabled === true;
   const value = key => enabled && Number.isFinite(Number(overrides[key])) && Number(overrides[key]) >= 0
     ? Math.floor(Number(overrides[key]))
     : actual[key];
+  return { online: value("online"), offline: value("offline"), members: value("members") };
+}
+
+router.get("/member-display", async (req, res) => {
+  const actual = await actualCounts();
+  const overrides = await readOverrides();
+  const displayed = displayCounts(actual, overrides);
   res.set("Cache-Control", "no-store");
-  res.json({ online: value("online"), offline: value("offline"), members: value("members"), actual, canEdit: await authorized(req) });
+  res.json({ ...displayed, actual, canEdit: await authorized(req) });
 });
 
 router.post("/member-display", async (req, res) => {
@@ -74,8 +77,9 @@ router.post("/member-display", async (req, res) => {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(COUNTER_FILE, JSON.stringify(next, null, 2), "utf8");
   const actual = await actualCounts();
+  const displayed = displayCounts(actual, next);
   res.set("Cache-Control", "no-store");
-  res.json({ ok: true, ...next, actual });
+  res.json({ ok: true, ...displayed, actual, canEdit: true });
 });
 
 router.post("/member-display/reset", async (req, res) => {
@@ -84,7 +88,7 @@ router.post("/member-display/reset", async (req, res) => {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(COUNTER_FILE, JSON.stringify({ enabled: false, online: null, offline: null, members: null }, null, 2), "utf8");
   res.set("Cache-Control", "no-store");
-  res.json({ ok: true, ...actual });
+  res.json({ ok: true, ...actual, canEdit: true });
 });
 
 export default router;
