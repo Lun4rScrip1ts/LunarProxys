@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/assets/css/spotify.css?v=lunar4">
   <link rel="stylesheet" href="/assets/css/spotify-player-fix.css?v=lunar2">
   <link rel="stylesheet" href="/assets/css/spotify-playlist-detail.css?v=lunar1">
-  <script src="/assets/js/storage.js?v=lunar8"></script>
+  <script src="/assets/js/storage.js?v=lunar9"></script>
   <script src="/assets/js/main.js?v=lunar15"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -26,81 +26,22 @@
       </div>
       <div class="spotify-orb" aria-hidden="true"><i class="fa-brands fa-spotify"></i></div>
     </section>
-
     <section class="spotify-search-card" aria-label="Spotify search">
-      <div class="spotify-search-heading">
-        <div><span>Search Spotify</span><small>Find tracks, artists, albums, and playlists</small></div>
-        <div class="spotify-heading-actions">
-          <button id="spotify-create-playlist" class="spotify-secondary" type="button"><i class="fa-solid fa-plus"></i> New playlist</button>
-          <button id="open-spotify" class="spotify-secondary" type="button"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Spotify</button>
-        </div>
-      </div>
-      <div class="spotify-search-row">
-        <div class="spotify-search-input-wrap">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input id="spotify-search" type="search" placeholder="Search a song, artist, album, or playlist…" autocomplete="off" spellcheck="false">
-          <button id="spotify-clear" class="spotify-clear" type="button" aria-label="Clear search" hidden><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <button id="spotify-search-button" class="spotify-primary" type="button"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
-      </div>
-      <div class="spotify-filter-row" role="group" aria-label="Search types">
-        <button class="spotify-filter active" type="button" data-type="track">Songs</button>
-        <button class="spotify-filter" type="button" data-type="artist">Artists</button>
-        <button class="spotify-filter" type="button" data-type="album">Albums</button>
-        <button class="spotify-filter" type="button" data-type="playlist">Playlists</button>
-      </div>
+      <div class="spotify-search-heading"><div><span>Search Spotify</span><small>Find tracks, artists, albums, and playlists</small></div><div class="spotify-heading-actions"><button id="spotify-create-playlist" class="spotify-secondary" type="button"><i class="fa-solid fa-plus"></i> New playlist</button><button id="open-spotify" class="spotify-secondary" type="button"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Spotify</button></div></div>
+      <div class="spotify-search-row"><div class="spotify-search-input-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="spotify-search" type="search" placeholder="Search a song, artist, album, or playlist…" autocomplete="off" spellcheck="false"><button id="spotify-clear" class="spotify-clear" type="button" aria-label="Clear search" hidden><i class="fa-solid fa-xmark"></i></button></div><button id="spotify-search-button" class="spotify-primary" type="button"><i class="fa-solid fa-magnifying-glass"></i> Search</button></div>
+      <div class="spotify-filter-row" role="group" aria-label="Search types"><button class="spotify-filter active" type="button" data-type="track">Songs</button><button class="spotify-filter" type="button" data-type="artist">Artists</button><button class="spotify-filter" type="button" data-type="album">Albums</button><button class="spotify-filter" type="button" data-type="playlist">Playlists</button></div>
       <p id="spotify-status" class="spotify-status" role="status">Try searching for a song or artist.</p>
     </section>
-
-    <section class="spotify-results-section">
-      <div class="spotify-results-heading"><div><span id="spotify-results-title">Discover</span><small id="spotify-results-count">Search results will appear here</small></div></div>
-      <div id="spotify-results" class="spotify-results"><div class="spotify-results-empty"><i class="fa-solid fa-music"></i><strong>Search the Spotify catalog</strong><span>Your results will show up here.</span></div></div>
-    </section>
-
-    <section class="spotify-library-card">
-      <div class="spotify-section-title"><div><span>Your Lunar playlists</span><small>Playlists are saved to your Lunar account</small></div><button id="spotify-refresh-playlists" class="spotify-secondary" type="button"><i class="fa-solid fa-rotate"></i></button></div>
-      <div id="spotify-playlists" class="spotify-playlists"><div class="spotify-results-empty"><i class="fa-solid fa-list-music"></i><strong>Loading playlists…</strong></div></div>
-    </section>
-
-    <section class="spotify-library-card">
-      <div class="spotify-section-title"><div><span>Quick picks</span><small>Jump into popular Spotify playlists</small></div></div>
-      <div class="spotify-presets">
-        <button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" data-label="Today's Top Hits"><span class="preset-icon"><i class="fa-solid fa-music"></i></span><span><strong>Today's Top Hits</strong><small>Spotify playlist</small></span></button>
-        <button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DX4JAvHpjipBk" data-label="RapCaviar"><span class="preset-icon"><i class="fa-solid fa-fire"></i></span><span><strong>RapCaviar</strong><small>Spotify playlist</small></span></button>
-        <button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd" data-label="Rap Workout"><span class="preset-icon"><i class="fa-solid fa-headphones"></i></span><span><strong>Rap Workout</strong><small>Spotify playlist</small></span></button>
-      </div>
-    </section>
-
+    <section class="spotify-results-section"><div class="spotify-results-heading"><div><span id="spotify-results-title">Discover</span><small id="spotify-results-count">Search results will appear here</small></div></div><div id="spotify-results" class="spotify-results"><div class="spotify-results-empty"><i class="fa-solid fa-music"></i><strong>Search the Spotify catalog</strong><span>Your results will show up here.</span></div></div></section>
+    <section class="spotify-library-card"><div class="spotify-section-title"><div><span>Your Lunar playlists</span><small>Playlists are saved to your Lunar account</small></div><button id="spotify-refresh-playlists" class="spotify-secondary" type="button"><i class="fa-solid fa-rotate"></i></button></div><div id="spotify-playlists" class="spotify-playlists"><div class="spotify-results-empty"><i class="fa-solid fa-list-music"></i><strong>Loading playlists…</strong></div></div></section>
+    <section class="spotify-library-card"><div class="spotify-section-title"><div><span>Quick picks</span><small>Jump into popular Spotify playlists</small></div></div><div class="spotify-presets"><button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" data-label="Today's Top Hits"><span class="preset-icon"><i class="fa-solid fa-music"></i></span><span><strong>Today's Top Hits</strong><small>Spotify playlist</small></span></button><button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DX4JAvHpjipBk" data-label="RapCaviar"><span class="preset-icon"><i class="fa-solid fa-fire"></i></span><span><strong>RapCaviar</strong><small>Spotify playlist</small></span></button><button class="spotify-preset" type="button" data-spotify="https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd" data-label="Rap Workout"><span class="preset-icon"><i class="fa-solid fa-headphones"></i></span><span><strong>Rap Workout</strong><small>Spotify playlist</small></span></button></div></section>
     <p class="spotify-note"><i class="fa-solid fa-circle-info"></i> Playback uses Spotify's official embedded player. Its built-in controls handle volume and playback controls. Spotify does not expose playback-speed control through the embedded player.</p>
   </main>
-
-  <div id="spotify-floating-player" class="spotify-floating-player" hidden>
-    <div id="spotify-drag-handle" class="spotify-floating-head">
-      <div class="spotify-floating-title"><i class="fa-brands fa-spotify"></i><span id="spotify-floating-label">Nothing playing</span></div>
-      <div class="spotify-floating-actions">
-        <button id="spotify-popout" type="button" title="Pop out player"><i class="fa-solid fa-up-right-from-square"></i></button>
-        <button id="spotify-minimize" type="button" title="Minimize"><i class="fa-solid fa-minus"></i></button>
-        <button id="spotify-close-player" type="button" title="Close"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-    </div>
-    <div class="spotify-floating-body"><iframe id="spotify-floating-frame" title="Floating Spotify player" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>
-    <div class="spotify-floating-footer"><span><i class="fa-solid fa-grip-lines"></i> Drag me anywhere</span><small>Use Spotify's player controls for volume.</small></div>
-  </div>
-
-  <div id="spotify-playlist-modal" class="spotify-modal" hidden>
-    <div class="spotify-modal-backdrop" data-close-spotify-modal></div>
-    <div class="spotify-modal-card" role="dialog" aria-modal="true" aria-labelledby="spotify-modal-title">
-      <button class="spotify-modal-close" type="button" data-close-spotify-modal><i class="fa-solid fa-xmark"></i></button>
-      <span class="spotify-kicker">LUNAR PLAYLIST</span><h2 id="spotify-modal-title">Create a playlist</h2>
-      <p>Save it to your Lunar account so your playlist stays separate from Spotify's library.</p>
-      <label>Name<input id="spotify-playlist-name" maxlength="80" placeholder="My playlist"></label>
-      <label>Description <span>(optional)</span><textarea id="spotify-playlist-description" maxlength="300" placeholder="What are you listening to?"></textarea></label>
-      <div class="spotify-modal-actions"><button class="spotify-secondary" type="button" data-close-spotify-modal>Cancel</button><button id="spotify-save-playlist" class="spotify-primary" type="button">Create playlist</button></div>
-    </div>
-  </div>
-
+  <div id="spotify-floating-player" class="spotify-floating-player" hidden><div id="spotify-drag-handle" class="spotify-floating-head"><div class="spotify-floating-title"><i class="fa-brands fa-spotify"></i><span id="spotify-floating-label">Nothing playing</span></div><div class="spotify-floating-actions"><button id="spotify-popout" type="button" title="Pop out player"><i class="fa-solid fa-up-right-from-square"></i></button><button id="spotify-minimize" type="button" title="Minimize"><i class="fa-solid fa-minus"></i></button><button id="spotify-close-player" type="button" title="Close"><i class="fa-solid fa-xmark"></i></button></div></div><div class="spotify-floating-body"><iframe id="spotify-floating-frame" title="Floating Spotify player" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div><div class="spotify-floating-footer"><span><i class="fa-solid fa-grip-lines"></i> Drag me anywhere</span><small>Use Spotify's player controls for volume.</small></div></div>
+  <div id="spotify-playlist-modal" class="spotify-modal" hidden><div class="spotify-modal-backdrop" data-close-spotify-modal></div><div class="spotify-modal-card" role="dialog" aria-modal="true" aria-labelledby="spotify-modal-title"><button class="spotify-modal-close" type="button" data-close-spotify-modal><i class="fa-solid fa-xmark"></i></button><span class="spotify-kicker">LUNAR PLAYLIST</span><h2 id="spotify-modal-title">Create a playlist</h2><p>Save it to your Lunar account so your playlist stays separate from Spotify's library.</p><label>Name<input id="spotify-playlist-name" maxlength="80" placeholder="My playlist"></label><label>Description <span>(optional)</span><textarea id="spotify-playlist-description" maxlength="300" placeholder="What are you listening to?"></textarea></label><div class="spotify-modal-actions"><button class="spotify-secondary" type="button" data-close-spotify-modal>Cancel</button><button id="spotify-save-playlist" class="spotify-primary" type="button">Create playlist</button></div></div></div>
   <script src="/assets/js/spotify.js?v=lunar4"></script>
   <script src="/assets/js/spotify-playlist-detail.js?v=lunar2"></script>
+  <script src="/assets/js/spotify-global-bridge.js?v=lunar1"></script>
   <script src="/assets/js/spotify-player-fix.js?v=lunar1"></script>
   <script src="/assets/js/spotify-page-restore.js?v=lunar1"></script>
   <script src="/assets/js/lunar.js"></script>
