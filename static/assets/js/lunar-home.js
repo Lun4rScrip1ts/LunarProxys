@@ -41,27 +41,45 @@
 
   let memberRequestInFlight = false;
   let memberTimer = null;
+  let canEditCounters = false;
+  const counterIds = { online: "lunar-online-count", offline: "lunar-offline-count", members: "lunar-member-count" };
+
+  const setCounterText = (data) => {
+    for (const [key, id] of Object.entries(counterIds)) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      el.textContent = Number(data[key] || 0).toLocaleString();
+    }
+  };
 
   const updateMemberStatus = async () => {
-    const online = document.getElementById("lunar-online-count");
-    const members = document.getElementById("lunar-member-count");
-    const offline = document.getElementById("lunar-offline-count");
-    if (!online || !members || memberRequestInFlight) return;
-
+    const status = document.getElementById("lunar-member-status");
+    if (!status || memberRequestInFlight) return;
     memberRequestInFlight = true;
     try {
-      const response = await fetch("/api/members/online", {
-        cache: "no-store",
-        credentials: "same-origin",
-        headers: { "Cache-Control": "no-cache" },
-      });
+      const response = await fetch("/api/member-display", { cache: "no-store", credentials: "same-origin", headers: { "Cache-Control": "no-cache" } });
       if (!response.ok) return;
       const data = await response.json();
-      const onlineCount = Number.isFinite(Number(data.online)) ? Math.max(0, Number(data.online)) : 0;
-      const memberCount = Number.isFinite(Number(data.members)) ? Math.max(0, Number(data.members)) : 0;
-      online.textContent = onlineCount.toLocaleString();
-      members.textContent = memberCount.toLocaleString();
-      if (offline) offline.textContent = Math.max(0, memberCount - onlineCount).toLocaleString();
+      setCounterText(data);
+      canEditCounters = data.canEdit === true;
+      const reset = document.getElementById("lunar-counter-reset");
+      status.classList.toggle("counter-editor", canEditCounters);
+      if (reset) reset.hidden = !canEditCounters;
+      Object.entries(counterIds).forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (canEditCounters) {
+          el.contentEditable = "true";
+          el.setAttribute("role", "textbox");
+          el.setAttribute("aria-label", `Edit ${key} counter`);
+          el.title = `Edit ${key} counter`;
+        } else {
+          el.removeAttribute("contenteditable");
+          el.removeAttribute("role");
+          el.removeAttribute("aria-label");
+          el.removeAttribute("title");
+        }
+      });
     } catch {
       // Keep the last known values during temporary network failures.
     } finally {
@@ -69,22 +87,63 @@
     }
   };
 
+  const saveCounter = async (key, element) => {
+    if (!canEditCounters) return;
+    const digits = String(element.textContent || "").replace(/[^0-9]/g, "");
+    const value = Math.min(999999999, Math.max(0, Number(digits || 0)));
+    element.textContent = value.toLocaleString();
+    try {
+      const response = await fetch("/api/member-display", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [key]: value }) });
+      if (!response.ok) throw new Error("save failed");
+      const data = await response.json();
+      setCounterText(data);
+    } catch {
+      updateMemberStatus();
+    }
+  };
+
+  const installCounterEditor = () => {
+    Object.entries(counterIds).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.counterBound) return;
+      el.dataset.counterBound = "1";
+      el.addEventListener("focus", () => { if (canEditCounters) el.textContent = String(el.textContent).replace(/,/g, ""); });
+      el.addEventListener("keydown", (event) => {
+        if (!canEditCounters) return;
+        if (event.key === "Enter") { event.preventDefault(); el.blur(); }
+        if (event.key === "Escape") { event.preventDefault(); updateMemberStatus(); el.blur(); }
+      });
+      el.addEventListener("input", () => {
+        const clean = String(el.textContent || "").replace(/[^0-9]/g, "").slice(0, 9);
+        if (el.textContent !== clean) el.textContent = clean;
+      });
+      el.addEventListener("blur", () => saveCounter(key, el));
+    });
+    document.getElementById("lunar-counter-reset")?.addEventListener("click", async () => {
+      if (!canEditCounters) return;
+      const button = document.getElementById("lunar-counter-reset");
+      if (button) button.disabled = true;
+      try {
+        const response = await fetch("/api/member-display/reset", { method: "POST", credentials: "same-origin" });
+        if (response.ok) setCounterText(await response.json());
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  };
+
   const startMemberUpdates = () => {
     if (memberTimer) window.clearInterval(memberTimer);
+    installCounterEditor();
     updateMemberStatus();
     memberTimer = window.setInterval(updateMemberStatus, 5000);
   };
 
   startMemberUpdates();
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) updateMemberStatus();
-  });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) updateMemberStatus(); });
   window.addEventListener("focus", updateMemberStatus);
 
-  const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (char) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
-  })[char]);
-
+  const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char]);
   const loadChangelog = async () => {
     const list = document.getElementById("lunar-changelog-list");
     if (!list) return;
@@ -95,20 +154,13 @@
       const entries = Array.isArray(data.entries) ? data.entries : [];
       list.innerHTML = entries.map((entry, index) => {
         const date = new Date(entry.timestamp);
-        const formatted = Number.isNaN(date.getTime()) ? escapeHtml(entry.timestamp) : date.toLocaleString([], {
-          month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit"
-        });
+        const formatted = Number.isNaN(date.getTime()) ? escapeHtml(entry.timestamp) : date.toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
         const items = Array.isArray(entry.items) ? entry.items : [];
-        return '<article class="lunar-changelog-entry ' + (index === 0 ? "latest" : "") + '">' +
-          '<div class="lunar-changelog-entry-head"><div class="lunar-changelog-entry-title"><i class="fa-solid fa-satellite-dish"></i><span>' + escapeHtml(entry.title || "Lunar Update") + '</span></div><span class="lunar-changelog-tag">' + escapeHtml(entry.tag || "Update") + '</span></div>' +
-          '<div class="lunar-changelog-time">' + formatted + '</div>' +
-          '<ul class="lunar-changelog-items">' + items.map(item => '<li>' + escapeHtml(item) + '</li>').join("") + '</ul>' +
-          '</article>';
+        return '<article class="lunar-changelog-entry ' + (index === 0 ? "latest" : "") + '"><div class="lunar-changelog-entry-head"><div class="lunar-changelog-entry-title"><i class="fa-solid fa-satellite-dish"></i><span>' + escapeHtml(entry.title || "Lunar Update") + '</span></div><span class="lunar-changelog-tag">' + escapeHtml(entry.tag || "Update") + '</span></div><div class="lunar-changelog-time">' + formatted + '</div><ul class="lunar-changelog-items">' + items.map(item => '<li>' + escapeHtml(item) + '</li>').join("") + '</ul></article>';
       }).join("") || '<div class="lunar-changelog-loading">No updates have been posted yet.</div>';
     } catch {
       list.innerHTML = '<div class="lunar-changelog-loading"><i class="fa-solid fa-cloud"></i><span>Update log is temporarily unavailable.</span></div>';
     }
   };
-
   loadChangelog();
 })();
