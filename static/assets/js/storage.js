@@ -141,3 +141,15 @@ window.addEventListener("contextmenu", event => {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", loadGlobalSpotifyPlayer, { once: true });
   else loadGlobalSpotifyPlayer();
 })();
+
+// Keep already-open Lunar tabs aware of deployments. The checker compares the
+// running deployment against Railway's current deployment ID and refreshes the
+// same route automatically when a newer deployment is detected.
+(() => {
+  if (document.getElementById("lunar-update-checker")) return;
+  const script = document.createElement("script");
+  script.id = "lunar-update-checker";
+  script.src = `/assets/js/update-checker.js?v=${Date.now()}`;
+  script.async = true;
+  document.head.appendChild(script);
+})();
