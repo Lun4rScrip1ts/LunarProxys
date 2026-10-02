@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-10-02T23:05:00-04:00",
+  "updatedAt": "2026-10-02T23:25:00-04:00",
   "entries": [
+    {
+      "id": "2026-10-02-dropdown-context-fix",
+      "timestamp": "2026-10-02T23:25:00-04:00",
+      "title": "Dropdown Visibility & Context Menu Fix",
+      "tag": "Fix",
+      "items": [
+        "Fixed the custom glass dropdown menus disappearing or failing to render on some pages.",
+        "Dropdown menus now use a forced top-level fixed layer with explicit visibility and z-index so they remain visible above glass, transformed, and clipped containers.",
+        "Removed the old Lunar Menu / Page actions right-click popup across the site while leaving the browser's normal context menu available.",
+        "Dynamic selects are now detected even when they are inserted after the page initially loads."
+      ]
+    },
     {
       "id": "2026-10-02-dropdown-position-fix",
       "timestamp": "2026-10-02T23:05:00-04:00",
