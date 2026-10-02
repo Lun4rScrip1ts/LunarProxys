@@ -216,12 +216,29 @@
       if (select !== except) {
         select.classList.remove("is-open");
         select.querySelector(".lunar-select-trigger")?.setAttribute("aria-expanded", "false");
+        const menu = select.querySelector(".lunar-select-menu");
+        if (menu && menu.dataset.lunarPortal === "true") {
+          menu.dataset.lunarPortal = "false";
+          menu.style.position = "";
+          menu.style.left = "";
+          menu.style.top = "";
+          menu.style.width = "";
+          menu.style.zIndex = "";
+          menu.style.opacity = "";
+          menu.style.visibility = "";
+          menu.style.transform = "";
+          menu.style.pointerEvents = "";
+          select.appendChild(menu);
+        }
       }
     });
   }
 
   function buildCustomSelect(select) {
     if (!select || select.dataset.lunarEnhanced === "true") return;
+    const parent = select.parentNode;
+    if (!parent) return;
+
     const wrapper = document.createElement("div");
     wrapper.className = "lunar-select";
     wrapper.dataset.for = select.id || "select";
@@ -231,6 +248,10 @@
     trigger.className = "lunar-select-trigger";
     trigger.setAttribute("aria-haspopup", "listbox");
     trigger.setAttribute("aria-expanded", "false");
+    trigger.style.margin = "0";
+    trigger.style.width = "100%";
+    trigger.style.maxWidth = "none";
+    trigger.style.height = "54px";
 
     const label = document.createElement("span");
     label.className = "lunar-select-label";
@@ -260,14 +281,26 @@
       button.dataset.value = option.value;
       button.textContent = option.textContent.trim();
       button.setAttribute("role", "option");
-      button.addEventListener("click", () => {
+      // Reset the global settings button rules so dropdown options never
+      // inherit the normal button width, margin, or fixed height.
+      button.style.margin = "0";
+      button.style.width = "100%";
+      button.style.maxWidth = "none";
+      button.style.height = "auto";
+      button.style.minHeight = "0";
+      button.style.boxSizing = "border-box";
+      button.style.display = "block";
+      button.style.padding = "11px 13px";
+      button.style.textAlign = "left";
+      button.style.background = "transparent";
+      button.addEventListener("click", event => {
+        event.stopPropagation();
         if (select.value !== option.value) {
           select.value = option.value;
           select.dispatchEvent(new Event("change", { bubbles: true }));
         }
         syncLabel();
-        wrapper.classList.remove("is-open");
-        trigger.setAttribute("aria-expanded", "false");
+        closeSelects(null);
       });
       menu.appendChild(button);
     };
@@ -284,20 +317,86 @@
       }
     });
 
+    const positionPortal = () => {
+      if (menu.dataset.lunarPortal !== "true") return;
+      const rect = trigger.getBoundingClientRect();
+      const gap = 8;
+      const menuHeight = Math.min(310, Math.max(120, menu.scrollHeight || 310));
+      const spaceBelow = window.innerHeight - rect.bottom - gap;
+      const spaceAbove = rect.top - gap;
+      const openAbove = spaceBelow < Math.min(260, menuHeight) && spaceAbove > spaceBelow;
+      const height = Math.min(menuHeight, Math.max(120, openAbove ? spaceAbove : spaceBelow));
+      const top = openAbove ? Math.max(8, rect.top - height - gap) : Math.min(window.innerHeight - height - 8, rect.bottom + gap);
+
+      menu.style.position = "fixed";
+      menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - rect.width - 8))}px`;
+      menu.style.top = `${Math.max(8, top)}px`;
+      menu.style.width = `${rect.width}px`;
+      menu.style.maxHeight = `${Math.max(120, height)}px`;
+      menu.style.zIndex = "2147483647";
+      menu.style.opacity = "1";
+      menu.style.visibility = "visible";
+      menu.style.transform = "translateY(0) scale(1)";
+      menu.style.pointerEvents = "auto";
+    };
+
+    const open = () => {
+      closeSelects(wrapper);
+      wrapper.classList.add("is-open");
+      trigger.setAttribute("aria-expanded", "true");
+      menu.dataset.lunarPortal = "true";
+      document.body.appendChild(menu);
+      positionPortal();
+      window.addEventListener("resize", positionPortal, { passive: true });
+      window.addEventListener("scroll", positionPortal, true);
+    };
+
+    const close = () => {
+      wrapper.classList.remove("is-open");
+      trigger.setAttribute("aria-expanded", "false");
+      window.removeEventListener("resize", positionPortal);
+      window.removeEventListener("scroll", positionPortal, true);
+      if (menu.dataset.lunarPortal === "true") {
+        menu.dataset.lunarPortal = "false";
+        menu.style.position = "";
+        menu.style.left = "";
+        menu.style.top = "";
+        menu.style.width = "";
+        menu.style.maxHeight = "";
+        menu.style.zIndex = "";
+        menu.style.opacity = "";
+        menu.style.visibility = "";
+        menu.style.transform = "";
+        menu.style.pointerEvents = "";
+        wrapper.appendChild(menu);
+      }
+    };
+
     trigger.addEventListener("click", event => {
       event.stopPropagation();
-      const open = !wrapper.classList.contains("is-open");
-      closeSelects(wrapper);
-      wrapper.classList.toggle("is-open", open);
-      trigger.setAttribute("aria-expanded", String(open));
+      wrapper.classList.contains("is-open") ? close() : open();
     });
 
     select.addEventListener("change", syncLabel);
-    wrapper.append(trigger, menu);
+    parent.insertBefore(wrapper, select);
+    wrapper.append(trigger, select);
+    wrapper.appendChild(menu);
     select.dataset.lunarEnhanced = "true";
+    select.classList.add("lunar-native-enhanced");
     select.style.display = "none";
-    select.parentNode.insertBefore(wrapper, select);
     syncLabel();
+
+    trigger.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+      if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        open();
+        menu.querySelector(".lunar-select-option")?.focus();
+      }
+    });
   }
 
   function initLunarGlassDropdowns() {
@@ -312,6 +411,9 @@
   window.initLunarGlassDropdowns = initLunarGlassDropdowns;
 
   document.addEventListener("click", () => closeSelects(null));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeSelects(null);
+  });
 
   function init() {
     if (initialized) return;
