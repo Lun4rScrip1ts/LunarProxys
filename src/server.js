@@ -67,6 +67,18 @@ app.use("/api", generalLimiter, memberCounterRouter);
 app.use("/api", generalLimiter, communityRouter);
 app.use("/api", generalLimiter, spotifyRouter);
 
+// Expose only a non-secret deployment identifier so connected clients can detect a new deploy.
+// Railway provides these variables automatically for its deployments.
+app.get("/api/version", generalLimiter, (_req, res) => {
+  const deployment = process.env.RAILWAY_DEPLOYMENT_ID || "";
+  const commit = process.env.RAILWAY_GIT_COMMIT_SHA || "";
+  const version = deployment || commit || "local";
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  res.json({ version });
+});
+
 const communityDataDir = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(process.cwd(), "data");
 app.use("/uploads", express.static(path.join(communityDataDir, "uploads"), { maxAge: "7d", index: false }));
 
@@ -85,8 +97,6 @@ const jsStaticOptions = {
 app.use("/.runtime", (_req, res) => {
   res.sendStatus(404);
 });
-
-if (vendorMap?.analytics) mountAnalytics(app, vendorMap.analytics);
 
 if (!vendorMap) {
   try {
