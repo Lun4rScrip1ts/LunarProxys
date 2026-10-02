@@ -1,0 +1,59 @@
+/* Global Spotify player: injected by storage.js so it survives normal Lunar page navigation. */
+#lunar-global-spotify-player{
+  position:fixed!important;
+  right:20px;
+  bottom:20px;
+  width:min(420px,calc(100vw - 32px));
+  z-index:2147483000!important;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:18px;
+  overflow:hidden;
+  background:rgba(12,14,20,.92);
+  box-shadow:0 20px 70px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter:blur(18px) saturate(1.2);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);
+  user-select:none;
+  touch-action:none;
+}
+#lunar-global-spotify-player[hidden]{display:none!important}
+#lunar-global-spotify-player .lunar-global-spotify-head{
+  height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 10px 0 14px;
+  cursor:grab;
+  touch-action:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+}
+#lunar-global-spotify-player .lunar-global-spotify-head.is-dragging{cursor:grabbing}
+#lunar-global-spotify-player .lunar-global-spotify-title{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:13px;
+  font-weight:700;
+}
+#lunar-global-spotify-player .lunar-global-spotify-title i{font-size:16px}
+#lunar-global-spotify-player .lunar-global-spotify-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#lunar-global-spotify-player .lunar-global-spotify-actions{display:flex;gap:4px;flex:0 0 auto}
+#lunar-global-spotify-player .lunar-global-spotify-actions button{
+  width:30px;height:30px;padding:0;border:0;border-radius:9px;
+  display:grid;place-items:center;cursor:pointer;
+  color:inherit;background:rgba(255,255,255,.07);
+}
+#lunar-global-spotify-player .lunar-global-spotify-actions button:hover{background:rgba(255,255,255,.14)}
+#lunar-global-spotify-player .lunar-global-spotify-body{height:152px;background:#121212;overflow:hidden}
+#lunar-global-spotify-player iframe{display:block;width:100%;height:152px;border:0}
+#lunar-global-spotify-player .lunar-global-spotify-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:7px 12px;font-size:10px;opacity:.7;
+}
+#lunar-global-spotify-player .lunar-global-spotify-foot span{display:flex;align-items:center;gap:6px}
+#lunar-global-spotify-player .lunar-global-spotify-foot small{font-size:10px;text-align:right}
+@media(max-width:600px){
+  #lunar-global-spotify-player{right:10px;bottom:10px;width:calc(100vw - 20px)}
+}
+@media(prefers-reduced-motion:reduce){#lunar-global-spotify-player{scroll-behavior:auto}}
