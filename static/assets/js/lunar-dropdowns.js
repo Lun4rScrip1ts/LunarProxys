@@ -3,6 +3,17 @@
   let openControl = null;
   let optionButtons = [];
 
+  // The old Lunar right-click popup was registered elsewhere. Stop that handler
+  // at capture phase so the browser's normal context menu can remain available.
+  document.addEventListener('contextmenu', event => {
+    document.querySelectorAll('#lunar-context-menu,.lunar-context-menu,[data-lunar-context-menu]').forEach(el => el.remove());
+    event.stopImmediatePropagation();
+  }, true);
+
+  const removeLegacyContextMenus = () => {
+    document.querySelectorAll('#lunar-context-menu,.lunar-context-menu,[data-lunar-context-menu]').forEach(el => el.remove());
+  };
+
   function getMenu(control) { return control?._menu || null; }
   function getTrigger(control) { return control?.querySelector('.lunar-select-trigger') || null; }
 
@@ -30,12 +41,12 @@
     const margin = 8;
     const gap = 6;
     const width = Math.max(rect.width, 160);
-    const maxHeight = Math.min(320, Math.max(44, Math.floor(window.innerHeight * .55)));
+    const maxHeight = Math.min(320, Math.max(44, Math.floor(window.innerHeight * 0.55)));
+
+    menu.style.position = 'fixed';
     menu.style.width = `${width}px`;
     menu.style.maxHeight = `${maxHeight}px`;
-
-    const left = Math.max(margin, Math.min(window.innerWidth - width - margin, rect.left));
-    menu.style.left = `${left}px`;
+    menu.style.left = `${Math.max(margin, Math.min(window.innerWidth - width - margin, rect.left))}px`;
 
     const measuredHeight = Math.min(maxHeight, Math.max(44, menu.scrollHeight || 44));
     const below = window.innerHeight - rect.bottom - margin;
@@ -52,8 +63,7 @@
     const menu = getMenu(control);
     const label = control.querySelector('.lunar-select-label');
     if (!select) return;
-    const options = [...select.options];
-    const selected = options[select.selectedIndex];
+    const selected = select.options[select.selectedIndex];
     if (label) label.textContent = selected ? selected.textContent : '';
     menu?.querySelectorAll('.lunar-select-option').forEach(button => {
       const selectedNow = Number(button.dataset.index) === select.selectedIndex;
@@ -76,6 +86,7 @@
       button.disabled = option.disabled;
       button.setAttribute('role', 'option');
       button.addEventListener('click', event => {
+        event.preventDefault();
         event.stopPropagation();
         if (option.disabled) return;
         select.selectedIndex = index;
@@ -131,6 +142,7 @@
     const menu = document.createElement('div');
     menu.className = 'lunar-select-menu';
     menu.setAttribute('role', 'listbox');
+    menu.style.position = 'fixed';
     menu.dataset.owner = select.id || select.name || `select-${Math.random().toString(36).slice(2)}`;
     control._menu = menu;
 
@@ -160,20 +172,16 @@
       if (event.key === 'ArrowDown' && optionButtons.length) {
         event.preventDefault();
         optionButtons[(index + 1 + optionButtons.length) % optionButtons.length].focus();
-      }
-      if (event.key === 'ArrowUp' && optionButtons.length) {
+      } else if (event.key === 'ArrowUp' && optionButtons.length) {
         event.preventDefault();
         optionButtons[(index - 1 + optionButtons.length) % optionButtons.length].focus();
-      }
-      if (event.key === 'Home' && optionButtons.length) {
+      } else if (event.key === 'Home' && optionButtons.length) {
         event.preventDefault();
         optionButtons[0].focus();
-      }
-      if (event.key === 'End' && optionButtons.length) {
+      } else if (event.key === 'End' && optionButtons.length) {
         event.preventDefault();
         optionButtons.at(-1).focus();
-      }
-      if ((event.key === 'Enter' || event.key === ' ') && current?.classList.contains('lunar-select-option')) {
+      } else if ((event.key === 'Enter' || event.key === ' ') && current?.classList.contains('lunar-select-option')) {
         event.preventDefault();
         current.click();
       }
@@ -190,6 +198,7 @@
   }
 
   function scan(root = document) {
+    if (root instanceof HTMLSelectElement) enhance(root);
     root.querySelectorAll?.(SELECTOR).forEach(enhance);
   }
 
@@ -204,9 +213,13 @@
 
   const start = () => {
     scan();
+    removeLegacyContextMenus();
     const observer = new MutationObserver(records => {
-      for (const record of records) for (const node of record.addedNodes) {
-        if (node.nodeType === 1) scan(node);
+      removeLegacyContextMenus();
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType === 1) scan(node);
+        }
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });
