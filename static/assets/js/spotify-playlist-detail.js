@@ -16,7 +16,11 @@
     const esc = value => String(value ?? "").replace(/[&<>\"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#039;" })[c]);
     const image = value => value ? `<img src="${esc(value)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="spotify-playlist-track-placeholder"><i class="fa-solid fa-music"></i></span>`;
 
-    const playTrack = track => {
+    const playTrack = (track, tracks, index) => {
+      if (typeof window.lunarSpotifyPlayTrack === "function") {
+        window.lunarSpotifyPlayTrack(track, tracks, index);
+        return;
+      }
       const player = document.getElementById("spotify-floating-player");
       const frame = document.getElementById("spotify-floating-frame");
       const label = document.getElementById("spotify-floating-label");
@@ -44,6 +48,7 @@
 
     const renderPlaylist = playlist => {
       const tracks = Array.isArray(playlist.tracks) ? playlist.tracks : [];
+      window.__lunarSpotifyPlaylistTracks = tracks;
       detail.hidden = false;
       detail.innerHTML = `
         <div class="spotify-playlist-detail-head">
@@ -64,8 +69,9 @@
 
       detail.querySelector("[data-close-playlist-detail]")?.addEventListener("click", () => { detail.hidden = true; });
       detail.querySelectorAll("[data-detail-play]").forEach(button => button.addEventListener("click", () => {
-        const track = tracks.find(item => item.id === button.dataset.detailPlay);
-        if (track) playTrack(track);
+        const index = tracks.findIndex(item => item.id === button.dataset.detailPlay);
+        const track = tracks[index];
+        if (track) playTrack(track, tracks, index);
       }));
       detail.querySelectorAll("[data-detail-remove]").forEach(button => button.addEventListener("click", async () => {
         const response = await fetch(`/api/spotify/playlists/${encodeURIComponent(playlist.id)}/tracks/${encodeURIComponent(button.dataset.detailRemove)}`, { method: "DELETE", credentials: "same-origin" });
