@@ -14,6 +14,7 @@ import { mountGhGames } from "./games.js";
 import { injectVersionInfo, resolveVersionInfo } from "./version.js";
 import communityRouter from "./community.js";
 import memberCounterRouter from "./member-counter.js";
+import spotifyRouter from "./spotify.js";
 
 console.log(chalk.yellow("🚀 Starting server..."));
 
@@ -64,6 +65,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", generalLimiter, memberCounterRouter);
 app.use("/api", generalLimiter, communityRouter);
+app.use("/api", generalLimiter, spotifyRouter);
 
 const communityDataDir = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(process.cwd(), "data");
 app.use("/uploads", express.static(path.join(communityDataDir, "uploads"), { maxAge: "7d", index: false }));
