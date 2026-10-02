@@ -22,6 +22,15 @@
   height: 152px;
 }
 
+.spotify-floating-player .spotify-floating-frame-host,
+.spotify-floating-player .spotify-floating-frame-host > iframe {
+  display:block!important;
+  width:100%!important;
+  height:152px!important;
+  min-height:152px!important;
+  border:0!important;
+}
+
 .spotify-floating-player.spotify-frameless-popout .spotify-floating-footer {
   display: none;
 }
