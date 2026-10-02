@@ -11,6 +11,15 @@ const tokenCache = { accessToken: "", expiresAt: 0 };
 const getCredentials = () => ({ clientId: process.env.SPOTIFY_CLIENT_ID || "", clientSecret: process.env.SPOTIFY_CLIENT_SECRET || "" });
 async function readJson(file, fallback) { try { return JSON.parse(await fs.readFile(file, "utf8")); } catch (error) { if (error.code !== "ENOENT") console.warn("[Spotify] Read failed:", error.message); return fallback; } }
 async function writeJson(file, value) { await fs.mkdir(DATA_DIR, { recursive: true }); const temp = file + ".tmp"; await fs.writeFile(temp, JSON.stringify(value, null, 2), "utf8"); await fs.rename(temp, file); }
+function parseSpotifyUrl(raw) {
+  try {
+    const url = new URL(String(raw || "").trim());
+    if (!/^(open\.)?spotify\.com$/i.test(url.hostname)) return null;
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (!parts[1] || parts[0] !== "playlist") return null;
+    return { type: "playlist", id: parts[1], url: `https://open.spotify.com/playlist/${parts[1]}` };
+  } catch { return null; }
+}
 async function getAccessToken() {
   const { clientId, clientSecret } = getCredentials();
   if (!clientId || !clientSecret) { const error = new Error("Spotify API credentials are not configured."); error.code = "SPOTIFY_NOT_CONFIGURED"; throw error; }
@@ -68,7 +77,16 @@ router.post("/spotify/playlists", requireUser, async (req, res) => {
   const all = await readJson(PLAYLIST_FILE, {});
   all[req.user.id] ||= {};
   const id = randomBytes(12).toString("hex");
-  const playlist = { id, name, description: String(req.body?.description || "").slice(0, 300), tracks: [], createdAt: Date.now(), updatedAt: Date.now() };
+  const imported = parseSpotifyUrl(req.body?.spotifyUrl);
+  const playlist = {
+    id,
+    name,
+    description: String(req.body?.description || "").slice(0, 300),
+    tracks: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    ...(imported ? { source: "spotify", spotifyType: imported.type, spotifyId: imported.id, spotifyUrl: imported.url } : {})
+  };
   all[req.user.id][id] = playlist;
   await writeJson(PLAYLIST_FILE, all);
   res.status(201).json({ playlist });
@@ -79,6 +97,7 @@ router.post("/spotify/playlists/:playlistId/tracks", requireUser, async (req, re
   const track = req.body?.track;
   if (!playlist) return res.status(404).json({ error: "Playlist not found." });
   if (!track?.id || !track?.name) return res.status(400).json({ error: "Invalid track." });
+  if (playlist.source === "spotify") return res.status(409).json({ error: "Imported Spotify playlists are read-only here. Open the playlist to use Spotify's official player." });
   if (playlist.tracks.some(item => item.id === String(track.id))) return res.status(409).json({ error: "That song is already in the playlist." });
   playlist.tracks.push({ id: String(track.id), uri: String(track.uri || `spotify:track:${track.id}`), name: String(track.name).slice(0, 200), artists: String(track.artists || "").slice(0, 200), album: String(track.album || "").slice(0, 200), image: String(track.image || "").slice(0, 1000), duration_ms: Number(track.duration_ms || 0) });
   playlist.updatedAt = Date.now();
