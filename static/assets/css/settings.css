@@ -260,7 +260,6 @@ select:hover {
    color: var(--danger);
 }
 
-
 /* Interface appearance controls */
 .interface-settings-card {
    overflow: visible;
@@ -334,7 +333,6 @@ body.reduce-interface-motion .lunar-select *,body.reduce-interface-motion .lunar
 .settings-card .lunar-select.is-open{z-index:99999}
 .settings-card .lunar-select-menu{z-index:100000}
 .settings-card:has(.lunar-select.is-open){z-index:1000}
-
 
 /* Safe Lunar background slider sizing */
 #background-image-controls{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:12px 0 4px;overflow:hidden}
@@ -442,5 +440,37 @@ body.interface-glass .settings-card.interface-settings-card label{
   }
 }
 
-
 .interface-performance-note{display:flex!important;align-items:flex-start;gap:9px;margin:12px 0 16px!important;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-input);color:var(--text-muted)!important;font-size:12px;line-height:1.55}.interface-performance-note i{color:var(--accent);margin-top:2px}.interface-performance-note strong{color:var(--text)!important}
+
+/* Regression guard: native selects stay usable if custom enhancement fails. */
+.settings-card select{display:block!important;visibility:visible!important;position:relative!important;opacity:1!important}
+.settings-card .lunar-select select{display:none!important}
+
+/* Reset the global settings button styling for custom dropdown controls. */
+.settings-card .lunar-select-trigger,
+.settings-card .lunar-select-option{
+  margin:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+.settings-card .lunar-select-trigger{
+  width:100%!important;
+  height:54px!important;
+  min-height:54px!important;
+}
+.settings-card .lunar-select-option{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:11px 13px!important;
+  text-align:left!important;
+  border-width:0!important;
+}
+.settings-card .lunar-select-menu{
+  max-width:100%!important;
+}
+.settings-card,
+.interface-settings-card,
+.settings-card:has(.lunar-select.is-open){
+  overflow:visible!important;
+}
