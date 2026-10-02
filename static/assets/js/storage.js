@@ -1,3 +1,9 @@
+// Disable Lunar's custom right-click menu before main.js registers it.
+// The browser's normal context menu remains available.
+window.addEventListener("contextmenu", event => {
+  event.stopImmediatePropagation();
+}, true);
+
 // The codec must stay synchronous: main.js reads the theme before first paint.
 // XOR plus base64url is obfuscation, not encryption. The key ships with the page, so this only
 // keeps settings from being readable at a glance or found by a string scan.
