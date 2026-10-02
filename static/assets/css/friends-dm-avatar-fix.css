@@ -1,0 +1,38 @@
+/* DM avatar visibility fix. Message avatars must render exactly like the friend-list avatars. */
+.lunar-friends-page #dm-messages .dm-message .dm-avatar{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  border-radius:50%!important;
+  background:#5865f2!important;
+  color:#fff!important;
+}
+.lunar-friends-page #dm-messages .dm-message .dm-avatar img{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border-radius:50%!important;
+  z-index:2!important;
+}
+.lunar-friends-page #dm-messages .dm-message .dm-avatar:has(img){
+  font-size:0!important;
+}
