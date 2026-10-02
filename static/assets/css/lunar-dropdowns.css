@@ -8,13 +8,13 @@
 .lunar-select-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f5f7ff}
 .lunar-select-chevron{flex:0 0 auto;color:#aeb8cf;font-size:11px;transition:transform .16s ease,color .16s ease}
 .lunar-select.is-open .lunar-select-chevron{transform:rotate(180deg);color:#dfe5ff}
-.lunar-select-menu{position:fixed!important;display:none;visibility:hidden;opacity:0;min-width:160px;max-height:min(320px,55vh);overflow:auto;padding:6px;border:1px solid rgba(255,255,255,.13);border-radius:14px;background:linear-gradient(145deg,rgba(25,30,40,.98),rgba(10,13,19,.98));box-shadow:0 22px 65px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.045);backdrop-filter:blur(24px) saturate(145%);-webkit-backdrop-filter:blur(24px) saturate(145%);z-index:2147483647!important}
-.lunar-select-menu.is-visible{display:block!important;visibility:visible!important;opacity:1!important;animation:lunarDropdownIn .13s ease-out}
+.lunar-select-menu{position:fixed!important;display:none;visibility:hidden;opacity:0;pointer-events:auto!important;user-select:none;min-width:160px;max-height:min(320px,55vh);overflow:auto;padding:6px;border:1px solid rgba(255,255,255,.13);border-radius:14px;background:linear-gradient(145deg,rgba(25,30,40,.98),rgba(10,13,19,.98));box-shadow:0 22px 65px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.045);backdrop-filter:blur(24px) saturate(145%);-webkit-backdrop-filter:blur(24px) saturate(145%);z-index:2147483647!important}
+.lunar-select-menu.is-visible{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;animation:lunarDropdownIn .13s ease-out}
 .lunar-select-menu::-webkit-scrollbar{width:7px}.lunar-select-menu::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:99px}.lunar-select-menu::-webkit-scrollbar-track{background:transparent}
-.lunar-select-option{width:100%;display:flex;align-items:center;gap:9px;min-height:36px;padding:8px 10px;border:0;border-radius:9px;background:transparent;color:#f3f5fb;font:inherit;font-size:14px;line-height:1.25;text-align:left;cursor:pointer;box-sizing:border-box}
+.lunar-select-option{position:relative!important;z-index:1;width:100%;display:flex;align-items:center;gap:9px;min-height:36px;padding:8px 10px;border:0;border-radius:9px;background:transparent;color:#f3f5fb;font:inherit;font-size:14px;line-height:1.25;text-align:left;cursor:pointer;box-sizing:border-box;pointer-events:auto!important;user-select:none}
 .lunar-select-option:hover,.lunar-select-option:focus-visible{outline:0;background:rgba(255,255,255,.095);color:#fff}
 .lunar-select-option.is-selected{background:rgba(111,135,255,.16);color:#fff;font-weight:650}
-.lunar-select-option:disabled{opacity:.42;cursor:not-allowed}
+.lunar-select-option:disabled{opacity:.42;cursor:not-allowed;pointer-events:none!important}
 #lunar-context-menu,.lunar-context-menu,[data-lunar-context-menu]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 @keyframes lunarDropdownIn{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.lunar-select-trigger,.lunar-select-chevron{transition:none}.lunar-select-menu.is-visible{animation:none}}
