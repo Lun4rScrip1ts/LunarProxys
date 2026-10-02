@@ -130,15 +130,93 @@
     }
   }
 
+  function syncSettingsPage() {
+    if (!window.store) return;
+    const setSelect = (id, value) => {
+      const select = document.getElementById(id);
+      if (!select || value == null) return;
+      select.value = value;
+      const wrapper = document.querySelector(`.lunar-select[data-for="${id}"]`);
+      if (!wrapper) return;
+      const option = select.options[select.selectedIndex];
+      const label = wrapper.querySelector(".lunar-select-label");
+      if (label && option) label.textContent = option.textContent.trim();
+      wrapper.querySelectorAll(".lunar-select-option").forEach(button => {
+        const active = button.dataset.value === select.value;
+        button.classList.toggle("is-selected", active);
+        button.setAttribute("aria-selected", String(active));
+      });
+    };
+
+    setSelect("theme-dropdown", store.get("theme") || "d");
+    setSelect("background-dropdown", store.get("backgroundMode") || "default");
+    setSelect("particles-dropdown", store.get("particles") || "off");
+    setSelect("pointer-dropdown", store.get("pointer") || "default");
+    setSelect("glass-effect-dropdown", store.get("interfaceGlass") || "off");
+    setSelect("animations-dropdown", store.get("interfaceAnimations") || "on");
+    setSelect("visual-effects-dropdown", store.get("interfaceEffects") || "full");
+
+    const glassStrength = document.getElementById("glass-strength-range");
+    const glassStrengthValue = document.getElementById("glass-strength-value");
+    if (glassStrength) glassStrength.value = String(clamp(store.get("interfaceGlassStrength"), 0, 100, 65));
+    if (glassStrengthValue && glassStrength) glassStrengthValue.textContent = glassStrength.value + "%";
+
+    const bgOpacity = document.getElementById("background-opacity-range");
+    const bgOpacityValue = document.getElementById("background-opacity-value");
+    if (bgOpacity) bgOpacity.value = String(clamp(store.get("backgroundImageOpacity"), 10, 100, 100));
+    if (bgOpacityValue && bgOpacity) bgOpacityValue.textContent = bgOpacity.value + "%";
+
+    const bgBlur = document.getElementById("background-blur-range");
+    const bgBlurValue = document.getElementById("background-blur-value");
+    if (bgBlur) bgBlur.value = String(clamp(store.get("backgroundImageBlur"), 0, 30, 0));
+    if (bgBlurValue && bgBlur) bgBlurValue.textContent = bgBlur.value + "px";
+
+    const customRow = document.getElementById("background-custom-row");
+    const controls = document.getElementById("background-image-controls");
+    const isCustom = (store.get("backgroundMode") || "default") === "custom" && Boolean(store.get("backgroundImage"));
+    if (customRow) customRow.style.display = (store.get("backgroundMode") || "default") === "custom" ? "" : "none";
+    if (controls) controls.style.display = isCustom ? "" : "none";
+  }
+
+  function installLiveBackgroundControls() {
+    const opacity = document.getElementById("background-opacity-range");
+    const blur = document.getElementById("background-blur-range");
+    if (opacity && !opacity.dataset.lunarLive) {
+      opacity.dataset.lunarLive = "true";
+      opacity.addEventListener("input", () => {
+        const layer = document.getElementById("lunar-background-image");
+        if (layer) layer.style.opacity = String(Number(opacity.value) / 100);
+      });
+    }
+    if (blur && !blur.dataset.lunarLive) {
+      blur.dataset.lunarLive = "true";
+      blur.addEventListener("input", () => {
+        const layer = document.getElementById("lunar-background-image");
+        if (layer) {
+          const px = Number(blur.value) || 0;
+          layer.style.inset = `${-px}px`;
+          layer.style.filter = px ? `blur(${px}px)` : "none";
+          layer.style.transform = px ? "scale(1.02)" : "none";
+        }
+      });
+    }
+  }
+
   function applyLunarSettings() {
     applyInterface();
     applyBackground();
     applyBackgroundEffect();
+    syncSettingsPage();
+    installLiveBackgroundControls();
+    window.dispatchEvent(new CustomEvent("lunarsettingsapplied"));
   }
 
   function closeSelects(except) {
     document.querySelectorAll(".lunar-select.is-open").forEach(select => {
-      if (select !== except) select.classList.remove("is-open");
+      if (select !== except) {
+        select.classList.remove("is-open");
+        select.querySelector(".lunar-select-trigger")?.setAttribute("aria-expanded", "false");
+      }
     });
   }
 
@@ -175,19 +253,7 @@
       });
     };
 
-    Array.from(select.children).forEach(child => {
-      if (child.tagName === "OPTGROUP") {
-        const group = document.createElement("div");
-        group.className = "lunar-select-group";
-        group.textContent = child.label;
-        menu.appendChild(group);
-        Array.from(child.options).forEach(option => addOption(option));
-      } else if (child.tagName === "OPTION") {
-        addOption(child);
-      }
-    });
-
-    function addOption(option) {
+    const addOption = option => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "lunar-select-option";
@@ -204,7 +270,19 @@
         trigger.setAttribute("aria-expanded", "false");
       });
       menu.appendChild(button);
-    }
+    };
+
+    Array.from(select.children).forEach(child => {
+      if (child.tagName === "OPTGROUP") {
+        const group = document.createElement("div");
+        group.className = "lunar-select-group";
+        group.textContent = child.label;
+        menu.appendChild(group);
+        Array.from(child.options).forEach(addOption);
+      } else if (child.tagName === "OPTION") {
+        addOption(child);
+      }
+    });
 
     trigger.addEventListener("click", event => {
       event.stopPropagation();
@@ -224,6 +302,8 @@
 
   function initLunarGlassDropdowns() {
     document.querySelectorAll(".settings-card select").forEach(buildCustomSelect);
+    syncSettingsPage();
+    installLiveBackgroundControls();
   }
 
   window.applyLunarSettings = applyLunarSettings;
