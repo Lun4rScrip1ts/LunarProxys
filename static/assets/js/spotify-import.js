@@ -2,10 +2,6 @@
   const library = document.getElementById("spotify-playlists");
   if (!library) return;
 
-  const escapeHtml = value => String(value ?? "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
-
   const parsePlaylistUrl = raw => {
     try {
       const url = new URL(String(raw || "").trim());
@@ -21,8 +17,7 @@
   function openImportedPlaylist(playlist) {
     if (!playlist?.spotifyId) return;
     const label = playlist.name || "Spotify playlist";
-    const type = "playlist";
-    const embed = `https://open.spotify.com/embed/${encodeURIComponent(type)}/${encodeURIComponent(playlist.spotifyId)}?utm_source=lunar&theme=0`;
+    const embed = `https://open.spotify.com/embed/playlist/${encodeURIComponent(playlist.spotifyId)}?utm_source=lunar&theme=0`;
 
     const pagePlayer = document.getElementById("spotify-floating-player");
     const pageFrame = document.getElementById("spotify-floating-frame");
@@ -31,13 +26,15 @@
       const pageLabel = document.getElementById("spotify-floating-label");
       if (pageLabel) pageLabel.textContent = label;
       pagePlayer.hidden = false;
-      try { localStorage.setItem("lunarSpotifyLast", JSON.stringify({ type, id: playlist.spotifyId, label })); } catch {}
+      try { localStorage.setItem("lunarSpotifyLast", JSON.stringify({ type: "playlist", id: playlist.spotifyId, label })); } catch {}
       return;
     }
 
     const globalPlayer = document.getElementById("lunar-global-spotify-player");
-    if (globalPlayer?.__load) globalPlayer.__load(type, playlist.spotifyId, label);
+    if (globalPlayer?.__load) globalPlayer.__load("playlist", playlist.spotifyId, label);
   }
+
+  let currentPlaylists = [];
 
   function decorateImportedCards() {
     const imported = new Map();
@@ -53,9 +50,6 @@
       button.setAttribute("title", "Open imported Spotify playlist");
     });
   }
-
-  let currentPlaylists = [];
-  let observer = null;
 
   async function refreshImportedState() {
     try {
@@ -109,28 +103,26 @@
       const url = modal.querySelector("#spotify-import-url").value.trim();
       const parsed = parsePlaylistUrl(url);
       const nameInput = modal.querySelector("#spotify-import-name");
-      const error = modal.querySelector("#spotify-import-error");
+      const errorBox = modal.querySelector("#spotify-import-error");
       const submit = modal.querySelector("#spotify-import-submit");
-      if (!parsed) { error.textContent = "Enter a valid Spotify playlist link."; error.hidden = false; return; }
+      if (!parsed) { errorBox.textContent = "Enter a valid Spotify playlist link."; errorBox.hidden = false; return; }
       const name = nameInput.value.trim() || "Imported Spotify playlist";
       submit.disabled = true;
       try {
         const response = await fetch("/api/spotify/playlists", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, description: "Imported from Spotify", spotifyUrl: parsed.url }) });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not import playlist.");
-        currentPlaylists = currentPlaylists.filter(item => item.id !== data.playlist.id);
-        currentPlaylists.push(data.playlist);
         modal.hidden = true;
         status(`Imported “${name}”.`);
-        if (typeof window.__lunarSpotifyRefreshPlaylists === "function") await window.__lunarSpotifyRefreshPlaylists();
+        document.getElementById("spotify-refresh-playlists")?.click();
         await refreshImportedState();
         requestAnimationFrame(() => {
-          const button = library.querySelector(`[data-playlist="${CSS.escape(String(data.playlist.id))}"]`);
+          const button = Array.from(library.querySelectorAll("[data-playlist]")).find(item => String(item.dataset.playlist) === String(data.playlist.id));
           button?.scrollIntoView({ behavior: "smooth", block: "center" });
         });
       } catch (error) {
-        error && (modal.querySelector("#spotify-import-error").textContent = error.message || "Could not import playlist.");
-        modal.querySelector("#spotify-import-error").hidden = false;
+        errorBox.textContent = error.message || "Could not import playlist.";
+        errorBox.hidden = false;
       } finally { submit.disabled = false; }
     });
     return modal;
@@ -155,8 +147,6 @@
 
   addImportButton();
   library.addEventListener("click", interceptImportedClicks, true);
-  observer = new MutationObserver(decorateImportedCards);
-  observer.observe(library, { childList: true, subtree: true });
+  new MutationObserver(decorateImportedCards).observe(library, { childList: true, subtree: true });
   refreshImportedState();
-  window.__lunarSpotifyRefreshImported = refreshImportedState;
 })();
