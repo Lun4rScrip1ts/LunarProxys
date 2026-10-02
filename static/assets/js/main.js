@@ -90,7 +90,6 @@ function reconstructSafeUrl(raw) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Only the original host needs its legacy ad loader.
   if (window.location.hostname === "gointerstellar.app" && !document.getElementById("frame-container")) {
     const ads = document.createElement("script");
     ads.async = true;
@@ -109,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="icon lunar-nav-logo" href="/./" aria-label="Lunar Studios"><img src="/icons/LunarStudios.png" alt="Lunar Studios"></a>
       </div>
       <div class="nav-bar-right">
-        
         <a class="navbar-link" href="/./friends"><i class="fa-solid fa-user-group navbar-icon"></i><span>Friends</span></a>
         <a class="navbar-link" href="/./chat"><i class="fa-solid fa-comments navbar-icon"></i><span>Chat</span></a>
         <a class="navbar-link donate-nav-link" href="/./donate"><i class="fa-solid fa-heart navbar-icon"></i><span>Donate</span></a>
@@ -121,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>`;
     nav.innerHTML = html;
 
-    // Keep the current page highlighted instead of hard-coding Donate as active.
     const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
     nav.querySelectorAll(".navbar-link").forEach(link => {
       try {
@@ -157,8 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }).catch(()=>{});
   }
 
-  // Re-apply the background after account settings finish loading. This matters when
-  // the saved custom background exists on the account but not in localStorage yet.
   const applyLunarBackground = () => {
     const mode = store.get("backgroundMode") || "default";
     const saved = store.get("backgroundImage");
@@ -187,36 +182,30 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.insertBefore(imageLayer, document.body.firstChild);
   };
 
-  // Restore account-backed settings if this browser/origin does not have them yet.
-  // Existing local settings always take priority.
   if (typeof store.loadAccountSettings === "function") {
     store.loadAccountSettings().then(() => {
       applyLunarBackground();
-      if (typeof window.applyLunarSettings === "function") {
-        window.applyLunarSettings();
-      }
-      // loadAccountSettings() replaces the local store with the account copy.
-      // Re-read the pointer after that replacement so navigation never falls
-      // back to the default cursor when an account has an older saved value.
-      if (typeof window.applyLunarCursorSelection === "function") {
-        window.applyLunarCursorSelection();
-      }
+      if (typeof window.applyLunarSettings === "function") window.applyLunarSettings();
+      if (typeof window.applyLunarCursorSelection === "function") window.applyLunarCursorSelection();
     }).catch(() => {});
   }
 
-  // Favicon and Name Logic
   const icon = document.getElementById("tab-favicon");
   const title = document.getElementById("t");
   const cloakName = store.get("CustomName") || store.get("name");
   const cloakIcon = store.get("CustomIcon") || store.get("icon");
-  if (cloakName) title.textContent = cloakName;
-  if (cloakIcon) {
+  if (cloakName && title) title.textContent = cloakName;
+  if (cloakIcon && icon) {
     const safeIcon = reconstructSafeUrl(cloakIcon);
     if (safeIcon) icon.setAttribute("href", safeIcon);
   }
 
-  // Event Key Logic
-  const eventKey = JSON.parse(store.get("eventKey")) || ["`"];
+  const rawEventKey = store.get("eventKey");
+  let eventKey = ["`"];
+  try {
+    const parsedEventKey = rawEventKey ? JSON.parse(rawEventKey) : null;
+    if (Array.isArray(parsedEventKey) && parsedEventKey.length) eventKey = parsedEventKey;
+  } catch {}
   const rawPLink = store.get("pLink") || "https://classroom.google.com/";
   const safePLink = reconstructSafeUrl(rawPLink) ?? "https://classroom.google.com/";
 
@@ -235,10 +224,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Background Image Logic — isolated in its own layer so opacity/blur affect only the image.
   applyLunarBackground();
 
-  // Background effects
   const backgroundEffect = store.get("particles") || "off";
   const effectLayer = document.getElementById("lunar-background-effect");
   if (effectLayer) effectLayer.remove();
@@ -259,7 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Make the background feel responsive without affecting clicks or scrolling.
     if (backgroundEffect === "reactive") {
       let rafPending = false;
       let lastX = 50;
@@ -283,7 +269,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Subtle pointer spotlight on interactive surfaces.
   const interactiveSurfaceSelector = ".settings-card,.column,.support-card,.cash-card,.donate-action,.navbar-link";
   let surfaceRaf = false;
   let surfaceEvent = null;
@@ -304,7 +289,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }, { passive: true });
 
-  // Pointer Effects — cursor.js is only loaded when visual effects are enabled.
   const CURSOR_EFFECTS = [
     "rainbow-stars", "white-orbs", "rainbow-trail", "blue-orbs", "red-circle",
     "the-sims", "curly-cursor", "comet-cursor", "spark-cursor", "crosshair-cursor",
@@ -342,8 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
-/* Session-local navigation history used by the Lunar context menu. */
 (() => {
   const KEY = "lunar-context-navigation";
   const read = () => {
@@ -352,28 +334,17 @@ document.addEventListener("DOMContentLoaded", () => {
       return Array.isArray(value.entries) && Number.isInteger(value.index) ? value : {entries:[],index:-1};
     } catch { return {entries:[],index:-1}; }
   };
-  const write = state => {
-    try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch {}
-  };
+  const write = state => { try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
   const current = () => location.href;
   const state = read();
   const here = current();
-  if (!state.entries.length) {
-    state.entries=[here];
-    state.index=0;
-    write(state);
-  } else if (state.entries[state.index] !== here) {
+  if (!state.entries.length) { state.entries=[here]; state.index=0; write(state); }
+  else if (state.entries[state.index] !== here) {
     const existing = state.entries.indexOf(here);
-    if (existing >= 0) {
-      state.index=existing;
-    } else {
-      state.entries=state.entries.slice(0,state.index+1);
-      state.entries.push(here);
-      state.index++;
-    }
+    if (existing >= 0) state.index=existing;
+    else { state.entries=state.entries.slice(0,state.index+1); state.entries.push(here); state.index++; }
     write(state);
   }
-
   window.lunarContextNavigate = direction => {
     const next = read();
     const targetIndex = next.index + (direction === "forward" ? 1 : -1);
@@ -387,7 +358,6 @@ document.addEventListener("DOMContentLoaded", () => {
     write(next);
     if (target && target !== current()) location.href=target;
   };
-
   document.addEventListener("click", event => {
     const link=event.target.closest?.("a[href]");
     if (!link || event.defaultPrevented || link.target==="_blank" || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -397,14 +367,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const state=read();
     const next=url.href;
     if (state.entries[state.index] === next) return;
-    state.entries=state.entries.slice(0,state.index+1);
-    state.entries.push(next);
-    state.index++;
-    write(state);
+    state.entries=state.entries.slice(0,state.index+1); state.entries.push(next); state.index++; write(state);
   }, true);
 })();
 
-/* Lunar custom context menu */
 (() => {
   const boot = () => {
     if (document.getElementById("lunar-context-menu")) return;
@@ -468,44 +434,49 @@ document.addEventListener("DOMContentLoaded", () => {
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
 
-
-/* Cursor compositor guard: keep custom/animated cursors above every page surface,
-   including the embedded browser iframe and saved background. */
 (function initLunarCursorCompositor(){
   const effectPointers = new Set([
     "rainbow-stars","white-orbs","rainbow-trail","blue-orbs","red-circle",
     "the-sims","curly-cursor","comet-cursor","spark-cursor","crosshair-cursor",
     "soft-glow-cursor","pixel-cursor","ring-cursor"
   ]);
-  const staticPointers = new Set([
-    "normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"
-  ]);
-
+  const staticPointers = new Set(["normal-lunar","normal-graphite","normal-minimal","normal-outline","normal-cross"]);
   function sync(){
     if (!document.body || typeof store === "undefined") return;
     const pointer = store.get("pointer") || "default";
-    const custom = effectPointers.has(pointer);
-    document.documentElement.classList.toggle("lunar-pointer-active", custom);
+    document.documentElement.classList.toggle("lunar-pointer-active", effectPointers.has(pointer));
     document.body.classList.toggle("lunar-custom-cursor-active", effectPointers.has(pointer));
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", sync, {once:true});
-  } else {
-    sync();
-  }
-
-  /* Settings can change the pointer without a full page reload. */
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", sync, {once:true}); else sync();
   let last = null;
   setInterval(() => {
     if (typeof store === "undefined") return;
     const current = store.get("pointer") || "default";
-    if (current !== last) {
-      last = current;
-      sync();
-    }
+    if (current !== last) { last = current; sync(); }
   }, 300);
 })();
 
 const lunarAuthGateStyle=document.createElement("style");lunarAuthGateStyle.textContent=`
-.lunar-auth-locked{overflow:hidden!important}#lunar-auth-gate{position:fixed!important;inset:0;z-index:2147483647!important;display:grid;place-items:center;padding:22px;isolation:isolate}#lunar-auth-gate .lunar-auth-backdrop{position:absolute;inset:0;background:rgba(4,7,13,.56);backdrop-filter:blur(15px) saturate(120%);-webkit-backdrop-filter:blur(15px) saturate(120%)}#lunar-auth-gate .lunar-auth-panel{position:relative;width:min(430px,100%);padding:34px 30px 28px;text-align:center;border:1px solid rgba(255,255,255,.15);border-radius:28px;background:linear-gradient(145deg,rgba(25,29,42,.88),rgba(9,12,19,.8));box-shadow:0 30px 100px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1);color:var(--text);animation:lunarAuthIn .45s cubic-bezier(.16,1,.3,1)}#lunar-auth-gate .lunar-auth-orb{width:62px;height:62px;margin:0 auto 13px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,rgba(180,190,255,.72) 20%,rgba(110,115,255,.18) 58%,transparent 72%);box-shadow:0 0 45px rgba(130,130,255,.28);color:#fff;font-size:22px}#lunar-auth-gate .lunar-auth-kicker{font-size:9px;font-weight:900;letter-spacing:.18em;color:#aaa1ff}#lunar-auth-gate h2{margin:7px 0 8px;font-size:27px;letter-spacing:-.7px}#lunar-auth-gate p{margin:0 auto;color:var(--text-faint);font-size:12px;line-height:1.65;max-width:340px}#lunar-auth-gate .lunar-auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 14px}#lunar-auth-gate .lunar-auth-actions a{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:13px;text-decoration:none;font-weight:800;font-size:12px;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.lunar-auth-primary{background:linear-gradient(135deg,#8f86ff,#655cff);color:#fff;box-shadow:0 12px 28px rgba(100,90,255,.28)}.lunar-auth-primary:hover{transform:translateY(-2px)}.lunar-auth-secondary{border:1px solid var(--border-strong);background:var(--surface);color:var(--text)}.lunar-auth-secondary:hover{transform:translateY(-2px);background:var(--surface-hover)}#lunar-auth-gate small{display:block;color:var(--text-faint);font-size:9px;line-height:1.5}@keyframes lunarAuthIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}@media(max-width:560px){#lunar-auth-gate{padding:14px}#lunar-auth-gate .lunar-auth-panel{padding:28px 20px 23px;border-radius:22px}#lunar-auth-gate .lunar-auth-actions{grid-template-columns:1fr}}`;document.head.appendChild(lunarAuthGateStyle);
+.lunar-auth-locked{overflow:hidden!important}#lunar-auth-gate{position:fixed!important;inset:0;z-index:2147483647!important;display:grid;place-items:center;padding:22px;isolation:isolate}#lunar-auth-gate .lunar-auth-backdrop{position:absolute;inset:0;background:rgba(4,7,13,.56);backdrop-filter:blur(15px) saturate(120%);-webkit-backdrop-filter:blur(15px) saturate(120%)}#lunar-auth-gate .lunar-auth-panel{position:relative;width:min(430px,100%);padding:34px 30px 28px;text-align:center;border:1px solid rgba(255,255,255,.15);border-radius:28px;background:linear-gradient(145deg,rgba(25,29,42,.88),rgba(9,12,19,.8));box-shadow:0 30px 100px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1);color:var(--text);animation:lunarAuthIn .45s cubic-bezier(.16,1,.3,1)}#lunar-auth-gate .lunar-auth-orb{width:62px;height:62px;margin:0 auto 13px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,rgba(180,190,255,.72) 20%,rgba(110,115,255,.18) 58%,transparent 72%);box-shadow:0 0 45px rgba(130,130,255,.28);color:#fff;font-size:22px}#lunar-auth-gate .lunar-auth-kicker{font-size:9px;font-weight:900;letter-spacing:.18em;color:#aaa1ff}#lunar-auth-gate h2{margin:7px 0 8px;font-size:27px;letter-spacing:-.7px}#lunar-auth-gate p{margin:0 auto;color:var(--text-faint);font-size:12px;line-height:1.65;max-width:340px}#lunar-auth-gate .lunar-auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 14px}#lunar-auth-gate .lunar-auth-actions a{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:13px;text-decoration:none;font-weight:800;font-size:12px;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}.lunar-auth-primary{background:linear-gradient(135deg,#8f86ff,#655cff);color:#fff;box-shadow:0 12px 28px rgba(100,90,255,.28)}.lunar-auth-primary:hover{transform:translateY(-2px)}.lunar-auth-secondary{border:1px solid var(--border-strong);background:var(--surface);color:var(--text)}.lunar-auth-secondary:hover{transform:translateY(-2px);background:var(--surface-hover)}#lunar-auth-gate small{display:block;color:var(--text-faint);font-size:9px;line-height:1.5}@keyframes lunarAuthIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}@media(max-width:560px){#lunar-auth-gate{padding:14px}#lunar-auth-gate .lunar-auth-panel{padding:28px 20px 23px;border-radius:22px}#lunar-auth-gate .lunar-auth-actions{grid-template-columns:1fr}}`;
+document.head.appendChild(lunarAuthGateStyle);
+
+/* Load the shared motion layer after all theme styles so it remains consistent on every page. */
+const lunarMotionLink = document.createElement("link");
+lunarMotionLink.rel = "stylesheet";
+lunarMotionLink.href = "/assets/css/lunar-motion.css?v=lunar1";
+document.head.appendChild(lunarMotionLink);
+
+/* Smooth same-origin page exits. External links, downloads, new tabs and form controls are untouched. */
+document.addEventListener("click", event => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.target.closest?.("a[href]");
+  if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+  let url;
+  try { url = new URL(link.href, location.href); } catch { return; }
+  if (url.origin !== location.origin || url.protocol !== location.protocol) return;
+  if (url.href === location.href || link.dataset.noPageTransition === "true") return;
+  if (event.target.closest(".lunar-select-menu,.lunar-context-menu")) return;
+  event.preventDefault();
+  document.body.classList.add("lunar-page-leaving");
+  window.setTimeout(() => { location.href = url.href; }, 170);
+});
