@@ -33,12 +33,6 @@ async function actualCounts() {
   return { online, offline: Math.max(0, members - online), members };
 }
 
-function sessionOwner(req) {
-  const token = req.cookies?.lunar_session;
-  if (!token) return null;
-  return null;
-}
-
 async function authorized(req) {
   const token = req.cookies?.lunar_session;
   if (!token) return false;
@@ -50,13 +44,18 @@ async function authorized(req) {
 }
 
 async function readOverrides() {
-  return readJson(COUNTER_FILE, { online: null, offline: null, members: null });
+  return readJson(COUNTER_FILE, { enabled: false, online: null, offline: null, members: null });
 }
 
 router.get("/member-display", async (req, res) => {
   const actual = await actualCounts();
   const overrides = await readOverrides();
-  const value = key => Number.isFinite(Number(overrides[key])) && Number(overrides[key]) >= 0 ? Math.floor(Number(overrides[key])) : actual[key];
+  // Old counter files may contain 0/0/0 from the previous implementation.
+  // Treat those as unset unless an explicit override session was saved.
+  const enabled = overrides.enabled === true;
+  const value = key => enabled && Number.isFinite(Number(overrides[key])) && Number(overrides[key]) >= 0
+    ? Math.floor(Number(overrides[key]))
+    : actual[key];
   res.set("Cache-Control", "no-store");
   res.json({ online: value("online"), offline: value("offline"), members: value("members"), actual, canEdit: await authorized(req) });
 });
@@ -64,7 +63,7 @@ router.get("/member-display", async (req, res) => {
 router.post("/member-display", async (req, res) => {
   if (!(await authorized(req))) return res.status(403).json({ error: "Only Lunar owners can edit the homepage counters." });
   const current = await readOverrides();
-  const next = { ...current };
+  const next = { enabled: true, online: current.online ?? null, offline: current.offline ?? null, members: current.members ?? null };
   for (const key of ["online", "offline", "members"]) {
     if (Object.prototype.hasOwnProperty.call(req.body || {}, key)) {
       const value = Number(req.body[key]);
@@ -83,7 +82,7 @@ router.post("/member-display/reset", async (req, res) => {
   if (!(await authorized(req))) return res.status(403).json({ error: "Only Lunar owners can reset the homepage counters." });
   const actual = await actualCounts();
   await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(COUNTER_FILE, JSON.stringify({ online: null, offline: null, members: null }, null, 2), "utf8");
+  await fs.writeFile(COUNTER_FILE, JSON.stringify({ enabled: false, online: null, offline: null, members: null }, null, 2), "utf8");
   res.set("Cache-Control", "no-store");
   res.json({ ok: true, ...actual });
 });
