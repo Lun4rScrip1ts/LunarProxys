@@ -1,0 +1,36 @@
+/* Friends list avatar visibility fix. Keeps the same saved avatarUrl used by DM messages. */
+.lunar-friends-page .friends-list .friend-avatar{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  min-height:32px!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  flex:0 0 32px!important;
+}
+.lunar-friends-page .friends-list .friend-avatar img{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border-radius:50%!important;
+  z-index:2!important;
+}
+.lunar-friends-page .friends-list .friend-avatar > i{
+  z-index:4!important;
+}
+.lunar-friends-page .friends-list .friend-avatar.friend-profile-avatar-trigger:not(:has(img)){
+  overflow:visible!important;
+}
