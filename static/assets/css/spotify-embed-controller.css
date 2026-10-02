@@ -1,0 +1,22 @@
+/* Frameless in-page Spotify popout + iframe API host. */
+#spotify-floating-player .spotify-floating-frame-host,
+#spotify-floating-player .spotify-floating-frame-host > iframe {
+  width:100%!important;
+  height:152px!important;
+  min-height:152px!important;
+  display:block!important;
+  border:0!important;
+  overflow:hidden!important;
+}
+#spotify-floating-player.is-popout{
+  width:min(520px,calc(100vw - 32px))!important;
+  right:auto!important;
+  bottom:auto!important;
+  z-index:2147483646!important;
+  box-shadow:0 30px 120px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.08)!important;
+}
+#spotify-floating-player.is-popout .spotify-floating-head{cursor:grab!important}
+#spotify-floating-player.is-popout .spotify-floating-body{height:152px!important}
+@media(max-width:600px){
+  #spotify-floating-player.is-popout{width:calc(100vw - 20px)!important}
+}
