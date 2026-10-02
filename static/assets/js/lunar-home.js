@@ -42,24 +42,27 @@
   let memberRequestInFlight = false;
   let memberTimer = null;
   let canEditCounters = false;
+  let editingCounter = null;
   const counterIds = { online: "lunar-online-count", offline: "lunar-offline-count", members: "lunar-member-count" };
 
   const setCounterText = (data) => {
     for (const [key, id] of Object.entries(counterIds)) {
       const el = document.getElementById(id);
       if (!el) continue;
+      if (editingCounter === key && document.activeElement === el) continue;
       el.textContent = Number(data[key] || 0).toLocaleString();
     }
   };
 
   const updateMemberStatus = async () => {
     const status = document.getElementById("lunar-member-status");
-    if (!status || memberRequestInFlight) return;
+    if (!status || memberRequestInFlight || editingCounter) return;
     memberRequestInFlight = true;
     try {
       const response = await fetch("/api/member-display", { cache: "no-store", credentials: "same-origin", headers: { "Cache-Control": "no-cache" } });
       if (!response.ok) return;
       const data = await response.json();
+      if (editingCounter) return;
       setCounterText(data);
       canEditCounters = data.canEdit === true;
       const reset = document.getElementById("lunar-counter-reset");
@@ -88,7 +91,7 @@
   };
 
   const saveCounter = async (key, element) => {
-    if (!canEditCounters) return;
+    if (!canEditCounters || editingCounter !== key) return;
     const digits = String(element.textContent || "").replace(/[^0-9]/g, "");
     const value = Math.min(999999999, Math.max(0, Number(digits || 0)));
     element.textContent = value.toLocaleString();
@@ -96,8 +99,10 @@
       const response = await fetch("/api/member-display", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [key]: value }) });
       if (!response.ok) throw new Error("save failed");
       const data = await response.json();
+      editingCounter = null;
       setCounterText(data);
     } catch {
+      editingCounter = null;
       updateMemberStatus();
     }
   };
@@ -107,20 +112,37 @@
       const el = document.getElementById(id);
       if (!el || el.dataset.counterBound) return;
       el.dataset.counterBound = "1";
-      el.addEventListener("focus", () => { if (canEditCounters) el.textContent = String(el.textContent).replace(/,/g, ""); });
-      el.addEventListener("keydown", (event) => {
+      el.addEventListener("focus", () => {
         if (!canEditCounters) return;
-        if (event.key === "Enter") { event.preventDefault(); el.blur(); }
-        if (event.key === "Escape") { event.preventDefault(); updateMemberStatus(); el.blur(); }
+        editingCounter = key;
+        el.textContent = String(el.textContent).replace(/,/g, "");
+      });
+      el.addEventListener("keydown", (event) => {
+        if (!canEditCounters || editingCounter !== key) return;
+        if (event.key === "Enter") {
+          event.preventDefault();
+          saveCounter(key, el);
+          el.blur();
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          editingCounter = null;
+          updateMemberStatus();
+          el.blur();
+        }
       });
       el.addEventListener("input", () => {
+        if (!canEditCounters || editingCounter !== key) return;
         const clean = String(el.textContent || "").replace(/[^0-9]/g, "").slice(0, 9);
         if (el.textContent !== clean) el.textContent = clean;
       });
-      el.addEventListener("blur", () => saveCounter(key, el));
+      // Do not save on blur. Clicking away must not overwrite the value;
+      // only Enter explicitly commits the edit.
+      el.addEventListener("blur", () => {
+        if (editingCounter === key) return;
+      });
     });
     document.getElementById("lunar-counter-reset")?.addEventListener("click", async () => {
-      if (!canEditCounters) return;
+      if (!canEditCounters || editingCounter) return;
       const button = document.getElementById("lunar-counter-reset");
       if (button) button.disabled = true;
       try {
@@ -140,8 +162,8 @@
   };
 
   startMemberUpdates();
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) updateMemberStatus(); });
-  window.addEventListener("focus", updateMemberStatus);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && !editingCounter) updateMemberStatus(); });
+  window.addEventListener("focus", () => { if (!editingCounter) updateMemberStatus(); });
 
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char]);
   const loadChangelog = async () => {
