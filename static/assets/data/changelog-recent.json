@@ -1,6 +1,28 @@
 {
-  "updatedAt": "2026-10-02T22:30:00-04:00",
+  "updatedAt": "2026-10-02T23:05:00-04:00",
   "entries": [
+    {
+      "id": "2026-10-02-dropdown-position-fix",
+      "timestamp": "2026-10-02T23:05:00-04:00",
+      "title": "Glass Dropdown Position Fix",
+      "tag": "Fix",
+      "items": [
+        "Fixed glass dropdown menus opening offset from their select field on pages with transformed, filtered, or glass-effect containers.",
+        "Dropdown menus are now rendered directly at the document root and positioned from the visible trigger rectangle.",
+        "Kept viewport clamping, above/below placement, keyboard navigation, and readable glass styling intact."
+      ]
+    },
+    {
+      "id": "2026-10-02-spotify-background-recovery",
+      "timestamp": "2026-10-02T23:00:00-04:00",
+      "title": "Spotify Background Playback Recovery",
+      "tag": "Fix",
+      "items": [
+        "Improved the persistent Spotify player when the Lunar browser tab becomes hidden and visible again.",
+        "The player now remembers whether playback was active and attempts to resume it when the tab returns to the foreground.",
+        "Playback position continues to be saved through Spotify iFrame playback updates so the current position can be restored after navigation or reload."
+      ]
+    },
     {
       "id": "2026-10-02-glass-dropdowns",
       "timestamp": "2026-10-02T22:30:00-04:00",
