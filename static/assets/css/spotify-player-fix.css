@@ -4,7 +4,9 @@
 #spotify-drag-handle{cursor:grab!important;touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
 #spotify-drag-handle.is-dragging{cursor:grabbing!important}
 #spotify-floating-player .spotify-floating-body{min-height:152px!important;height:152px!important;overflow:hidden!important}
-#spotify-floating-player .spotify-floating-body iframe{width:100%!important;height:152px!important;min-height:152px!important;display:block!important;border:0!important}
+#spotify-floating-player .spotify-floating-body iframe,
+#spotify-floating-player .spotify-floating-frame-host{width:100%!important;height:152px!important;min-height:152px!important;display:block!important;border:0!important}
+#spotify-floating-player .spotify-floating-frame-host > iframe{width:100%!important;height:152px!important;min-height:152px!important;display:block!important;border:0!important}
 #spotify-floating-player .spotify-floating-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;min-height:34px!important}
 #spotify-floating-player .spotify-floating-footer small{opacity:.6!important}
 @media(max-width:600px){#spotify-floating-player{max-width:calc(100vw - 16px)!important;width:min(380px,calc(100vw - 16px))!important}#spotify-floating-player .spotify-floating-footer small{display:none!important}}
