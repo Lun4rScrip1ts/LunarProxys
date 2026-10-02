@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-10-02T22:00:00-04:00",
+  "updatedAt": "2026-10-02T22:15:00-04:00",
   "entries": [
+    {
+      "id": "2026-10-02-automatic-deployment-refresh",
+      "timestamp": "2026-10-02T22:15:00-04:00",
+      "title": "Automatic Deployment Updates",
+      "tag": "Infrastructure",
+      "items": [
+        "Added deployment-version detection for Lunar tabs that are already open when a new deployment goes live.",
+        "Lunar now checks the current deployment in the background and automatically refreshes the same page when a newer deployment is detected.",
+        "The refresh keeps the same route, query, and hash so users are transferred to the updated site without manually reopening Lunar.",
+        "Added cache-busting and no-cache handling to prevent an old version check from being reused."
+      ]
+    },
     {
       "id": "2026-10-02-spotify-persistent-player",
       "timestamp": "2026-10-02T22:00:00-04:00",
