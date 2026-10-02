@@ -3,8 +3,7 @@
   let openControl = null;
   let optionButtons = [];
 
-  // The old Lunar right-click popup was registered elsewhere. Stop that handler
-  // at capture phase so the browser's normal context menu can remain available.
+  // Remove the old custom Lunar right-click popup. Keep the browser's normal menu.
   document.addEventListener('contextmenu', event => {
     document.querySelectorAll('#lunar-context-menu,.lunar-context-menu,[data-lunar-context-menu]').forEach(el => el.remove());
     event.stopImmediatePropagation();
@@ -72,10 +71,22 @@
     });
   }
 
+  function selectOption(control, index) {
+    const select = control?._native;
+    const option = select?.options?.[index];
+    if (!select || !option || option.disabled) return;
+    select.selectedIndex = index;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    sync(control);
+    close(control);
+    getTrigger(control)?.focus({ preventScroll: true });
+  }
+
   function rebuild(control) {
     const select = control._native;
     const menu = getMenu(control);
     if (!select || !menu) return;
+    const wasOpen = control.classList.contains('is-open');
     menu.innerHTML = '';
     [...select.options].forEach((option, index) => {
       const button = document.createElement('button');
@@ -85,19 +96,13 @@
       button.textContent = option.textContent;
       button.disabled = option.disabled;
       button.setAttribute('role', 'option');
-      button.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        if (option.disabled) return;
-        select.selectedIndex = index;
-        select.dispatchEvent(new Event('change', { bubbles: true }));
-        sync(control);
-        close(control);
-        getTrigger(control)?.focus();
-      });
       menu.appendChild(button);
     });
     sync(control);
+    if (wasOpen) {
+      position(control);
+      optionButtons = [...menu.querySelectorAll('.lunar-select-option:not(:disabled)')];
+    }
   }
 
   function open(control) {
@@ -108,6 +113,8 @@
     control.classList.add('is-open');
     menu.classList.add('is-visible');
     trigger.setAttribute('aria-expanded', 'true');
+    // Force the menu into the top-level viewport layer before measuring it.
+    if (menu.parentElement !== document.body) document.body.appendChild(menu);
     position(control);
     openControl = control;
     optionButtons = [...menu.querySelectorAll('.lunar-select-option:not(:disabled)')];
@@ -143,6 +150,7 @@
     menu.className = 'lunar-select-menu';
     menu.setAttribute('role', 'listbox');
     menu.style.position = 'fixed';
+    menu.style.pointerEvents = 'auto';
     menu.dataset.owner = select.id || select.name || `select-${Math.random().toString(36).slice(2)}`;
     control._menu = menu;
 
@@ -151,14 +159,35 @@
       event.stopPropagation();
       toggle(control);
     });
+
     trigger.addEventListener('keydown', event => {
       if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         open(control);
       } else if (event.key === 'Escape') {
+        event.preventDefault();
         close(control);
       }
     });
+
+    // Handle option selection at the menu level so page-level click handlers
+    // cannot accidentally break individual dropdown options.
+    menu.addEventListener('pointerdown', event => {
+      const button = event.target.closest('.lunar-select-option');
+      if (!button || button.disabled) return;
+      event.preventDefault();
+      event.stopPropagation();
+      selectOption(control, Number(button.dataset.index));
+    }, true);
+
+    menu.addEventListener('click', event => {
+      const button = event.target.closest('.lunar-select-option');
+      if (!button || button.disabled) return;
+      event.preventDefault();
+      event.stopPropagation();
+      // pointerdown normally already selects it; this is the mouse/keyboard fallback.
+      if (control.classList.contains('is-open')) selectOption(control, Number(button.dataset.index));
+    }, true);
 
     menu.addEventListener('keydown', event => {
       const current = document.activeElement;
@@ -166,24 +195,22 @@
       if (event.key === 'Escape') {
         event.preventDefault();
         close(control);
-        trigger.focus();
-        return;
-      }
-      if (event.key === 'ArrowDown' && optionButtons.length) {
+        trigger.focus({ preventScroll: true });
+      } else if (event.key === 'ArrowDown' && optionButtons.length) {
         event.preventDefault();
-        optionButtons[(index + 1 + optionButtons.length) % optionButtons.length].focus();
+        optionButtons[(index + 1 + optionButtons.length) % optionButtons.length].focus({ preventScroll: true });
       } else if (event.key === 'ArrowUp' && optionButtons.length) {
         event.preventDefault();
-        optionButtons[(index - 1 + optionButtons.length) % optionButtons.length].focus();
+        optionButtons[(index - 1 + optionButtons.length) % optionButtons.length].focus({ preventScroll: true });
       } else if (event.key === 'Home' && optionButtons.length) {
         event.preventDefault();
-        optionButtons[0].focus();
+        optionButtons[0].focus({ preventScroll: true });
       } else if (event.key === 'End' && optionButtons.length) {
         event.preventDefault();
-        optionButtons.at(-1).focus();
+        optionButtons.at(-1).focus({ preventScroll: true });
       } else if ((event.key === 'Enter' || event.key === ' ') && current?.classList.contains('lunar-select-option')) {
         event.preventDefault();
-        current.click();
+        selectOption(control, Number(current.dataset.index));
       }
     });
 
