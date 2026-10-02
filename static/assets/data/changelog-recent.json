@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-10-02T22:15:00-04:00",
+  "updatedAt": "2026-10-02T22:30:00-04:00",
   "entries": [
+    {
+      "id": "2026-10-02-glass-dropdowns",
+      "timestamp": "2026-10-02T22:30:00-04:00",
+      "title": "Glass Dropdown System",
+      "tag": "UI",
+      "items": [
+        "Replaced native-looking select menus across Lunar pages with a consistent glass dropdown interface.",
+        "Dropdown options now use high-contrast text, readable hover and selected states, and a blurred glass panel instead of hard-to-read native lists.",
+        "Added automatic positioning so menus stay inside the viewport and open above the field when there is not enough room below it.",
+        "Added keyboard navigation, Escape-to-close, scrolling, dynamic option updates, and form-compatible native select synchronization."
+      ]
+    },
     {
       "id": "2026-10-02-automatic-deployment-refresh",
       "timestamp": "2026-10-02T22:15:00-04:00",
