@@ -28,9 +28,19 @@ async function actualCounts() {
     }
   }
 
-  const members = Object.keys(users).length;
+  const memberList = Object.values(users).map(user => ({
+    id: user.id,
+    username: String(user.username || ""),
+    displayName: String(user.displayName || user.username || ""),
+    avatarUrl: String(user.avatarUrl || ""),
+    isOnline: onlineUsers.has(user.id),
+  })).sort((a, b) => {
+    if (a.isOnline !== b.isOnline) return a.isOnline ? -1 : 1;
+    return a.username.localeCompare(b.username);
+  });
+  const members = memberList.length;
   const online = onlineUsers.size;
-  return { online, offline: Math.max(0, members - online), members };
+  return { online, offline: Math.max(0, members - online), members, memberList };
 }
 
 router.get("/member-display", async (req, res) => {
