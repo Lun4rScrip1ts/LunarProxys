@@ -39,9 +39,13 @@
   function roleBadges(roles){return (Array.isArray(roles)?roles:[]).map(role=>'<span class="chat-role-badge">'+escape(role)+'</span>').join("")}
 const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
   const initials = name => (name || "?").trim().slice(0, 2).toUpperCase();
-  const avatar = user => user.avatarUrl
-    ? `<img src="${escapeAttr(user.avatarUrl)}" alt="">`
-    : escape(initials(user.displayName));
+  const avatar = user => {
+    const avatarUrl = user?.avatarUrl || (user?.userId && user.userId === currentUser?.id ? currentUser?.avatarUrl : "");
+    const name = user?.displayName || user?.username || currentUser?.displayName || currentUser?.username || "";
+    return avatarUrl
+      ? `<img src="${escapeAttr(avatarUrl)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="chat-avatar-fallback" style="display:none">${escape(initials(name))}</span>`
+      : escape(initials(name));
+  };
   const time = iso => new Date(iso).toLocaleString([], {
     month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit"
   });
@@ -212,7 +216,7 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
   function render(messagesList) {
     const signature = JSON.stringify(messagesList.map(m => ({
       id:m.id, message:m.message, editedAt:m.editedAt, replyTo:m.replyTo?.id || "",
-      attachments:m.attachments || [], reactions:m.reactions || [], avatarUrl:m.avatarUrl || ""
+      attachments:m.attachments || [], reactions:m.reactions || [], avatarUrl:m.avatarUrl || "", username:m.username || "", displayName:m.displayName || ""
     })));
     const nearBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 120;
     messages = messagesList;
