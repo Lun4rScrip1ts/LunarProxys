@@ -1320,3 +1320,18 @@
 .lunar-friends-page .friend-avatar img{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important}
 .lunar-friends-page .mini-avatar,.lunar-friends-page .large-avatar,.lunar-friends-page .friends-profile-avatar{position:relative!important;overflow:hidden!important;box-sizing:border-box!important}
 .lunar-friends-page .mini-avatar img,.lunar-friends-page .large-avatar img,.lunar-friends-page .friends-profile-avatar img{display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important}
+
+/* Profile role management */
+.profile-role-manager{margin-top:12px;padding:10px;border:1px solid var(--lunar-border);border-radius:10px;background:rgba(255,255,255,.025)}
+.profile-role-manager-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.profile-role-manager-head strong{display:block;color:#eef0f5;font-size:10px;font-weight:900}
+.profile-role-manager-head span{display:block;margin-top:2px;color:#747d8e;font-size:8px;line-height:1.35}
+.profile-role-manager-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.profile-role-edit-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border:1px solid rgba(145,117,255,.24);border-radius:6px;background:rgba(145,117,255,.08);color:#d7ceff;font-size:8px;font-weight:800}
+.profile-role-edit-tag button{width:15px;height:15px;padding:0;border:0;border-radius:4px;background:transparent;color:#8d84a8;cursor:pointer}
+.profile-role-edit-tag button:hover{background:rgba(255,255,255,.08);color:#fff}
+.profile-role-manager-add{display:flex;gap:5px}
+.profile-role-manager-add input{min-width:0;flex:1;height:27px;padding:0 8px;border:1px solid var(--lunar-border);border-radius:7px;background:rgba(0,0,0,.14);color:#eef0f5;font:inherit;font-size:9px;outline:none}
+.profile-role-manager-add input:focus{border-color:rgba(145,117,255,.45);box-shadow:0 0 0 2px rgba(145,117,255,.08)}
+.profile-role-manager-add button{height:27px;padding:0 9px;border:1px solid rgba(145,117,255,.25);border-radius:7px;background:rgba(145,117,255,.12);color:#d9d0ff;font-size:9px;font-weight:900;cursor:pointer}
+.profile-role-manager-add button:hover{background:rgba(145,117,255,.2);color:#fff}
