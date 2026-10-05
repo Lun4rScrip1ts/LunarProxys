@@ -79,6 +79,7 @@ async function loadState() {
       }
       for (const message of state.messages) {
         message.reactions = Array.isArray(message.reactions) ? message.reactions : [];
+        if (state.users[message.userId]) message.roles = normalizeProfileRoles(state.users[message.userId]);
         message.attachments = Array.isArray(message.attachments) ? message.attachments : [];
         message.replyTo = message.replyTo && typeof message.replyTo === "object" ? message.replyTo : null;
       }
@@ -271,6 +272,7 @@ function updateMessagesForUser(user) {
       message.username = user.username;
       message.displayName = user.displayName;
       message.avatarUrl = user.avatarUrl || "";
+      message.roles = normalizeProfileRoles(user);
     }
     for (const reaction of message.reactions || []) {
       for (const reactor of reaction.users || []) {
@@ -732,6 +734,7 @@ router.post("/chat/messages", requireUser, async (req, res) => {
     username: req.user.username,
     displayName: req.user.displayName,
     avatarUrl: req.user.avatarUrl || "",
+    roles: normalizeProfileRoles(req.user),
     message: text,
     attachments: attachment ? [{ url: attachment.url, kind: attachment.kind, name: cleanText(attachment.name, 80) }] : [],
     replyTo: replied ? {
