@@ -580,7 +580,8 @@
     "image": "/assets/media/icons/happywheels.webp",
     "categories": [
       "all"
-    ]
+    ],
+    "blank": true
   },
   {
     "name": "Papa's Burgeria",
@@ -2560,7 +2561,8 @@
     "image": "/assets/media/icons/hw.webp",
     "categories": [
       "all"
-    ]
+    ],
+    "blank": true
   },
   {
     "name": "Google Snake Modded",
