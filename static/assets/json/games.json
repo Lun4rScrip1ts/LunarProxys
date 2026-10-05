@@ -581,7 +581,7 @@
     "categories": [
       "all"
     ],
-    "blank": true
+    "direct": true
   },
   {
     "name": "Papa's Burgeria",
@@ -2562,7 +2562,7 @@
     "categories": [
       "all"
     ],
-    "blank": true
+    "direct": true
   },
   {
     "name": "Google Snake Modded",
