@@ -689,7 +689,18 @@ router.get("/users/:username", (req, res) => {
 
 router.get("/chat/messages", (req, res) => {
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 100, 1), 100);
-  res.json({ messages: state.messages.slice(-limit) });
+  const messages = state.messages.slice(-limit).map(message => {
+    const user = state.users[message.userId];
+    if (!user) return message;
+    const hydrated = { ...message, username: user.username, displayName: user.displayName, avatarUrl: user.avatarUrl || "", roles: normalizeProfileRoles(user) };
+    if (hydrated.replyTo?.userId && state.users[hydrated.replyTo.userId]) {
+      const replyUser = state.users[hydrated.replyTo.userId];
+      hydrated.replyTo = { ...hydrated.replyTo, username: replyUser.username, displayName: replyUser.displayName };
+    }
+    return hydrated;
+  });
+  res.set("Cache-Control", "no-store");
+  res.json({ messages });
 });
 
 router.post("/chat/uploads", requireUser, async (req, res) => {
