@@ -1,150 +1,44 @@
 (() => {
-  const esc = value => {
-    const d = document.createElement("div");
-    d.textContent = value ?? "";
-    return d.innerHTML;
+  const escape = value => {
+    const div = document.createElement("div");
+    div.textContent = value ?? "";
+    return div.innerHTML;
   };
-  const attr = value => esc(value).replace(/"/g, "&quot;");
-  const initials = value => String(value || "?").trim().slice(0, 2).toUpperCase();
-  const api = async (url, options = {}) => {
+  const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
+  const initials = name => (name || "?").trim().slice(0, 2).toUpperCase();
+  let currentUser = null;
+  let activeUser = null;
+
+  async function api(url, options) {
     const response = await fetch(url, { credentials: "same-origin", ...options });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || "Something went wrong.");
     return data;
-  };
+  }
 
-  let me = null;
-  let activeUser = null;
-  let modal = null;
-
-  async function loadMe() {
-    try {
-      const data = await api("/api/friends/bootstrap", { cache: "no-store" });
-      me = data.user || null;
-    } catch (_) {
-      me = null;
+  function toast(message) {
+    let el = document.getElementById("home-profile-toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "home-profile-toast";
+      el.className = "friends-toast show";
+      document.body.appendChild(el);
     }
-    return me;
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove("show"), 2200);
   }
 
-  function avatarHtml(user) {
-    if (user?.avatarUrl) return '<img src="' + attr(user.avatarUrl) + '" alt="" onerror="this.remove()">';
-    return esc(initials(user?.displayName || user?.username));
+  function canManageProfileRoles() {
+    return ["lunar", "lunarstudios"].includes(String(currentUser?.username || "").toLowerCase());
   }
 
-  function ownerRole(username) {
-    const name = String(username || "").toLowerCase();
-    return name === "lunar" ? "Owner" : name === "lunarstudios" ? "Co-Owner" : "";
-  }
-
-  function roleBadges(roles) {
-    return (Array.isArray(roles) ? roles : []).map(role => '<span>' + esc(role) + '</span>').join("");
-  }
-
-  function statCard(icon, label, value) {
-    return '<div class="home-profile-stat"><div><i class="' + icon + '"></i><span>' + esc(label) + '</span></div><strong>' + esc(value || "Not shared yet") + '</strong></div>';
-  }
-
-  function ensureModal() {
-    if (modal) return modal;
-    modal = document.createElement("div");
-    modal.id = "friends-profile-modal";
-    modal.className = "friends-profile-modal lunar-friends-page";
-    modal.hidden = true;
-    modal.innerHTML = '<div class="friends-profile-card">' +
-      '<button class="friends-profile-close" type="button" data-home-profile-close aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button>' +
-      '<div class="friends-profile-banner" data-home-profile-banner></div>' +
-      '<div class="friends-profile-body">' +
-        '<div class="friends-profile-avatar" data-home-profile-avatar></div>' +
-        '<div class="friends-profile-name"><h2 data-home-profile-display></h2><span class="friends-profile-owner" data-home-profile-owner hidden>Owner</span></div>' +
-        '<div class="friends-profile-username" data-home-profile-username></div>' +
-        '<div class="friends-profile-status" data-home-profile-status></div>' +
-        '<div class="friends-profile-member" data-home-profile-member></div>' +
-        '<p class="friends-profile-bio" data-home-profile-bio></p>' +
-        '<div class="friends-profile-actions profile-actions" data-home-profile-actions>' +
-          '<button type="button" class="message-action" data-home-profile-message>Message</button>' +
-          '<button type="button" class="friend-action" data-home-profile-friend>Friend</button>' +
-          '<button type="button" class="block-action" data-home-profile-block>Block</button>' +
-          '<button type="button" class="report-action" data-home-profile-report>Report</button>' +
-        '</div>' +
-        '<div class="friends-profile-roles" data-home-profile-roles></div>' +
-        '<div class="friends-profile-stickers" data-home-profile-stickers></div>' +
-        '<div class="home-profile-stats" data-home-profile-stats></div>' +
-      '</div>' +
-    '</div>';
-    document.body.appendChild(modal);
-
-    modal.addEventListener("click", event => {
-      if (event.target === modal || event.target.closest("[data-home-profile-close]")) closeProfile();
-    });
-    modal.querySelector("[data-home-profile-message]").addEventListener("click", () => {
-      if (!activeUser) return;
-      window.location.href = "/friends?user=" + encodeURIComponent(activeUser.username);
-    });
-    modal.querySelector("[data-home-profile-friend]").addEventListener("click", async event => {
-      if (!activeUser) return;
-      const button = event.currentTarget;
-      button.disabled = true;
-      try {
-        await api("/api/friends/requests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: activeUser.username })
-        });
-        button.textContent = "Pending";
-        activeUser.friendRequestPending = true;
-      } catch (error) {
-        button.disabled = false;
-        window.alert(error.message);
-      }
-    });
-    modal.querySelector("[data-home-profile-block]").addEventListener("click", async event => {
-      if (!activeUser || !confirm("Block @" + activeUser.username + "?")) return;
-      const button = event.currentTarget;
-      button.disabled = true;
-      try {
-        await api("/api/friends/block/" + encodeURIComponent(activeUser.id), { method: "POST" });
-        button.textContent = "Blocked";
-        closeProfile();
-      } catch (error) {
-        button.disabled = false;
-        window.alert(error.message);
-      }
-    });
-    modal.querySelector("[data-home-profile-report]").addEventListener("click", async () => {
-      if (!activeUser) return;
-      try {
-        await api("/api/friends/report/" + encodeURIComponent(activeUser.id), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reason: "Reported from homepage profile" })
-        });
-        window.alert("Report submitted.");
-      } catch (error) {
-        window.alert(error.message);
-      }
-    });
-    return modal;
-  }
-
-  function closeProfile() {
-    if (!modal) return;
-    modal.hidden = true;
-    activeUser = null;
-  }
-
-  function renderRoleManager(container, user) {
-    if (!container || !["lunar", "lunarstudios"].includes(String(me?.username || "").toLowerCase())) {
-      container.innerHTML = "";
-      return;
-    }
-    container.innerHTML = '<div class="profile-role-manager home-profile-role-manager">' +
-      '<div class="profile-role-manager-head"><div><strong>Profile Roles</strong><span>Only @lunar and @lunarstudios can edit these tags.</span></div></div>' +
-      '<div class="profile-role-manager-list">' + (Array.isArray(user.roles) ? user.roles : []).map(role =>
-        '<span class="profile-role-edit-tag">' + esc(role) + '<button type="button" data-remove-home-role="' + attr(role) + '" aria-label="Remove ' + attr(role) + '"><i class="fa-solid fa-xmark"></i></button></span>'
-      ).join("") + '</div>' +
-      '<div class="profile-role-manager-add"><input type="text" maxlength="32" placeholder="Add a role..."><button type="button" data-add-home-role><i class="fa-solid fa-plus"></i> Add</button></div>' +
-    '</div>';
+  async function renderProfileRoleManager(container, user) {
+    if (!container || !canManageProfileRoles()) return;
+    container.innerHTML = '<div class="profile-role-manager"><div class="profile-role-manager-head"><div><strong>Profile Roles</strong><span>Only @lunar and @lunarstudios can edit these tags.</span></div></div><div class="profile-role-manager-list">' +
+      (user.roles || []).map(role => '<span class="profile-role-edit-tag">' + escape(role) + '<button type="button" data-remove-profile-role="' + escapeAttr(role) + '" aria-label="Remove ' + escapeAttr(role) + '"><i class="fa-solid fa-xmark"></i></button></span>').join("") +
+      '</div><div class="profile-role-manager-add"><input type="text" maxlength="32" placeholder="Add a role..."><button type="button" data-add-profile-role><i class="fa-solid fa-plus"></i> Add</button></div></div>';
 
     const save = async roles => {
       try {
@@ -153,114 +47,158 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ roles })
         });
-        user.roles = data.user?.roles || roles;
-        renderRoleManager(container, user);
-      } catch (error) {
-        window.alert(error.message);
-      }
+        user.roles = data.user.roles || [];
+        const roleDisplay = document.getElementById("friends-profile-roles");
+        if (roleDisplay) roleDisplay.innerHTML = user.roles.map(r => "<span>" + escape(r) + "</span>").join("");
+        await renderProfileRoleManager(container, user);
+        toast("Profile roles updated.");
+      } catch (error) { toast(error.message); }
     };
-    container.querySelector("[data-add-home-role]")?.addEventListener("click", () => {
+
+    container.querySelector("[data-add-profile-role]")?.addEventListener("click", async () => {
       const input = container.querySelector("input");
-      const role = input.value.trim();
+      const role = (input?.value || "").trim();
       if (!role) return;
-      save([...(user.roles || []), role]);
+      if ((user.roles || []).some(r => r.toLowerCase() === role.toLowerCase())) {
+        toast("That role is already on the profile.");
+        return;
+      }
+      await save([...(user.roles || []), role]);
     });
-    container.querySelectorAll("[data-remove-home-role]").forEach(button => {
-      button.addEventListener("click", () => save((user.roles || []).filter(role => role !== button.dataset.removeHomeRole)));
+    container.querySelector("input")?.addEventListener("keydown", event => {
+      if (event.key === "Enter") { event.preventDefault(); container.querySelector("[data-add-profile-role]")?.click(); }
+    });
+    container.querySelectorAll("[data-remove-profile-role]").forEach(button => {
+      button.addEventListener("click", () => save((user.roles || []).filter(role => role !== button.dataset.removeProfileRole)));
     });
   }
 
-  function fillProfile(user) {
-    const card = modal.querySelector(".friends-profile-card");
-    const banner = modal.querySelector("[data-home-profile-banner]");
-    const avatar = modal.querySelector("[data-home-profile-avatar]");
-    const display = modal.querySelector("[data-home-profile-display]");
-    const owner = modal.querySelector("[data-home-profile-owner]");
-    const username = modal.querySelector("[data-home-profile-username]");
-    const status = modal.querySelector("[data-home-profile-status]");
-    const member = modal.querySelector("[data-home-profile-member]");
-    const bio = modal.querySelector("[data-home-profile-bio]");
-    const actions = modal.querySelector("[data-home-profile-actions]");
-    const friend = modal.querySelector("[data-home-profile-friend]");
-    const block = modal.querySelector("[data-home-profile-block]");
-    const roles = modal.querySelector("[data-home-profile-roles]");
-    const stickers = modal.querySelector("[data-home-profile-stickers]");
-    const stats = modal.querySelector("[data-home-profile-stats]");
-
-    avatar.innerHTML = avatarHtml(user);
-    display.textContent = user.displayName || user.username;
-    username.textContent = "@" + user.username;
-    const ownerText = ownerRole(user.username);
-    owner.hidden = !ownerText;
-    owner.textContent = ownerText || "Owner";
-    status.textContent = user.isOnline ? "Online" : (user.status || "Offline");
-    status.classList.toggle("is-online", Boolean(user.isOnline));
-    member.textContent = user.createdAt ? "Member since " + new Date(user.createdAt).toLocaleDateString([], { month: "short", year: "numeric" }) : "";
-    bio.textContent = user.bio || "";
-    bio.hidden = !user.bio;
-
-    banner.style.backgroundImage = user.bannerUrl ? 'url("' + String(user.bannerUrl).replace(/"/g, "\\\"") + '")' : "none";
-    const background = user.backgroundUrl || "";
-    card.style.backgroundImage = background
-      ? 'linear-gradient(180deg,rgba(10,12,17,.18),rgba(10,12,17,.94) 62%),url("' + String(background).replace(/"/g, "\\\"") + '")'
-      : "linear-gradient(180deg,#20242d,#17191e)";
-    card.style.backgroundSize = background ? "cover" : "auto";
-    card.style.backgroundPosition = "center";
-
-    actions.hidden = Boolean(user.isSelf);
-    friend.textContent = user.isFriend ? "Added" : (user.friendRequestPending ? "Pending" : "Friend");
-    friend.disabled = Boolean(user.isFriend || user.friendRequestPending);
-    block.textContent = user.isBlocked ? "Blocked" : "Block";
-    block.disabled = Boolean(user.isBlocked);
-
-    roles.innerHTML = roleBadges(user.roles);
-    renderRoleManager(roles, user);
-    stickers.innerHTML = (Array.isArray(user.stickers) ? user.stickers : []).slice(0, 12).map(sticker =>
-      '<img src="' + attr(sticker.url) + '" alt="' + attr(sticker.name || "Sticker") + '" loading="lazy">'
-    ).join("");
-    stickers.hidden = !user.stickers?.length;
-
-    const mutuals = Array.isArray(user.mutualFriends) ? user.mutualFriends : [];
-    let mutualBox = modal.querySelector("[data-home-mutuals]");
-    if (!mutualBox) {
-      mutualBox = document.createElement("div");
-      mutualBox.className = "friends-profile-mutuals";
-      mutualBox.dataset.homeMutuals = "1";
-      actions.before(mutualBox);
-    }
-    mutualBox.innerHTML = mutuals.length
-      ? '<strong>' + mutuals.length + ' Mutual Friend' + (mutuals.length === 1 ? "" : "s") + '</strong><div>' + mutuals.slice(0, 6).map(m =>
-          m.avatarUrl ? '<img src="' + attr(m.avatarUrl) + '" alt="@' + attr(m.username) + '" title="@' + attr(m.username) + '">' : '<span title="@' + attr(m.username) + '">' + esc(initials(m.displayName || m.username)) + '</span>'
-        ).join("") + '</div>'
-      : "<strong>No Mutual Friends</strong>";
-
-    const joined = user.createdAt ? new Date(user.createdAt).toLocaleDateString([], { month: "short", year: "numeric" }) : "Member date unavailable";
-    const statusValue = user.status || (user.isOnline ? "Online" : "Not set");
-    const recentlyPlayed = Array.isArray(user.recentlyPlayed) ? user.recentlyPlayed.slice(0, 2).map(x => x.name || x.title).filter(Boolean).join(", ") : (user.recentlyPlayed || "Not shared yet");
-    const mutualValue = mutuals.length ? mutuals.length + " mutual friend" + (mutuals.length === 1 ? "" : "s") : "No mutual friends";
-    stats.innerHTML =
-      statCard("fa-solid fa-calendar-days", "JOINED", joined) +
-      statCard("fa-solid fa-circle", "STATUS", statusValue) +
-      statCard("fa-solid fa-gamepad", "RECENTLY PLAYED", recentlyPlayed) +
-      statCard("fa-solid fa-user-group", "MUTUAL FRIENDS", mutualValue) +
-      statCard("fa-solid fa-palette", "FAVORITE THEME", user.favoriteTheme || "Not shared yet") +
-      statCard("fa-solid fa-arrow-pointer", "FAVORITE CURSOR", user.favoriteCursor || "Not shared yet");
-  }
-
-  async function openProfile(username) {
-    if (!username) return;
-    ensureModal();
-    modal.hidden = false;
+  async function openChatProfile(username) {
     try {
       const data = await api("/api/users/" + encodeURIComponent(username), { cache: "no-store" });
-      const user = data.user;
-      if (!user) return closeProfile();
-      activeUser = user;
-      fillProfile(user);
-    } catch (error) {
-      closeProfile();
-      window.alert(error.message);
-    }
+      const u = data.user;
+      if (!u) return;
+      activeUser = u;
+
+      let modal = document.getElementById("friends-profile-modal");
+      if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "friends-profile-modal";
+        modal.className = "friends-profile-modal lunar-friends-page";
+        modal.hidden = true;
+        modal.innerHTML = '<div class="friends-profile-card"><button id="friends-profile-close" class="friends-profile-close" type="button" aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button><div id="friends-profile-banner" class="friends-profile-banner"></div><div class="friends-profile-body"><div id="friends-profile-avatar" class="friends-profile-avatar"></div><div class="friends-profile-name"><h2 id="friends-profile-display"></h2><span id="friends-profile-owner" class="friends-profile-owner" hidden>Owner</span></div><div id="friends-profile-username" class="friends-profile-username"></div><div id="friends-profile-status" class="friends-profile-status"></div><div id="friends-profile-member" class="friends-profile-member"></div><p id="friends-profile-bio" class="friends-profile-bio"></p><div id="friends-profile-actions" class="profile-actions"><button id="friends-profile-message" type="button" class="message-action">Message</button><button id="friends-profile-friend" type="button" class="friend-action">Friend</button><button id="friends-profile-block" type="button" class="block-action">Block</button><button id="friends-profile-report" type="button" class="report-action">Report</button></div><div id="friends-profile-roles" class="friends-profile-roles"></div><div id="friends-profile-stickers" class="friends-profile-stickers"></div></div></div>';
+        document.body.appendChild(modal);
+        modal.addEventListener("click", event => { if (event.target === modal) closeChatProfile(); });
+        document.getElementById("friends-profile-close").onclick = closeChatProfile;
+      }
+
+      const avatarHtml = user => user && user.avatarUrl
+        ? '<img src="' + escapeAttr(user.avatarUrl) + '" alt="" onerror="this.remove()">'
+        : escape(initials(user && (user.displayName || user.username)));
+
+      document.getElementById("friends-profile-avatar").innerHTML = avatarHtml(u);
+      document.getElementById("friends-profile-display").textContent = u.displayName || u.username;
+      document.getElementById("friends-profile-username").textContent = "@" + u.username;
+      document.getElementById("friends-profile-status").textContent = u.isOnline ? "Online" : (u.status || "Offline");
+      document.getElementById("friends-profile-status").classList.toggle("is-online", Boolean(u.isOnline));
+      document.getElementById("friends-profile-member").textContent = u.createdAt
+        ? "Member since " + new Date(u.createdAt).toLocaleDateString([], { month: "short", year: "numeric" }) : "";
+      document.getElementById("friends-profile-bio").textContent = u.bio || "No bio yet.";
+      document.getElementById("friends-profile-owner").hidden = !u.isOwner;
+      document.getElementById("friends-profile-roles").innerHTML = (u.roles || []).map(r => "<span>" + escape(r) + "</span>").join("");
+
+      let roleManager = document.getElementById("friends-profile-role-manager");
+      if (!roleManager) {
+        roleManager = document.createElement("div");
+        roleManager.id = "friends-profile-role-manager";
+        document.getElementById("friends-profile-roles").after(roleManager);
+      }
+      roleManager.innerHTML = "";
+      renderProfileRoleManager(roleManager, u);
+
+      document.getElementById("friends-profile-stickers").innerHTML = (u.stickers || []).slice(0, 12).map(sticker =>
+        '<img src="' + escapeAttr(sticker.url) + '" alt="' + escapeAttr(sticker.name || "Sticker") + '" loading="lazy">'
+      ).join("");
+
+      const banner = document.getElementById("friends-profile-banner");
+      banner.style.backgroundImage = u.bannerUrl
+        ? 'url("' + String(u.bannerUrl).replace(/"/g, '\\\"') + '")' : "none";
+
+      const card = modal.querySelector(".friends-profile-card");
+      const bg = u.backgroundUrl || "";
+      card.style.backgroundImage = bg
+        ? 'linear-gradient(180deg,rgba(10,12,17,.18),rgba(10,12,17,.94) 62%),url("' + String(bg).replace(/"/g, '\\\"') + '")'
+        : "linear-gradient(180deg,#20242d,#17191e)";
+      card.style.backgroundSize = bg ? "cover" : "auto";
+      card.style.backgroundPosition = "center";
+
+      const actions = document.getElementById("friends-profile-actions");
+      const mutuals = Array.isArray(u.mutualFriends) ? u.mutualFriends : [];
+      let mutualBox = document.getElementById("friends-profile-mutuals");
+      if (!mutualBox) {
+        mutualBox = document.createElement("div");
+        mutualBox.id = "friends-profile-mutuals";
+        mutualBox.className = "friends-profile-mutuals";
+        actions.before(mutualBox);
+      }
+      mutualBox.innerHTML = mutuals.length
+        ? '<strong>' + mutuals.length + ' Mutual Friend' + (mutuals.length === 1 ? "" : "s") + '</strong><div>' +
+          mutuals.slice(0, 6).map(m => m.avatarUrl
+            ? '<img src="' + escapeAttr(m.avatarUrl) + '" alt="@' + escapeAttr(m.username) + '" title="@' + escapeAttr(m.username) + '">'
+            : '<span title="@' + escapeAttr(m.username) + '">' + escape(initials(m.displayName || m.username)) + '</span>').join("") + '</div>'
+        : "<strong>No Mutual Friends</strong>";
+
+      actions.hidden = !!u.isSelf;
+      const message = document.getElementById("friends-profile-message");
+      const friend = document.getElementById("friends-profile-friend");
+      const block = document.getElementById("friends-profile-block");
+      const report = document.getElementById("friends-profile-report");
+
+      message.onclick = () => { location.href = "/friends?user=" + encodeURIComponent(u.username); };
+      friend.textContent = u.isFriend ? "Added" : (u.friendRequestPending ? "Pending" : "Friend");
+      friend.disabled = !!u.isFriend || !!u.friendRequestPending;
+      friend.onclick = async () => {
+        try {
+          await api("/api/friends/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u.username }) });
+          friend.textContent = "Pending";
+          friend.disabled = true;
+          toast("Friend request sent.");
+        } catch (error) { toast(error.message); }
+      };
+      block.textContent = u.isBlocked ? "Blocked" : "Block";
+      block.disabled = !!u.isBlocked;
+      block.onclick = async () => {
+        if (!confirm("Block @" + u.username + "?")) return;
+        try {
+          await api("/api/friends/block/" + encodeURIComponent(u.id), { method: "POST" });
+          block.textContent = "Blocked";
+          block.disabled = true;
+          toast("User blocked.");
+          closeChatProfile();
+        } catch (error) { toast(error.message); }
+      };
+      report.onclick = async () => {
+        try {
+          await api("/api/friends/report/" + encodeURIComponent(u.id), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: "Reported from Global Chat profile" }) });
+          toast("Report submitted.");
+        } catch (error) { toast(error.message); }
+      };
+
+      modal.hidden = false;
+    } catch (error) { toast(error.message); }
+  }
+
+  function closeChatProfile() {
+    const modal = document.getElementById("friends-profile-modal");
+    if (modal) modal.hidden = true;
+    activeUser = null;
+  }
+
+  async function loadCurrentUser() {
+    try {
+      const data = await api("/api/auth/me", { cache: "no-store" });
+      currentUser = data.user || null;
+    } catch (_) { currentUser = null; }
   }
 
   document.addEventListener("click", event => {
@@ -269,12 +207,15 @@
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    openProfile(target.dataset.memberUsername);
+    openChatProfile(target.dataset.memberUsername);
   }, true);
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && modal && !modal.hidden) closeProfile();
+    if (event.key === "Escape") {
+      const modal = document.getElementById("friends-profile-modal");
+      if (modal && !modal.hidden) closeChatProfile();
+    }
   });
 
-  loadMe();
+  loadCurrentUser();
 })();
