@@ -1412,3 +1412,5 @@ body.profile-image-editor-open{overflow:hidden!important}
 .profile-role-manager-add input:focus{border-color:rgba(145,117,255,.45);box-shadow:0 0 0 2px rgba(145,117,255,.08)}
 .profile-role-manager-add button{height:27px;padding:0 9px;border:1px solid rgba(145,117,255,.25);border-radius:7px;background:rgba(145,117,255,.12);color:#d9d0ff;font-size:9px;font-weight:900;cursor:pointer}
 .profile-role-manager-add button:hover{background:rgba(145,117,255,.2);color:#fff}
+
+.chat-role-badge:not(.owner):not(.co-owner){background:rgba(145,117,255,.12);color:#cfc4ff;border:1px solid rgba(145,117,255,.22)}
