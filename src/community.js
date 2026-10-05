@@ -1001,8 +1001,12 @@ function getDmThread(a, b, create = true) {
 }
 
 function publicDmMessage(message, viewerId) {
+  const currentSender = state.users[message.senderId];
+  const currentRecipient = state.users[message.recipientId];
   const base = {
     ...message,
+    sender: currentSender ? publicFriendUser(currentSender) : message.sender,
+    recipient: currentRecipient ? publicFriendUser(currentRecipient) : message.recipient,
     reactions: (message.reactions || []).map(reaction => ({
       kind: reaction.kind === "sticker" ? "sticker" : "emoji",
       emoji: reaction.emoji || "",
