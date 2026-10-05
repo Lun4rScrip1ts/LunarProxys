@@ -22,6 +22,9 @@ const MAX_MESSAGE_LENGTH = 500;
 const MAX_USERS = 10000;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MAX_STICKERS = 100;
+const MAX_PROFILE_ROLES = 12;
+const PROFILE_ROLE_MAX = 32;
+const ROLE_MANAGERS = new Set(["lunar", "lunarstudios"]);
 const USERNAME_MAX = 20;
 const DISPLAY_NAME_MAX = 20;
 const MAX_REACTION_TEXT = 8;
@@ -69,6 +72,7 @@ async function loadState() {
         user.backgroundUrl = String(user.backgroundUrl || "");
         user.stickers = Array.isArray(user.stickers) ? user.stickers.slice(0, MAX_STICKERS) : [];
         user.gifFavorites = Array.isArray(user.gifFavorites) ? user.gifFavorites.slice(0, 200) : [];
+        user.roles = Array.isArray(user.roles) ? user.roles.map(role => cleanText(role, PROFILE_ROLE_MAX)).filter(Boolean).slice(0, MAX_PROFILE_ROLES) : (user.username.toLowerCase() === "lunar" ? ["Owner"] : user.username.toLowerCase() === "lunarstudios" ? ["Co-Owner"] : []);
         user.blockedUsers = Array.isArray(user.blockedUsers) ? user.blockedUsers.slice(0, 500) : [];
         user.dmReadAt = user.dmReadAt && typeof user.dmReadAt === "object" ? user.dmReadAt : {};
         user.settings = user.settings && typeof user.settings === "object" ? user.settings : {};
@@ -140,6 +144,16 @@ function validPassword(password) {
   return typeof password === "string" && password.length >= 8 && password.length <= 128;
 }
 
+function normalizeProfileRoles(user) {
+  if (!Array.isArray(user.roles)) user.roles = user.username.toLowerCase() === "lunar" ? ["Owner"] : user.username.toLowerCase() === "lunarstudios" ? ["Co-Owner"] : [];
+  user.roles = [...new Set(user.roles.map(role => cleanText(role, PROFILE_ROLE_MAX)).filter(Boolean))].slice(0, MAX_PROFILE_ROLES);
+  return user.roles;
+}
+
+function canManageProfileRoles(user) {
+  return Boolean(user && ROLE_MANAGERS.has(String(user.username || "").toLowerCase()));
+}
+
 function publicUser(user, includeEmail = true) {
   const result = {
     id: user.id,
@@ -154,7 +168,7 @@ function publicUser(user, includeEmail = true) {
     createdAt: user.createdAt,
     stickers: Array.isArray(user.stickers) ? user.stickers : [],
     isOwner: user.username.toLowerCase() === "lunar",
-    roles: user.username.toLowerCase() === "lunar" ? ["Owner"] : [],
+    roles: normalizeProfileRoles(user),
   };
   if (includeEmail) result.email = user.email || "";
   return result;
@@ -625,6 +639,31 @@ router.patch("/profile", requireUser, async (req, res) => {
   updateMessagesForUser(req.user);
   await persist();
   res.json({ user: publicUser(req.user, true) });
+});
+
+router.patch("/users/:username/roles", requireUser, async (req, res) => {
+  if (!canManageProfileRoles(req.user)) {
+    return res.status(403).json({ error: "Only @lunar and @lunarstudios can manage profile roles." });
+  }
+
+  const username = cleanText(req.params.username, USERNAME_MAX).toLowerCase();
+  const target = Object.values(state.users).find(item => item.username.toLowerCase() === username);
+  if (!target) return res.status(404).json({ error: "Profile not found." });
+
+  if (!Array.isArray(req.body?.roles)) {
+    return res.status(400).json({ error: "Roles must be an array." });
+  }
+
+  const roles = [...new Set(
+    req.body.roles
+      .filter(role => typeof role === "string")
+      .map(role => cleanText(role, PROFILE_ROLE_MAX))
+      .filter(Boolean)
+  )].slice(0, MAX_PROFILE_ROLES);
+
+  target.roles = roles;
+  await persist();
+  res.json({ user: publicUser(target, false) });
 });
 
 router.get("/users/:username", (req, res) => {
