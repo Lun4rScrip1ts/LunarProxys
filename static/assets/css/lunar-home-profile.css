@@ -1,0 +1,9 @@
+.lunar-home-profile-styles{display:block}
+.lunar-friends-page .home-profile-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:10px}
+.lunar-friends-page .home-profile-stat{min-width:0;min-height:45px;padding:7px 8px;border:1px solid var(--friends-border);border-radius:9px;background:rgba(255,255,255,.025);overflow:hidden}
+.lunar-friends-page .home-profile-stat>div{display:flex;align-items:center;gap:5px;color:#8f96a1;font-size:7px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.lunar-friends-page .home-profile-stat>div i{font-size:7px;color:#a991ff}
+.lunar-friends-page .home-profile-stat strong{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dfe2e7;font-size:8px;font-weight:700}
+.lunar-friends-page .home-profile-role-manager{margin-top:10px}
+.lunar-friends-page .friends-profile-stickers:empty{display:none!important}
+@media(max-width:700px){.lunar-friends-page .friends-profile-card{width:100%!important}.lunar-friends-page .home-profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
