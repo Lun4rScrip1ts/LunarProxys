@@ -137,9 +137,9 @@ body.lunar-community-page{min-height:100vh;overflow-x:hidden}
 .profile-public-username{margin:4px 0;color:#7e8798}
 .profile-public-status{margin:14px 0 0;color:#dfe2e9;font-weight:700}
 .profile-public-bio{margin:7px 0 0;color:#9ca4b4;line-height:1.55}
-.profile-role-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-.profile-role{padding:5px 8px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.035);color:#aeb5c4;font-size:10px;font-weight:800}
-.profile-role.owner{border-color:rgba(169,133,255,.28);color:#cfc4ff}
+.profile-role-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;align-items:center}
+.profile-role{display:inline-flex;align-items:center;padding:4px 8px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));box-shadow:inset 0 1px 0 rgba(255,255,255,.05);color:#c8ceda;font-size:9px;font-weight:800;line-height:1.2;letter-spacing:.01em;white-space:nowrap}
+.profile-role.owner{border-color:rgba(169,133,255,.38);background:linear-gradient(180deg,rgba(169,133,255,.16),rgba(169,133,255,.07));color:#d9ceff}
 .profile-discord{display:flex;gap:7px;margin-top:15px;color:#9ba3b3;font-size:12px}
 .profile-back{display:inline-flex;margin-top:24px;color:#b9aaff;text-decoration:none;font-weight:800;font-size:13px}
 .profile-stickers-section{margin-top:25px;padding-top:22px;border-top:1px solid var(--lunar-border)}
@@ -1307,7 +1307,7 @@ body.lunar-community-page > .chat-compose-menu[hidden]{display:none!important;}
 }
 .lunar-community-page .chat-message:hover .message-actions:before{opacity:1;transform:none}
 .lunar-community-page .message-actions:before{display:none!important}.lunar-community-page .quick-reactions{position:absolute;right:calc(100% + 5px);top:1px;display:flex;gap:2px;padding:3px;border:1px solid var(--border);border-radius:8px;background:#111318;box-shadow:0 10px 25px rgba(0,0,0,.35);opacity:0;transform:translateY(3px) scale(.96);pointer-events:none;transition:opacity .14s ease,transform .14s ease}.lunar-community-page .chat-message:hover .quick-reactions{opacity:1;transform:none;pointer-events:auto}.lunar-community-page .quick-reactions button{width:27px;height:25px;padding:0;border:0;border-radius:5px;background:transparent;color:#fff;cursor:pointer}.lunar-community-page .quick-reactions button:hover{background:rgba(255,255,255,.1)}
-.chat-role-badge{display:inline-flex;align-items:center;margin-left:4px;padding:1px 4px;border-radius:4px;font-size:7px;font-weight:800;line-height:1.1;letter-spacing:.04em;vertical-align:middle;text-transform:uppercase}
+.chat-role-badge{display:inline-flex;align-items:center;margin-left:3px;padding:2px 6px;border-radius:999px;font-size:7px;font-weight:800;line-height:1.1;letter-spacing:.03em;vertical-align:middle;text-transform:uppercase;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .chat-role-badge.owner{background:rgba(255,193,7,.14);color:#ffd76a;border:1px solid rgba(255,193,7,.24)}
 .chat-role-badge.co-owner{background:rgba(145,117,255,.14);color:#c8baff;border:1px solid rgba(145,117,255,.24)}
 
