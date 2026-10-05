@@ -42,6 +42,16 @@ function handleAppClick(app) {
 
   const proxy = app.proxy;
 
+  // Some Unity/WebGL games cannot be transported through UV/Scramjet. Open these
+  // explicitly so their Unity loader can talk directly to the game's host.
+  if (app.direct) {
+    const directWindow = window.open(selectedUrl, "_blank", "noopener,noreferrer");
+    if (!directWindow) {
+      window.location.href = selectedUrl;
+    }
+    return false;
+  }
+
   // isInTabMode is declared in main.js
   if (app.local) {
     saveUrlToSession(selectedUrl);
