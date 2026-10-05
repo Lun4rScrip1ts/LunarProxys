@@ -53,9 +53,74 @@
     memberRequestInFlight = true;
     try {
       const response = await fetch("/api/member-display", { cache: "no-store", credentials: "same-origin", headers: { "Cache-Control": "no-cache" } });
-      if (!response.ok) return; setCounterText(await response.json());
+      if (!response.ok) return; latestMemberData = await response.json(); setCounterText(latestMemberData);
     } catch {} finally { memberRequestInFlight = false; }
   };
+  let latestMemberData = { memberList: [] };
+  const memberFilterLabels = { online: "Online", offline: "Offline", members: "Members" };
+  const closeMemberDropdown = () => {
+    const dropdown = document.getElementById("lunar-member-dropdown");
+    if (!dropdown) return;
+    dropdown.hidden = true;
+    document.querySelectorAll("[data-member-filter]").forEach(button => button.setAttribute("aria-expanded", "false"));
+  };
+  const showMiniMemberProfile = async (member) => {
+    let modal = document.getElementById("lunar-home-profile-modal");
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "lunar-home-profile-modal";
+      modal.className = "lunar-home-profile-modal";
+      modal.hidden = true;
+      document.body.appendChild(modal);
+      modal.addEventListener("click", event => {
+        if (event.target === modal || event.target.closest("[data-home-profile-close]")) modal.hidden = true;
+      });
+    }
+    modal.innerHTML = '<div class="lunar-home-profile-card"><button class="lunar-home-profile-close" data-home-profile-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div class="lunar-home-profile-banner"></div><div class="lunar-home-profile-body"><div class="lunar-home-profile-avatar"></div><div class="lunar-home-profile-name"></div><div class="lunar-home-profile-username"></div><div class="lunar-home-profile-status"></div><div class="lunar-home-profile-bio"></div><div class="lunar-home-profile-roles"></div></div></div>';
+    modal.hidden = false;
+    try {
+      const response = await fetch("/api/users/" + encodeURIComponent(member.username), { cache: "no-store", credentials: "same-origin" });
+      const data = await response.json();
+      const user = response.ok && data.user ? data.user : member;
+      const card = modal.querySelector(".lunar-home-profile-card");
+      const banner = modal.querySelector(".lunar-home-profile-banner");
+      const avatar = modal.querySelector(".lunar-home-profile-avatar");
+      const name = modal.querySelector(".lunar-home-profile-name");
+      const username = modal.querySelector(".lunar-home-profile-username");
+      const status = modal.querySelector(".lunar-home-profile-status");
+      const bio = modal.querySelector(".lunar-home-profile-bio");
+      const roles = modal.querySelector(".lunar-home-profile-roles");
+      if (user.bannerUrl) banner.style.backgroundImage = 'url("' + String(user.bannerUrl).replace(/"/g, "%22") + '")';
+      if (user.avatarUrl) avatar.innerHTML = '<img src="' + escapeHtml(user.avatarUrl) + '" alt="">'; else avatar.textContent = String(user.displayName || user.username || "?").slice(0,2).toUpperCase();
+      name.textContent = user.displayName || user.username;
+      username.textContent = "@" + user.username;
+      status.textContent = user.status || "";
+      status.hidden = !user.status;
+      bio.textContent = user.bio || "";
+      bio.hidden = !user.bio;
+      roles.innerHTML = (Array.isArray(user.roles) ? user.roles : []).map(role => '<span>' + escapeHtml(role) + '</span>').join("");
+      roles.hidden = !roles.innerHTML;
+    } catch {}
+  };
+  const renderMemberDropdown = (filter) => {
+    const dropdown = document.getElementById("lunar-member-dropdown");
+    if (!dropdown) return;
+    const all = Array.isArray(latestMemberData.memberList) ? latestMemberData.memberList : [];
+    const members = filter === "online" ? all.filter(member => member.isOnline) : filter === "offline" ? all.filter(member => !member.isOnline) : all;
+    dropdown.innerHTML = '<div class="lunar-member-dropdown-head"><strong>' + memberFilterLabels[filter] + '</strong><span>' + members.length.toLocaleString() + '</span></div>' + (members.length ? members.map(member => '<button class="lunar-member-row" type="button" data-member-username="' + escapeHtml(member.username) + '"><span class="lunar-member-avatar">' + (member.avatarUrl ? '<img src="' + escapeHtml(member.avatarUrl) + '" alt="">' : escapeHtml(String(member.displayName || member.username || "?").slice(0,2).toUpperCase())) + '</span><span class="lunar-member-row-info"><strong>' + escapeHtml(member.displayName || member.username) + '</strong><small>@' + escapeHtml(member.username) + '</small></span><span class="lunar-member-presence ' + (member.isOnline ? "online" : "offline") + '"></span></button>').join("") : '<div class="lunar-member-empty">No members in this group.</div>');
+    dropdown.hidden = false;
+    document.querySelectorAll("[data-member-filter]").forEach(button => button.setAttribute("aria-expanded", button.dataset.memberFilter === filter ? "true" : "false"));
+  };
+  document.addEventListener("click", event => {
+    const counter = event.target.closest("[data-member-filter]");
+    if (counter) { event.stopPropagation(); renderMemberDropdown(counter.dataset.memberFilter); return; }
+    const row = event.target.closest("[data-member-username]");
+    if (row) { const member = (latestMemberData.memberList || []).find(item => item.username === row.dataset.memberUsername); if (member) showMiniMemberProfile(member); return; }
+    const dropdown = document.getElementById("lunar-member-dropdown");
+    if (dropdown && !dropdown.contains(event.target)) closeMemberDropdown();
+  });
+  document.addEventListener("keydown", event => { if (event.key === "Escape") { closeMemberDropdown(); document.getElementById("lunar-home-profile-modal")?.setAttribute("hidden", ""); } });
+
   const startMemberUpdates = () => { if (memberTimer) clearInterval(memberTimer); updateMemberStatus(); memberTimer = setInterval(updateMemberStatus, 5000); };
   startMemberUpdates();
   document.addEventListener("visibilitychange", () => { if (!document.hidden) updateMemberStatus(); });
