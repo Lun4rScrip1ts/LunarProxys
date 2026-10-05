@@ -225,7 +225,7 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
 
     messagesEl.innerHTML = messagesList.map(message => `
       <article class="chat-message ${message.deletedAt ? "is-deleted" : ""}" data-message-id="${message.id}" data-own-message="${message.userId === currentUser?.id ? "true" : "false"}">
-        <div class="chat-avatar"><button type="button" class="chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${avatar(message)}</button></div>
+        <div class="chat-avatar"><button type="button" class="chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${avatar(message.userId === currentUser?.id ? {...message, avatarUrl: currentUser?.avatarUrl || message.avatarUrl, displayName: currentUser?.displayName || message.displayName} : message)}</button></div>
         <div class="chat-message-body">
           <div class="chat-meta">
             <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
