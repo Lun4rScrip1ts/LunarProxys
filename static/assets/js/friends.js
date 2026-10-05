@@ -243,6 +243,36 @@ $("friends-list").onclick=async e=>{
   const b=e.target.closest("[data-request]");if(b){try{const old=incoming.find(x=>x.id===b.dataset.id);await api("/api/friends/requests/"+b.dataset.id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:b.dataset.request})});await bootstrap();if(b.dataset.request==="accept"&&old)openDm(old.from)}catch(x){toast(x.message)}return}const f=e.target.closest("[data-friend]");if(f){const u=friends.find(x=>x.id===f.dataset.friend);if(u)openDm(u)}
 };
 function profileAvatarHtml(u){return u&&u.avatarUrl?'<img src="'+esc(u.avatarUrl)+'" alt="" onerror="this.style.display=\'none\'">':esc(initials(u&&u.displayName||u&&u.username))}
+function canManageProfileRoles(){
+  return ["lunar","lunarstudios"].includes(String(me?.username||"").toLowerCase());
+}
+async function renderProfileRoleManager(container, user){
+  if(!container || !canManageProfileRoles()) return;
+  container.innerHTML='<div class="profile-role-manager"><div class="profile-role-manager-head"><div><strong>Profile Roles</strong><span>Only @lunar and @lunarstudios can edit these tags.</span></div></div><div class="profile-role-manager-list">'+(user.roles||[]).map(role=>'<span class="profile-role-edit-tag">'+esc(role)+'<button type="button" data-remove-profile-role="'+esc(role)+'" aria-label="Remove '+esc(role)+'"><i class="fa-solid fa-xmark"></i></button></span>').join("")+'</div><div class="profile-role-manager-add"><input type="text" maxlength="32" placeholder="Add a role..."><button type="button" data-add-profile-role><i class="fa-solid fa-plus"></i> Add</button></div></div>';
+  const save=async roles=>{
+    try{
+      const data=await api("/api/users/"+encodeURIComponent(user.username)+"/roles",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({roles})});
+      user.roles=data.user.roles||[];
+      $("friends-profile-roles").innerHTML=user.roles.map(r=>"<span>"+esc(r)+"</span>").join("");
+      await renderProfileRoleManager(container,user);
+      toast("Profile roles updated.");
+    }catch(error){toast(error.message)}
+  };
+  container.querySelector("[data-add-profile-role]")?.addEventListener("click",async()=>{
+    const input=container.querySelector("input");
+    const role=(input?.value||"").trim();
+    if(!role)return;
+    if((user.roles||[]).some(r=>r.toLowerCase()===role.toLowerCase())){toast("That role is already on the profile.");return;}
+    await save([...(user.roles||[]),role]);
+  });
+  container.querySelector("input")?.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();container.querySelector("[data-add-profile-role]")?.click();}
+  });
+  container.querySelectorAll("[data-remove-profile-role]").forEach(button=>{
+    button.addEventListener("click",()=>save((user.roles||[]).filter(role=>role!==button.dataset.removeProfileRole)));
+  });
+}
+
 async function openUserProfile(username,anchor=null){
 try{
   const d=await api("/api/users/"+encodeURIComponent(username));
@@ -258,6 +288,10 @@ try{
   $("friends-profile-bio").textContent=u.bio||"No bio yet.";
   $("friends-profile-owner").hidden=!u.isOwner;
   $("friends-profile-roles").innerHTML=(u.roles||[]).map(r=>"<span>"+esc(r)+"</span>").join("");
+  let roleManager=$("friends-profile-role-manager");
+  if(!roleManager){roleManager=document.createElement("div");roleManager.id="friends-profile-role-manager";$("friends-profile-roles").after(roleManager);}
+  roleManager.innerHTML="";
+  renderProfileRoleManager(roleManager,u);
   $("friends-profile-stickers").innerHTML=(u.stickers||[]).slice(0,12).map(s=>'<img src="'+esc(s.url)+'" alt="'+esc(s.name||"Sticker")+'" loading="lazy">').join("");
   $("friends-profile-banner").style.backgroundImage=u.bannerUrl?`url("${String(u.bannerUrl).replace(/"/g, '\\\\"')}")`:"none";
   const profileCard=modal.querySelector(".friends-profile-card");
