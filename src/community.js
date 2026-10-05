@@ -762,7 +762,14 @@ router.post("/chat/messages", requireUser, async (req, res) => {
   state.messages.push(message);
   if (state.messages.length > MAX_MESSAGES) state.messages = state.messages.slice(-MAX_MESSAGES);
   await persist();
-  res.status(201).json({ message });
+  const hydratedMessage = {
+    ...message,
+    username: req.user.username,
+    displayName: req.user.displayName,
+    avatarUrl: req.user.avatarUrl || "",
+    roles: normalizeProfileRoles(req.user),
+  };
+  res.status(201).json({ message: hydratedMessage });
 });
 
 router.patch("/chat/messages/:id", requireUser, async (req, res) => {
