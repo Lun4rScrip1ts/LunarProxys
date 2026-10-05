@@ -82,7 +82,6 @@
       const response = await fetch("/api/users/" + encodeURIComponent(member.username), { cache: "no-store", credentials: "same-origin" });
       const data = await response.json();
       const user = response.ok && data.user ? data.user : member;
-      const card = modal.querySelector(".lunar-home-profile-card");
       const banner = modal.querySelector(".lunar-home-profile-banner");
       const avatar = modal.querySelector(".lunar-home-profile-avatar");
       const name = modal.querySelector(".lunar-home-profile-name");
@@ -102,22 +101,42 @@
       roles.hidden = !roles.innerHTML;
     } catch {}
   };
-  const renderMemberDropdown = (filter) => {
+  const positionMemberDropdown = (dropdown, anchor) => {
+    if (!dropdown || !anchor) return;
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(360, window.innerWidth - 28);
+    const left = Math.max(14, Math.min(window.innerWidth - width - 14, rect.left + rect.width / 2 - width / 2));
+    const top = Math.min(window.innerHeight - 18, rect.bottom + 10);
+    dropdown.style.position = "fixed";
+    dropdown.style.width = width + "px";
+    dropdown.style.left = left + "px";
+    dropdown.style.top = top + "px";
+    dropdown.style.transform = "none";
+    dropdown.style.zIndex = "2147483646";
+  };
+  const renderMemberDropdown = (filter, anchor) => {
     const dropdown = document.getElementById("lunar-member-dropdown");
     if (!dropdown) return;
+    if (dropdown.parentElement !== document.body) document.body.appendChild(dropdown);
     const all = Array.isArray(latestMemberData.memberList) ? latestMemberData.memberList : [];
     const members = filter === "online" ? all.filter(member => member.isOnline) : filter === "offline" ? all.filter(member => !member.isOnline) : all;
     dropdown.innerHTML = '<div class="lunar-member-dropdown-head"><strong>' + memberFilterLabels[filter] + '</strong><span>' + members.length.toLocaleString() + '</span></div>' + (members.length ? members.map(member => '<button class="lunar-member-row" type="button" data-member-username="' + escapeHtml(member.username) + '"><span class="lunar-member-avatar">' + (member.avatarUrl ? '<img src="' + escapeHtml(member.avatarUrl) + '" alt="">' : escapeHtml(String(member.displayName || member.username || "?").slice(0,2).toUpperCase())) + '</span><span class="lunar-member-row-info"><strong>' + escapeHtml(member.displayName || member.username) + '</strong><small>@' + escapeHtml(member.username) + '</small></span><span class="lunar-member-presence ' + (member.isOnline ? "online" : "offline") + '"></span></button>').join("") : '<div class="lunar-member-empty">No members in this group.</div>');
     dropdown.hidden = false;
+    positionMemberDropdown(dropdown, anchor);
     document.querySelectorAll("[data-member-filter]").forEach(button => button.setAttribute("aria-expanded", button.dataset.memberFilter === filter ? "true" : "false"));
   };
   document.addEventListener("click", event => {
     const counter = event.target.closest("[data-member-filter]");
-    if (counter) { event.stopPropagation(); renderMemberDropdown(counter.dataset.memberFilter); return; }
+    if (counter) { event.stopPropagation(); renderMemberDropdown(counter.dataset.memberFilter, counter); return; }
     const row = event.target.closest("[data-member-username]");
     if (row) { const member = (latestMemberData.memberList || []).find(item => item.username === row.dataset.memberUsername); if (member) showMiniMemberProfile(member); return; }
     const dropdown = document.getElementById("lunar-member-dropdown");
     if (dropdown && !dropdown.contains(event.target)) closeMemberDropdown();
+  });
+  window.addEventListener("resize", () => {
+    const dropdown = document.getElementById("lunar-member-dropdown");
+    const active = document.querySelector('[data-member-filter][aria-expanded="true"]');
+    if (dropdown && !dropdown.hidden && active) positionMemberDropdown(dropdown, active);
   });
   document.addEventListener("keydown", event => { if (event.key === "Escape") { closeMemberDropdown(); document.getElementById("lunar-home-profile-modal")?.setAttribute("hidden", ""); } });
 
