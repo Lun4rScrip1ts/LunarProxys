@@ -36,8 +36,7 @@
     return div.innerHTML;
   };
 
-  function userRole(username){const name=String(username||"").toLowerCase();return name==="lunar"?"Owner":name==="lunarstudios"?"Co-Owner":""}
-function roleBadge(username){const role=userRole(username);return role?'<span class="chat-role-badge '+(role==="Owner"?"owner":"co-owner")+'">'+escape(role)+'</span>':""}
+  function roleBadges(roles){return (Array.isArray(roles)?roles:[]).map(role=>'<span class="chat-role-badge">'+escape(role)+'</span>').join("")}
 const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
   const initials = name => (name || "?").trim().slice(0, 2).toUpperCase();
   const avatar = user => user.avatarUrl
@@ -226,7 +225,7 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
         <div class="chat-message-body">
           <div class="chat-meta">
             <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
-            <span class="chat-username">@${escape(message.username)}</span>${roleBadge(message.username)}
+            <span class="chat-username">@${escape(message.username)}</span>${roleBadges(message.roles)}
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
           </div>
           ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
