@@ -1,0 +1,59 @@
+/* Lunar social overhaul: large-screen Friends + Chat redesign without changing JS/data hooks. */
+:root{--lo-bg:#070912;--lo-panel:rgba(16,18,31,.82);--lo-panel2:rgba(255,255,255,.045);--lo-border:rgba(255,255,255,.09);--lo-text:#f7f7ff;--lo-muted:rgba(255,255,255,.48);--lo-accent:#8c7aff;--lo-green:#55e39a}
+body.lunar-friends-page,body.lunar-community-page{overflow:hidden!important}
+body.lunar-friends-page .friends-app{position:fixed!important;left:88px!important;right:0!important;top:72px!important;bottom:0!important;width:auto!important;height:auto!important;max-height:none!important;margin:0!important;padding:0!important;transform:none!important;display:grid!important;grid-template-columns:minmax(310px,380px) minmax(0,1fr)!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important}
+body.lunar-friends-page .friends-sidebar{width:auto!important;min-width:0!important;height:100%!important;padding:26px 22px!important;background:rgba(8,10,20,.78)!important;border-right:1px solid var(--lo-border)!important;backdrop-filter:blur(24px)!important}
+body.lunar-friends-page .friends-sidebar-head{height:auto!important;padding:0 2px 18px!important;border:0!important;background:transparent!important}
+body.lunar-friends-page .friends-sidebar-head strong{font-size:22px!important;letter-spacing:-.03em!important}
+body.lunar-friends-page .friends-sidebar-head span{font-size:11px!important;color:var(--lo-muted)!important;margin-top:5px!important}
+body.lunar-friends-page .friends-head-actions{gap:6px!important}
+body.lunar-friends-page .friends-sidebar-head button{width:34px!important;height:34px!important;border:1px solid var(--lo-border)!important;border-radius:10px!important;background:var(--lo-panel2)!important;color:var(--lo-muted)!important}
+body.lunar-friends-page .friends-sidebar-head button:hover{background:rgba(140,122,255,.15)!important;color:#fff!important;transform:none!important}
+body.lunar-friends-page .friends-search-bar{height:46px!important;margin:0 0 14px!important;padding:0 13px!important;border-radius:13px!important;background:rgba(255,255,255,.045)!important;border:1px solid var(--lo-border)!important}
+body.lunar-friends-page .friends-search-bar input{font-size:12px!important}
+body.lunar-friends-page .friends-tabs{gap:6px!important;margin:0 0 16px!important;padding:0!important;overflow:auto!important}
+body.lunar-friends-page .friends-tab{flex:0 0 auto!important;height:34px!important;min-height:34px!important;padding:0 12px!important;border:1px solid var(--lo-border)!important;border-radius:10px!important;background:rgba(255,255,255,.035)!important;color:var(--lo-muted)!important;font-size:10px!important}
+body.lunar-friends-page .friends-tab.active{background:linear-gradient(135deg,rgba(140,122,255,.35),rgba(107,77,229,.2))!important;border-color:rgba(140,122,255,.45)!important;color:#fff!important}
+body.lunar-friends-page .friends-list{padding:0!important;display:flex!important;gap:7px!important}
+body.lunar-friends-page .friend-item,.lunar-friends-page .friends-list>*{min-height:62px!important;margin:0!important;padding:9px 10px!important;border:1px solid transparent!important;border-radius:13px!important;background:transparent!important}
+body.lunar-friends-page .friend-item:hover{background:rgba(255,255,255,.045)!important;border-color:var(--lo-border)!important}
+body.lunar-friends-page .friend-item.active{background:linear-gradient(90deg,rgba(140,122,255,.17),rgba(140,122,255,.055))!important;border-color:rgba(140,122,255,.25)!important}
+body.lunar-friends-page .friend-avatar{width:42px!important;height:42px!important;min-width:42px!important;font-size:12px!important}
+body.lunar-friends-page .friend-copy strong{font-size:12px!important}
+body.lunar-friends-page .friend-copy span,.lunar-friends-page .friend-preview{font-size:9px!important}
+body.lunar-friends-page .dm-panel{height:100%!important;min-width:0!important;background:linear-gradient(135deg,rgba(9,11,22,.84),rgba(18,16,34,.72))!important}
+body.lunar-friends-page .dm-view{inset:0!important;background:transparent!important}
+body.lunar-friends-page .dm-topbar{height:76px!important;min-height:76px!important;flex-basis:76px!important;padding:0 30px!important;background:rgba(9,11,21,.72)!important;border-bottom:1px solid var(--lo-border)!important;backdrop-filter:blur(20px)!important}
+body.lunar-friends-page .mini-avatar{width:40px!important;height:40px!important;font-size:12px!important}
+body.lunar-friends-page .dm-top-name strong{font-size:15px!important}
+body.lunar-friends-page .dm-top-name span{display:inline!important;margin-left:7px!important;color:var(--lo-muted)!important}
+body.lunar-friends-page .dm-top-actions{display:flex!important;margin-left:auto!important}
+body.lunar-friends-page .dm-profile-intro{width:min(860px,calc(100% - 60px))!important;max-width:none!important;margin:26px auto 18px!important;padding:20px 24px!important;border-radius:18px!important;background:rgba(255,255,255,.035)!important;border:1px solid var(--lo-border)!important;backdrop-filter:blur(18px)!important}
+body.lunar-friends-page .dm-profile-intro h1{font-size:22px!important}
+body.lunar-friends-page .dm-profile-intro p{font-size:11px!important;color:var(--lo-muted)!important}
+body.lunar-friends-page .dm-messages{width:min(860px,calc(100% - 60px))!important;max-width:none!important;margin:0 auto!important;flex:1!important;overflow:auto!important;padding:12px 8px 20px!important}
+body.lunar-friends-page .dm-composer{width:min(860px,calc(100% - 60px))!important;max-width:none!important;margin:0 auto 24px!important;border-radius:17px!important;background:rgba(255,255,255,.055)!important;border:1px solid var(--lo-border)!important;box-shadow:0 12px 40px rgba(0,0,0,.2)!important;backdrop-filter:blur(20px)!important}
+body.lunar-friends-page .dm-composer input{font-size:13px!important}
+body.lunar-friends-page .dm-compose-tools{gap:5px!important}
+body.lunar-friends-page .composer-icon{width:34px!important;height:34px!important;border-radius:9px!important}
+
+body.lunar-community-page .community-shell{position:fixed!important;left:88px!important;right:0!important;top:72px!important;bottom:0!important;width:auto!important;height:auto!important;min-height:0!important;margin:0!important;padding:28px 42px 30px!important;overflow:hidden!important}
+body.lunar-community-page .community-header{width:min(1250px,100%)!important;margin:0 auto 20px!important;padding:4px 4px 0!important;align-items:center!important}
+body.lunar-community-page .community-kicker{font-size:10px!important;letter-spacing:.14em!important;color:#a99cff!important}
+body.lunar-community-page .community-header h1{margin:7px 0 5px!important;font-size:34px!important;letter-spacing:-.04em!important}
+body.lunar-community-page .community-header p{margin:0!important;font-size:12px!important;color:var(--lo-muted)!important}
+body.lunar-community-page .community-account-link{height:40px!important;padding:0 15px!important;border:1px solid var(--lo-border)!important;border-radius:12px!important;background:var(--lo-panel2)!important}
+body.lunar-community-page .chat-card{position:relative!important;width:min(1250px,100%)!important;height:calc(100% - 104px)!important;max-width:none!important;margin:0 auto!important;display:flex!important;flex-direction:column!important;border-radius:22px!important;background:rgba(12,14,26,.72)!important;border:1px solid var(--lo-border)!important;box-shadow:0 24px 70px rgba(0,0,0,.28)!important;overflow:hidden!important;backdrop-filter:blur(20px)!important}
+body.lunar-community-page .chat-toolbar{height:62px!important;min-height:62px!important;padding:0 22px!important;background:rgba(255,255,255,.025)!important;border-bottom:1px solid var(--lo-border)!important;font-size:13px!important}
+body.lunar-community-page #chat-status{font-size:10px!important;color:var(--lo-green)!important}
+body.lunar-community-page .chat-messages{flex:1!important;min-height:0!important;padding:24px 30px!important;overflow:auto!important}
+body.lunar-community-page .chat-form{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;align-items:center!important;gap:8px!important;margin:0 20px 20px!important;padding:9px!important;border:1px solid var(--lo-border)!important;border-radius:16px!important;background:rgba(255,255,255,.05)!important;box-shadow:0 10px 30px rgba(0,0,0,.2)!important}
+body.lunar-community-page .chat-form #chat-input{min-width:0!important;height:42px!important;padding:0 12px!important;background:transparent!important;border:0!important;font-size:13px!important;color:#fff!important;outline:0!important}
+body.lunar-community-page .chat-compose-tools{display:flex!important;gap:4px!important}
+body.lunar-community-page .chat-tool{width:38px!important;height:38px!important;border-radius:10px!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.06)!important;color:var(--lo-muted)!important}
+body.lunar-community-page .chat-tool:hover{color:#fff!important;background:rgba(140,122,255,.16)!important;border-color:rgba(140,122,255,.3)!important}
+body.lunar-community-page .chat-send{width:42px!important;height:42px!important;border-radius:12px!important;background:linear-gradient(135deg,#9b8cff,#684fe1)!important;border:0!important;color:#fff!important;box-shadow:0 8px 20px rgba(105,78,225,.25)!important}
+body.lunar-community-page .attachment-draft{position:absolute!important;left:0!important;right:0!important;bottom:calc(100% + 8px)!important;border:1px solid var(--lo-border)!important;border-radius:14px!important;background:rgba(10,12,24,.95)!important;backdrop-filter:blur(18px)!important}
+
+@media(max-width:900px){body.lunar-friends-page .friends-app{grid-template-columns:300px minmax(0,1fr)!important}body.lunar-community-page .community-shell{padding:20px!important}body.lunar-community-page .community-header h1{font-size:28px!important}}
+@media(max-width:700px){body.lunar-friends-page .friends-app{left:0!important;top:62px!important;grid-template-columns:1fr!important}body.lunar-friends-page .dm-panel{display:none!important}body.lunar-friends-page .friends-sidebar{padding:18px 14px!important}body.lunar-community-page .community-shell{left:0!important;top:62px!important;padding:14px!important}.lunar-community-page .community-header{display:block!important}.lunar-community-page .community-account-link{display:none!important}.lunar-community-page .chat-card{height:calc(100% - 88px)!important}}
