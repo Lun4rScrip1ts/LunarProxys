@@ -35,14 +35,25 @@
 
   function closeProfile() { const modal = document.getElementById("friends-profile-modal"); if (modal) modal.hidden = true; }
 
+  function setProfileImageBackground(element, url, fallback = "none") {
+    if (!element) return;
+    if (!url) {
+      element.style.removeProperty("background-image");
+      element.style.backgroundImage = fallback;
+      return;
+    }
+    const safeUrl = String(url).replace(/\\/g, "\\\\").replace(/"/g, '\\\"');
+    element.style.setProperty("background-image", 'url("' + safeUrl + '")', "important");
+  }
+
   async function openProfile(username) {
     try {
-      const data = await api("/api/users/" + encodeURIComponent(username));
+      const data = await api("/api/users/" + encodeURIComponent(username), { cache: "no-store" });
       const u = data.user;
       if (!u) return;
       const modal = ensureModal();
-      const avatarHtml = user => user && user.avatarUrl ? '<img src="' + escapeAttr(user.avatarUrl) + '" alt="" onerror="this.remove()">' : escape(initials(user && (user.displayName || user.username)));
-      document.getElementById("friends-profile-avatar").innerHTML = avatarHtml(u);
+      const avatar = document.getElementById("friends-profile-avatar");
+      avatar.innerHTML = u.avatarUrl ? '<img src="' + escapeAttr(u.avatarUrl) + '" alt="" onerror="this.outerHTML=\'<span>\' + escape(initials(' + JSON.stringify(u.displayName || u.username) + ')) + \'</span>\'">' : escape(initials(u.displayName || u.username));
       document.getElementById("friends-profile-display").textContent = u.displayName || u.username;
       document.getElementById("friends-profile-username").textContent = "@" + u.username;
       document.getElementById("friends-profile-status").textContent = u.isOnline ? "Online" : (u.status || "Offline");
@@ -56,12 +67,24 @@
       roleManager.innerHTML = "";
       renderProfileRoleManager(roleManager, u);
       document.getElementById("friends-profile-stickers").innerHTML = (u.stickers || []).slice(0, 12).map(sticker => '<img src="' + escapeAttr(sticker.url) + '" alt="' + escapeAttr(sticker.name || "Sticker") + '" loading="lazy">').join("");
+
+      // Use the exact profile images saved in Account Settings.
       const banner = document.getElementById("friends-profile-banner");
-      banner.style.backgroundImage = u.bannerUrl ? 'url("' + String(u.bannerUrl).replace(/"/g, '\\\"') + '")' : "none";
-      const card = modal.querySelector(".friends-profile-card"), bg = u.backgroundUrl || "";
-      card.style.backgroundImage = bg ? 'linear-gradient(180deg,rgba(10,12,17,.18),rgba(10,12,17,.94) 62%),url("' + String(bg).replace(/"/g, '\\\"') + '")' : "linear-gradient(180deg,#20242d,#17191e)";
-      card.style.backgroundSize = bg ? "cover" : "auto";
-      card.style.backgroundPosition = "center";
+      setProfileImageBackground(banner, u.bannerUrl);
+      banner.style.backgroundSize = "cover";
+      banner.style.backgroundPosition = "center";
+      banner.style.backgroundRepeat = "no-repeat";
+      const card = modal.querySelector(".friends-profile-card");
+      if (u.backgroundUrl) {
+        const safeBackground = String(u.backgroundUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\\"');
+        card.style.setProperty("background-image", 'linear-gradient(180deg,rgba(10,12,17,.18),rgba(10,12,17,.94) 62%),url("' + safeBackground + '")', "important");
+        card.style.backgroundSize = "cover";
+        card.style.backgroundPosition = "center";
+        card.style.backgroundRepeat = "no-repeat";
+      } else {
+        card.style.setProperty("background-image", "linear-gradient(180deg,#20242d,#17191e)", "important");
+      }
+
       const actions = document.getElementById("friends-profile-actions");
       const mutuals = Array.isArray(u.mutualFriends) ? u.mutualFriends : [];
       let mutualBox = document.getElementById("friends-profile-mutuals");
