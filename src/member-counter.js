@@ -45,6 +45,29 @@ async function actualCounts() {
   return { online, offline: Math.max(0, members - online), members, memberList };
 }
 
+// The Friends API updates lastSeen in its in-memory state, but the member counter
+// reads the persisted community.json file. Persist the heartbeat here so both
+// systems see the same online state across requests and pages.
+router.get("/presence/heartbeat", async (req, res) => {
+  try {
+    const state = await readJson(COMMUNITY_FILE, { users: {}, sessions: {} });
+    const token = req.cookies?.lunar_session;
+    const session = token ? state.sessions?.[token] : null;
+    if (!session || session.kind !== "active" || !state.users?.[session.userId]) {
+      return res.status(401).json({ online: false });
+    }
+
+    session.lastSeen = Date.now();
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(COMMUNITY_FILE, JSON.stringify(state, null, 2), "utf8");
+    res.set("Cache-Control", "no-store");
+    res.json({ online: true, lastSeen: session.lastSeen });
+  } catch (error) {
+    console.warn("[Lunar Presence] Heartbeat failed:", error.message);
+    res.status(500).json({ online: false });
+  }
+});
+
 router.get("/member-display", async (req, res) => {
   const counts = await actualCounts();
   res.set("Cache-Control", "no-store");
