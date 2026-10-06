@@ -34,18 +34,27 @@
     if (!input || input.dataset.lunarFixInstalled) return;
     input.dataset.lunarFixInstalled = '1';
 
-    // Capture phase runs before community.js's normal change handler, so large images
-    // are reduced before the existing attachmentDraft is created.
-    input.addEventListener('change', async () => {
+    // The original community.js change handler creates its draft immediately. For a large
+    // image we pause the original event, compress it, replace the FileList, then replay the
+    // change event so the existing sender receives the smaller file.
+    input.addEventListener('change', async event => {
+      if (input.dataset.lunarCompressed === '1') {
+        delete input.dataset.lunarCompressed;
+        return;
+      }
       const file = input.files?.[0];
-      if (!file) return;
+      if (!file || !/^image\/(png|jpeg|webp)$/.test(file.type) || file.size <= 2 * 1024 * 1024) return;
+      event.stopImmediatePropagation();
       const smaller = await compressImage(file);
-      if (smaller === file) return;
-      try {
-        const dt = new DataTransfer();
-        dt.items.add(smaller);
-        input.files = dt.files;
-      } catch (_) {}
+      if (smaller !== file) {
+        try {
+          const dt = new DataTransfer();
+          dt.items.add(smaller);
+          input.files = dt.files;
+        } catch (_) {}
+      }
+      input.dataset.lunarCompressed = '1';
+      input.dispatchEvent(new Event('change', { bubbles: true }));
     }, true);
   };
 
