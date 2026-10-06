@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="referrer" content="no-referrer" />
@@ -18,49 +17,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar9">
 </head>
-
 <body>
   <div class="nav-bar"></div>
   <div class="input-c">
-    <input type="text" id="search" onkeyup="bar()" placeholder="Search" />
+    <input type="text" id="search" onkeyup="bar()" placeholder="Search apps" />
     <select title="Category" id="category" name="category" onchange="category()">
-      <option value="all">&#65;&#108;&#108;</option>
-      <option value="android">
-        &#65;&#110;&#100;&#114;&#111;&#105;&#100;&#32;&#69;&#109;&#117;&#108;&#97;&#116;&#111;&#114;</option>
-      <option value="social">&#83;&#111;&#99;&#105;&#97;&#108;</option>
-      <option value="stream">&#83;&#116;&#114;&#101;&#97;&#109;</option>
-      <option value="message">&#77;&#101;&#115;&#115;&#97;&#103;&#101;</option>
-      <option value="media">&#84;&#86;&#32;&amp;&#32;&#77;&#111;&#118;&#105;&#101;&#115;</option>
-      <option value="game">&#71;&#97;&#109;&#101;&#32;&#83;&#105;&#116;&#101;&#115;</option>
-      <option value="cloud">&#67;&#108;&#111;&#117;&#100;&#32;&#71;&#97;&#109;&#105;&#110;&#103;</option>
-      <option value="tool">&#84;&#111;&#111;&#108;&#115;</option>
-      <option value="ai">&#65;&#73;</option>
-      <option value="emu">&#69;&#109;&#117;&#108;&#97;&#116;&#111;&#114;</option>
-      <option value="mail">&#77;&#97;&#105;&#108;</option>
+      <option value="all">All</option><option value="android">Android Emulator</option><option value="social">Social</option><option value="stream">Stream</option><option value="message">Message</option><option value="media">TV &amp; Movies</option><option value="game">Game Sites</option><option value="cloud">Cloud Gaming</option><option value="tool">Tools</option><option value="ai">AI</option><option value="emu">Emulator</option><option value="mail">Mail</option>
     </select>
   </div>
-  <div id="apps-container">
-    <div class="pinned"></div>
-    <div class="apps"></div>
-  </div>
+  <div id="apps-container"><div class="pinned"></div><div class="apps"></div></div>
   <script src="assets/js/launcher.js?v=lunar8"></script>
-  <script src="./assets/ultraviolet/uv.bundle.js"></script>
-  <script src="/assets/scramjet/scramjet.all.js"></script>
-  <script src="/assets/scramjet/scramjet.config.js"></script>
-  <script src="./assets/ultraviolet/uv.config.js"></script>
+  <script src="./assets/ultraviolet/uv.bundle.js"></script><script src="/assets/scramjet/scramjet.all.js"></script><script src="/assets/scramjet/scramjet.config.js"></script><script src="./assets/ultraviolet/uv.config.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WKJQ5QHQTJ"></script>
-  <!-- DO NOT REMOVE-->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-    gtag("js", new Date());
-
-    gtag("config", "G-WKJQ5QHQTJ");
-  </script>
-  <!-- DO NOT REMOVE-->
-  <script src="/assets/js/lunar.js"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-WKJQ5QHQTJ")</script>
+  <script src="/assets/js/lunar.js"></script><script src="/assets/js/lunar-redesign.js?v=figma1"></script>
 </body>
-
 </html>
