@@ -31,11 +31,11 @@
 
   const install = () => {
     const input = document.getElementById('chat-image-file');
-    const button = document.getElementById('chat-image-button');
-    if (!input || !button || input.dataset.lunarFixInstalled) return;
+    if (!input || input.dataset.lunarFixInstalled) return;
     input.dataset.lunarFixInstalled = '1';
 
-    // Run before community.js's normal change handler so oversized images are reduced first.
+    // Capture phase runs before community.js's normal change handler, so large images
+    // are reduced before the existing attachmentDraft is created.
     input.addEventListener('change', async () => {
       const file = input.files?.[0];
       if (!file) return;
@@ -47,13 +47,6 @@
         input.files = dt.files;
       } catch (_) {}
     }, true);
-
-    // Extra fallback for browsers/themes that interfere with the original button handler.
-    button.addEventListener('click', () => {
-      setTimeout(() => {
-        if (document.activeElement !== input) input.click();
-      }, 0);
-    }, false);
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
