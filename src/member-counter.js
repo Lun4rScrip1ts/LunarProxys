@@ -33,6 +33,8 @@ async function actualCounts() {
     username: String(user.username || ""),
     displayName: String(user.displayName || user.username || ""),
     avatarUrl: String(user.avatarUrl || ""),
+    bannerUrl: String(user.bannerUrl || ""),
+    backgroundUrl: String(user.backgroundUrl || ""),
     isOnline: onlineUsers.has(user.id),
   })).sort((a, b) => {
     if (a.isOnline !== b.isOnline) return a.isOnline ? -1 : 1;
