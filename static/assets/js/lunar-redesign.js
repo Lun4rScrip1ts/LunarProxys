@@ -38,6 +38,7 @@
       ['/chat','fa-comments','Chat'],
       ['/apps','fa-table-cells','Apps'],
       ['/games','fa-gamepad','Games'],
+      ['/spotify','fa-spotify','Spotify'],
       ['/settings','fa-gear','Settings']
     ];
     const normalize = p => p.replace(/\/$/, '') || '/';
@@ -45,7 +46,7 @@
     nav.innerHTML = `
       <aside class="lunar-sidebar">
         <a class="lunar-sidebar-brand" href="/" aria-label="LunarProxys">LS</a>
-        ${links.map(([href, icon, label]) => `<a class="lunar-side-link navbar-link" href="${href}"><i class="fa-solid ${icon}"></i><span>${label}</span></a>`).join('')}
+        ${links.map(([href, icon, label]) => `<a class="lunar-side-link navbar-link lunar-nav-${label.toLowerCase()}" href="${href}"><i class="${icon === 'fa-spotify' ? 'fa-brands' : 'fa-solid'} ${icon}"></i><span>${label}</span></a>`).join('')}
         <div class="lunar-side-spacer"></div>
         <a class="lunar-side-link lunar-account-mini navbar-link lunar-account-nav" href="/account"><span>A</span></a>
       </aside>
