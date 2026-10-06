@@ -47,6 +47,43 @@
 .attachment-draft-info{min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;}
 .attachment-draft-info strong{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;max-width:420px!important;}
 #cancel-attachment{margin-left:auto!important;flex:0 0 34px!important;width:34px!important;height:34px!important;border-radius:10px!important;}
+
+/* Give Friends more horizontal room and reduce the cramped/tall feel. */
+.friends-app{
+  grid-template-columns:minmax(390px,430px) minmax(0,1fr)!important;
+}
+.friends-sidebar{
+  padding:24px 22px!important;
+}
+.friends-sidebar-head strong{font-size:25px!important;}
+.friends-search-bar{margin-top:18px!important;}
+.friends-tabs{gap:7px!important;margin:12px 0 16px!important;}
+.friends-tab{height:32px!important;padding:0 12px!important;font-size:12px!important;}
+.friends-list{gap:8px!important;}
+.friend-item,.friends-list>*{
+  min-height:70px!important;
+  padding:11px 12px!important;
+  box-sizing:border-box!important;
+}
+.friend-item .friend-copy{min-width:0!important;}
+.friend-item .friend-preview{max-width:230px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+.dm-panel{min-width:0!important;}
+.dm-topbar{padding:0 30px!important;}
+.dm-profile-intro,.dm-messages,.dm-composer{max-width:1100px!important;width:calc(100% - 64px)!important;}
+.dm-profile-intro{margin:20px auto!important;padding:22px!important;}
+.dm-messages{padding-left:8px!important;padding-right:8px!important;}
+.dm-composer{margin-left:auto!important;margin-right:auto!important;}
+
+@media(max-width:1000px){
+  .friends-app{grid-template-columns:340px minmax(0,1fr)!important;}
+  .dm-profile-intro,.dm-messages,.dm-composer{width:calc(100% - 36px)!important;}
+}
+@media(max-width:760px){
+  .friends-app{display:block!important;}
+  .friends-sidebar{height:auto!important;max-height:48vh!important;border-right:0!important;border-bottom:1px solid rgba(255,255,255,.07)!important;}
+  .dm-panel{height:calc(100vh - 72px)!important;}
+}
+
 @media(max-width:900px){
   .lunar-home .search-container,.lunar-home .lunar-quick{width:100%!important;}
   .lunar-home .lunar-changelog{position:relative!important;left:auto!important;top:auto!important;width:100%!important;height:auto!important;margin-top:28px!important;}
