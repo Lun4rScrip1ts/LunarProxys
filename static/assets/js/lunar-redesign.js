@@ -9,13 +9,13 @@
 
   const fixesStyle = document.createElement('link');
   fixesStyle.rel = 'stylesheet';
-  fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix3';
+  fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix4';
   document.head.appendChild(fixesStyle);
 
   const loadPresenceHeartbeat = () => {
     if (document.querySelector('script[data-lunar-presence-heartbeat]')) return;
     const script = document.createElement('script');
-    script.src = '/assets/js/lunar-presence-heartbeat.js?v=presence2';
+    script.src = '/assets/js/lunar-presence-heartbeat.js?v=presence3';
     script.dataset.lunarPresenceHeartbeat = 'true';
     script.defer = false;
     document.body.appendChild(script);
