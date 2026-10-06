@@ -7,6 +7,19 @@
   style.href = '/assets/css/lunar-redesign.css?v=figma1';
   document.head.appendChild(style);
 
+  const fixesStyle = document.createElement('link');
+  fixesStyle.rel = 'stylesheet';
+  fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix2';
+  document.head.appendChild(fixesStyle);
+
+  const loadChatFixes = () => {
+    if (path !== '/chat' && path !== '/chat.html' && path !== '/friends' && path !== '/friends.html') return;
+    const script = document.createElement('script');
+    script.src = '/assets/js/lunar-chat-fixes.js?v=fix2';
+    script.defer = false;
+    document.body.appendChild(script);
+  };
+
   const buildNav = () => {
     const nav = document.querySelector('.nav-bar');
     if (!nav) return;
@@ -52,6 +65,11 @@
       }).catch(() => {});
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildNav, { once: true });
-  else buildNav();
+  const start = () => {
+    buildNav();
+    loadChatFixes();
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+  else start();
 })();
