@@ -1,0 +1,57 @@
+(() => {
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  if (path === '/spotify' || path === '/spotify.html') return;
+
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = '/assets/css/lunar-redesign.css?v=figma1';
+  document.head.appendChild(style);
+
+  const buildNav = () => {
+    const nav = document.querySelector('.nav-bar');
+    if (!nav) return;
+    const links = [
+      ['/','fa-house','Home'],
+      ['/friends','fa-user-group','Friends'],
+      ['/chat','fa-comments','Chat'],
+      ['/apps','fa-table-cells','Apps'],
+      ['/games','fa-gamepad','Games'],
+      ['/settings','fa-gear','Settings']
+    ];
+    const normalize = p => p.replace(/\/$/, '') || '/';
+    const current = normalize(window.location.pathname);
+    nav.innerHTML = `
+      <aside class="lunar-sidebar">
+        <a class="lunar-sidebar-brand" href="/" aria-label="LunarProxys">LS</a>
+        ${links.map(([href, icon, label]) => `<a class="lunar-side-link navbar-link" href="${href}"><i class="fa-solid ${icon}"></i><span>${label}</span></a>`).join('')}
+        <div class="lunar-side-spacer"></div>
+        <a class="lunar-side-link lunar-account-mini navbar-link lunar-account-nav" href="/account"><span>A</span></a>
+      </aside>
+      <header class="lunar-topbar">
+        <div class="lunar-top-brand"><strong>LUNARPROXYS</strong><span>Secure • Social • Fast</span></div>
+        <div class="lunar-top-spacer"></div>
+        <span class="lunar-top-search" aria-hidden="true">⌕</span>
+        <span class="lunar-online"><i class="fa-solid fa-circle"></i><span>Online</span></span>
+        <a class="lunar-account-nav navbar-link" href="/account"><span>Account</span></a>
+      </header>`;
+
+    nav.querySelectorAll('.navbar-link').forEach(link => {
+      const href = normalize(new URL(link.href, window.location.origin).pathname);
+      const active = href === current || (current === '/play.html' && href === '/games') || (current.startsWith('/profile') && href === '/account');
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+    });
+
+    fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.user) return;
+        const labels = nav.querySelectorAll('.lunar-account-nav span');
+        if (labels[0]) labels[0].textContent = String(data.user.displayName || data.user.username || 'A').slice(0, 1).toUpperCase();
+        if (labels[1]) labels[1].textContent = 'Profile';
+      }).catch(() => {});
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildNav, { once: true });
+  else buildNav();
+})();
