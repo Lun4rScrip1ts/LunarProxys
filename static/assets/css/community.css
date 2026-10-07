@@ -1447,3 +1447,9 @@ body.profile-image-editor-open{overflow:hidden!important}
 .community-primary{box-shadow:0 12px 28px rgba(119,88,255,.22);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}
 .community-primary:hover{transform:translateY(-1px);box-shadow:0 15px 32px rgba(119,88,255,.3)}
 @media(max-width:620px){.account-card{padding:24px 20px}.auth-generator{min-width:46px;padding:0 10px}.auth-generator span{display:none}.auth-security-note{font-size:10px}}
+
+.password-field{position:relative;display:flex;align-items:stretch}
+.password-field>input{padding-right:88px!important}
+.password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;padding:0 9px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(255,255,255,.055);color:#aeb6c6;font:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:.16s ease}
+.password-toggle:hover{background:rgba(145,117,255,.12);border-color:rgba(183,157,255,.35);color:#fff}
+.password-toggle i{color:#b9a7ff}
