@@ -452,18 +452,38 @@ function renderMessages(){
   }
   e.innerHTML=html.join("");
 }
+function syncStickerSaveBadges(){
+  const savedUrls=new Set((me?.stickers||[]).map(s=>s.url));
+  document.querySelectorAll(".dm-sticker-attachment[data-sticker-url]").forEach(attachment=>{
+    const badge=attachment.querySelector(".sticker-save-badge");
+    if(!badge)return;
+    const saved=savedUrls.has(attachment.dataset.stickerUrl);
+    badge.classList.toggle("is-saved",saved);
+    badge.title=saved?"Remove from collection":"Save to collection";
+    badge.setAttribute("aria-label",saved?"Remove from collection":"Save to collection");
+    badge.innerHTML='<i class="fa-'+(saved?"solid":"regular")+' fa-bookmark"></i>';
+  });
+}
 function saveSticker(url,name){
   if(!me||!url)return Promise.resolve(null);
   return api("/api/stickers/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url,name:name||"Saved sticker"})})
-    .then(d=>{me.stickers=d.stickers||[];renderFriendStickers(me.stickers);return me.stickers.find(s=>s.url===url)||null})
-    .catch(()=>null);
+    .then(d=>{
+      me.stickers=Array.isArray(d.stickers)?d.stickers:[];
+      renderFriendStickers(me.stickers);
+      syncStickerSaveBadges();
+      return me.stickers.find(s=>s.url===url)||null;
+    });
 }
 function removeSticker(url){
   const saved=(me?.stickers||[]).find(s=>s.url===url);
   if(!saved?.id)return Promise.resolve(false);
   return api("/api/stickers/"+encodeURIComponent(saved.id),{method:"DELETE"})
-    .then(d=>{me.stickers=d.stickers||[];renderFriendStickers(me.stickers);return true})
-    .catch(()=>false);
+    .then(d=>{
+      me.stickers=Array.isArray(d.stickers)?d.stickers:[];
+      renderFriendStickers(me.stickers);
+      syncStickerSaveBadges();
+      return true;
+    });
 }
 async function toggleStickerSave(attachment){
   if(!attachment?.dataset.stickerUrl)return;
@@ -482,7 +502,10 @@ async function toggleStickerSave(attachment){
       if(added&&badge){badge.classList.add("is-saved");badge.innerHTML='<i class="fa-solid fa-bookmark"></i>';}
       if(added)toast("Sticker saved to your collection.");
     }
+  }catch(error){
+    toast(error?.message||"Could not update your sticker collection.");
   }finally{if(badge){badge.disabled=false;badge.classList.remove("is-saving");}}
+
 }
 function positionFriendContextMenu(menu,x,y){
   menu.style.left="0px";menu.style.top="0px";menu.hidden=false;
