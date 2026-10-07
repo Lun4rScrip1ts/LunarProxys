@@ -295,8 +295,8 @@ function renderAppCard(app, appIndex, isCustom = false) {
 }
 
 function getJsonPath() {
-  if (isGamesPage) return "/assets/json/games.min.json?v=lunar8";
-  if (isAppsPage) return "/assets/json/apps.min.json?v=lunar8";
+  if (isGamesPage) return "/assets/json/games.min.json?v=lunar9";
+  if (isAppsPage) return "/assets/json/apps.min.json?v=lunar9";
   return "/assets/json/apps.min.json";
 }
 
