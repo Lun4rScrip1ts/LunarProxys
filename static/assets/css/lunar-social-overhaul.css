@@ -351,3 +351,51 @@ body.lunar-friends-page.lunar-site-old-ui .lunar-friend-notification.is-old-ui .
 .lunar-community-page .chat-message.is-grouped .chat-message-body{margin-left:54px!important}
 .lunar-community-page .chat-message.is-grouped .chat-meta{display:none!important}
 .lunar-community-page .chat-message.is-grouped .chat-text{margin-top:0!important}
+
+/* Final Discord-style message grouping: follow-up messages sit directly under the first. */
+.lunar-friends-page .dm-message.is-grouped{
+  padding-top:0!important;
+  padding-bottom:0!important;
+  margin-top:-1px!important;
+}
+.lunar-friends-page .dm-message.is-grouped .dm-avatar{
+  width:0!important;
+  min-width:0!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+  visibility:hidden!important;
+}
+.lunar-friends-page .dm-message.is-grouped{
+  gap:0!important;
+}
+.lunar-friends-page .dm-message.is-grouped .dm-message-content{
+  margin-left:37px!important;
+}
+.lunar-friends-page .dm-message.is-grouped .dm-text{
+  margin-top:0!important;
+  line-height:1.35!important;
+}
+.lunar-community-page .chat-message.is-grouped{
+  padding-top:0!important;
+  padding-bottom:0!important;
+  margin-top:-2px!important;
+}
+.lunar-community-page .chat-message.is-grouped .chat-avatar{
+  width:0!important;
+  min-width:0!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+  visibility:hidden!important;
+}
+.lunar-community-page .chat-message.is-grouped{
+  gap:0!important;
+}
+.lunar-community-page .chat-message.is-grouped .chat-message-body{
+  margin-left:54px!important;
+}
+.lunar-community-page .chat-message.is-grouped .chat-text{
+  margin-top:0!important;
+  line-height:1.35!important;
+}
