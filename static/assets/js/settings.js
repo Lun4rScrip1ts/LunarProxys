@@ -107,6 +107,81 @@ document.addEventListener("DOMContentLoaded", () => {
   const bgBlur = document.getElementById("background-blur-range");
   const bgBlurValue = document.getElementById("background-blur-value");
   const bgClear = document.getElementById("background-clear-button");
+  const bgSavedButton = document.getElementById("background-saved-button");
+  const bgSavedPanel = document.getElementById("background-saved-panel");
+  const bgSavedGrid = document.getElementById("background-saved-grid");
+  const bgSavedStatus = document.getElementById("background-saved-status");
+
+  const readSavedBackgrounds = () => {
+    try {
+      const parsed = JSON.parse(store.get("savedBackgrounds") || "[]");
+      return Array.isArray(parsed) ? parsed.filter(item => item && item.url && item.url !== "none" && !item.isDefault) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const writeSavedBackgrounds = items => {
+    store.set("savedBackgrounds", JSON.stringify(items.filter(item => item && item.url && item.url !== "none" && !item.isDefault).slice(0, 12)));
+  };
+
+  const rememberBackground = (url, name) => {
+    if (!url || url === "none") return;
+    const current = readSavedBackgrounds();
+    if (current.some(item => item.url === url)) return;
+    writeSavedBackgrounds([{ id: Date.now().toString(36), name: name || "Saved background", url, isDefault: false }, ...current]);
+  };
+
+  const applySavedBackground = async item => {
+    if (!item || !item.url || item.url === "none" || item.isDefault) return;
+    store.set("backgroundImage", item.url);
+    store.set("backgroundMode", "custom");
+    if (bgDropdown) bgDropdown.value = "custom";
+    if (bgStatus) bgStatus.textContent = "Saved background selected.";
+    if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
+    window.location.reload();
+  };
+
+  const renderSavedBackgrounds = () => {
+    if (!bgSavedGrid) return;
+    const items = readSavedBackgrounds();
+    bgSavedGrid.innerHTML = "";
+    if (!items.length) {
+      bgSavedGrid.innerHTML = '<div class="background-saved-empty">No saved backgrounds yet. Apply a custom image and it will appear here.</div>';
+      if (bgSavedStatus) bgSavedStatus.textContent = "Only custom backgrounds are saved.";
+      return;
+    }
+    items.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "background-saved-card";
+      const preview = document.createElement("button");
+      preview.type = "button";
+      preview.className = "background-saved-preview";
+      preview.style.backgroundImage = 'url("' + String(item.url).replace(/"/g, '\\\"') + '")';
+      preview.title = "Use " + (item.name || "saved background");
+      preview.addEventListener("click", () => applySavedBackground(item));
+      const meta = document.createElement("div");
+      meta.className = "background-saved-meta";
+      const title = document.createElement("strong");
+      title.textContent = item.name || "Saved background";
+      const use = document.createElement("button");
+      use.type = "button";
+      use.className = "key-button background-saved-use";
+      use.textContent = "Use";
+      use.addEventListener("click", () => applySavedBackground(item));
+      meta.append(title, use);
+      card.append(preview, meta);
+      bgSavedGrid.appendChild(card);
+    });
+    if (bgSavedStatus) bgSavedStatus.textContent = items.length + " saved background" + (items.length === 1 ? "" : "s");
+  };
+
+  bgSavedButton && bgSavedButton.addEventListener("click", () => {
+    const open = bgSavedPanel.classList.toggle("is-open");
+    bgSavedPanel.setAttribute("aria-hidden", String(!open));
+    if (open) renderSavedBackgrounds();
+  });
+
 
   const savedBg = store.get("backgroundImage");
   const savedBgMode = store.get("backgroundMode") || "default";
@@ -126,6 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   if (savedBgMode === "custom" && savedBg) {
+    rememberBackground(savedBg, "Current background");
     syncBackgroundControls();
   }
 
@@ -232,6 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch {}
 
+      rememberBackground(backgroundValue, file.name);
       store.set("backgroundImage", backgroundValue);
       store.set("backgroundMode", "custom");
       if (bgDropdown) bgDropdown.value = "custom";
