@@ -566,7 +566,6 @@
 .lunar-friends-page .dm-gif{display:block!important;max-width:280px!important;max-height:220px!important;border-radius:6px!important;margin-top:4px!important}
 .lunar-friends-page .dm-sticker-attachment{position:relative!important;width:max-content!important;max-width:240px!important;margin-top:4px!important}
 .lunar-friends-page .dm-sticker{display:block!important;max-width:180px!important;max-height:180px!important;object-fit:contain!important}
-.lunar-friends-page .sticker-save-badge{
   position:absolute!important;
   right:3px!important;
   top:3px!important;
@@ -579,7 +578,6 @@
   opacity:0!important;
   transition:opacity .12s ease!important;
 }
-.lunar-friends-page .dm-sticker-attachment:hover .sticker-save-badge{opacity:1!important}
 .lunar-friends-page .dm-message-actions{
   position:absolute!important;
   top:-12px!important;
@@ -1386,14 +1384,12 @@
   }
 }
 
-.lunar-friends-page .sticker-save-badge.is-saved{
   opacity:1!important;
   background:rgba(255,196,55,.16)!important;
   border:1px solid rgba(255,196,55,.55)!important;
   color:#ffd34f!important;
   box-shadow:0 0 0 1px rgba(255,196,55,.08),0 4px 14px rgba(0,0,0,.25)!important;
 }
-.lunar-friends-page .sticker-save-badge.is-saved:hover{
   background:rgba(255,196,55,.24)!important;
   color:#ffe07a!important;
 }
