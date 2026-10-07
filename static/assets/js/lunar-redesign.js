@@ -23,15 +23,6 @@
     fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix5';
     document.head.appendChild(fixesStyle);
 
-  const loadPresenceHeartbeat = () => {
-    if (document.querySelector('script[data-lunar-presence-heartbeat]')) return;
-    const script = document.createElement('script');
-    script.src = '/assets/js/lunar-presence-heartbeat.js?v=presence3';
-    script.dataset.lunarPresenceHeartbeat = 'true';
-    script.defer = false;
-    document.body.appendChild(script);
-  };
-
   const loadChatFixes = () => {
     if (path !== '/chat' && path !== '/chat.html' && path !== '/friends' && path !== '/friends.html') return;
     const script = document.createElement('script');
@@ -87,7 +78,6 @@
   };
 
     buildNav();
-    loadPresenceHeartbeat();
     loadChatFixes();
   };
 
