@@ -111,7 +111,40 @@
     document.getElementById("forgot-password-button").hidden=reg;
     ["register-username-row","email-row","display-name-row"].forEach(id=>document.getElementById(id).hidden=!reg);
     document.getElementById("identifier-label").hidden=reg; document.getElementById("auth-identifier").required=!reg;
-    document.getElementById("auth-username").required=reg; document.getElementById("auth-email").required=reg; errorEl.textContent="";};
+    document.getElementById("auth-username").required=reg; document.getElementById("auth-email").required=reg;
+    document.getElementById("auth-password").autocomplete=reg?"new-password":"current-password";
+    document.getElementById("password-helper").textContent=reg?"Use Generate for a strong password, or let your browser suggest one.":"Use your saved password, or enter it manually.";
+    document.getElementById("generate-password").hidden=!reg;
+    document.getElementById("generate-username").disabled=!reg;
+    document.getElementById("generate-display-name").disabled=!reg;
+    errorEl.textContent="";};
+  const randomIndex=max=>{const values=new Uint32Array(1);crypto.getRandomValues(values);return values[0]%max;};
+  const usernameAdjectives=["Lunar","Nova","Cosmic","Pixel","Stellar","Moon","Orbit","Solar","Frost","Nebula"];
+  const usernameNouns=["Fox","Wolf","Byte","Wave","Star","Comet","Echo","Drift","Ray","Spark"];
+  const displayAdjectives=["Lunar","Nova","Cosmic","Starlit","Moonlit","Silver","Solar","Velvet","Astral","Quiet"];
+  const displayNouns=["Rider","Dreamer","Voyager","Explorer","Pixel","Comet","Orbit","Wanderer","Signal","Pilot"];
+  const generateUsername=()=>{
+    const value=usernameAdjectives[randomIndex(usernameAdjectives.length)]+usernameNouns[randomIndex(usernameNouns.length)]+String(100+randomIndex(900));
+    document.getElementById("auth-username").value=value.slice(0,20);
+  };
+  const generateDisplayName=()=>{
+    document.getElementById("auth-display-name").value=(displayAdjectives[randomIndex(displayAdjectives.length)]+" "+displayNouns[randomIndex(displayNouns.length)]).slice(0,20);
+  };
+  const generatePassword=()=>{
+    const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-+=";
+    const required=["ABCDEFGHJKLMNPQRSTUVWXYZ","abcdefghijkmnopqrstuvwxyz","23456789","!@#$%^&*_-+="];
+    const pick=set=>set[randomIndex(set.length)];
+    let value=required.map(pick).join("");
+    const bytes=new Uint32Array(18);crypto.getRandomValues(bytes);
+    for(const byte of bytes)value+=chars[byte%chars.length];
+    value=value.split("").sort(()=>randomIndex(2)-1).join("");
+    const input=document.getElementById("auth-password");
+    input.value=value.slice(0,22);
+    input.dispatchEvent(new Event("input",{bubbles:true}));
+  };
+  document.getElementById("generate-username")?.addEventListener("click",generateUsername);
+  document.getElementById("generate-display-name")?.addEventListener("click",generateDisplayName);
+  document.getElementById("generate-password")?.addEventListener("click",generatePassword);
   const initials=n=>(n||"?").trim().slice(0,2).toUpperCase();
   const setProfile=()=>{authCard.hidden=true;profileCard.hidden=false;
     document.getElementById("profile-display").textContent=user.displayName;
