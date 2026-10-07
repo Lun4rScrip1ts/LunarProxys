@@ -440,3 +440,73 @@ input:focus {
   .lunar-home-old-ui .title{font-size:clamp(42px,10vw,64px)!important;letter-spacing:-1px!important;}
   .lunar-home-old-ui .search-container{width:92vw!important;}
 }
+
+
+/* Old UI search: keep Go inline and visually match the refined search action. */
+.lunar-home-old-ui .search-container{
+  width:min(760px,90vw)!important;
+  height:auto!important;
+  min-height:60px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  display:flex!important;
+  align-items:center!important;
+}
+.lunar-home-old-ui .search-container form{
+  width:100%!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:nowrap!important;
+}
+.lunar-home-old-ui .search-container input.truncate{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:52px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+.lunar-home-old-ui .search-container .lunar-home-go{
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  min-width:58px!important;
+  height:42px!important;
+  margin:0!important;
+  padding:0 19px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:14px!important;
+  background:linear-gradient(90deg,#9e8fff,#664de0)!important;
+  color:#fff!important;
+  font:600 13px Inter,sans-serif!important;
+  box-shadow:0 7px 18px rgba(140,122,255,.28)!important;
+  white-space:nowrap!important;
+}
+.lunar-home-old-ui .search-container .lunar-home-go:hover{
+  transform:none!important;
+  filter:brightness(1.08)!important;
+  box-shadow:0 9px 22px rgba(140,122,255,.36)!important;
+}
+.lunar-home-old-ui .title{
+  overflow:visible!important;
+}
+.lunar-home-old-ui .title:before{
+  pointer-events:none!important;
+}
+.lunar-home-old-ui .title:hover{
+  transform:none!important;
+  letter-spacing:-2px!important;
+  filter:brightness(1.04)!important;
+}
+@media(max-width:700px){
+  .lunar-home-old-ui .search-container{width:92vw!important;}
+  .lunar-home-old-ui .search-container form{gap:8px!important;}
+  .lunar-home-old-ui .search-container .lunar-home-go{min-width:54px!important;padding:0 15px!important;}
+}
