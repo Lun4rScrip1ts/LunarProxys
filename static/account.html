@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/assets/css/global.css">
   <link rel="stylesheet" href="/assets/css/nav.css?v=lunar14">
   <link rel="stylesheet" href="/assets/css/lunar.css?v=lunar4">
-  <link rel="stylesheet" href="/assets/css/community.css?v=lunar9">
+  <link rel="stylesheet" href="/assets/css/community.css?v=lunar10">
   <script src="/assets/js/storage.js?v=lunar7"></script>
   <script src="/assets/js/main.js?v=lunar17"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -51,7 +51,10 @@
         </label>
         <label>Password
           <div class="auth-generator-row">
+            <div class="password-field">
             <input id="auth-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required>
+            <button type="button" class="password-toggle" id="auth-password-toggle" aria-label="Show password" aria-pressed="false"><i class="fa-solid fa-eye"></i><span>Show</span></button>
+          </div>
             <button type="button" class="auth-generator" id="generate-password" title="Generate a strong password" hidden><i class="fa-solid fa-key"></i><span>Generate</span></button>
           </div>
           <small id="password-helper">Use your saved password, or enter it manually.</small>
