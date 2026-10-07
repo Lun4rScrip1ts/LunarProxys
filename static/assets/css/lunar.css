@@ -170,9 +170,7 @@ body.interface-glass .cash-card{
   box-shadow:0 24px 70px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045)!important;
 }
 body.reduce-interface-effects .lunar-bg-effect{opacity:.42}
-body.disable-interface-effects .lunar-bg-effect,
-body.disable-interface-effects #pointer-canvas,
-body.disable-interface-effects [id$="-canvas"]{display:none!important}
+body.disable-interface-effects .lunar-bg-effect{display:none!important}
 body.reduce-interface-motion *,
 body.reduce-interface-motion *::before,
 body.reduce-interface-motion *::after{
