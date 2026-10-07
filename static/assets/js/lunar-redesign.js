@@ -2,9 +2,11 @@
   const path = window.location.pathname.replace(/\/$/, '') || '/';
   if (path === '/spotify' || path === '/spotify.html') return;
 
+  const useNewHomeUI = store.get("homeUI") !== "old";
+  if (!useNewHomeUI && path === '/') return;
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = '/assets/css/lunar-redesign.css?v=figma1';
+  style.href = '/assets/css/lunar-redesign.css?v=figma2';
   document.head.appendChild(style);
 
   const fixesStyle = document.createElement('link');
