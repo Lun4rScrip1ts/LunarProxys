@@ -1,13 +1,14 @@
 (() => {
   const applyLunarHome = () => {
+    const useNewHomeUI = store.get("homeUI") !== "old";
     const title = document.querySelector(".title");
     const splash = document.getElementById("splash");
     const logo = document.querySelector(".lunar-nav-logo");
     const brand = document.querySelector(".lunar-brand");
-    if (brand) brand.remove();
+    if (useNewHomeUI && brand) brand.remove();
     if (logo) logo.setAttribute("aria-label", "Lunar Studios");
     document.body.classList.add("ls-ready");
-    if (title) {
+    if (useNewHomeUI && title) {
       title.textContent = "Lunar Proxy";
       title.setAttribute("aria-label", "Lunar Proxy");
       title.innerHTML = [...title.textContent].map((ch, i) => `<span class="lunar-title-letter" style="--i:${i}">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
@@ -32,14 +33,34 @@
         title.addEventListener("pointerleave", reset);
       }
     }
-    if (splash) splash.textContent = "A cleaner way to explore the web.";
+    if (useNewHomeUI && splash) splash.textContent = "A cleaner way to explore the web.";
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyLunarHome); else applyLunarHome();
   window.setTimeout(applyLunarHome, 150);
 
+  const uiToggle = document.getElementById("lunar-ui-toggle");
+  const uiSwitch = document.getElementById("lunar-ui-switch");
+  const syncHomeUI = () => {
+    const isNew = store.get("homeUI") !== "old";
+    document.body.classList.toggle("lunar-home-old-ui", !isNew);
+    document.body.classList.toggle("lunar-home-new-ui", isNew);
+    if (uiToggle) uiToggle.setAttribute("aria-pressed", String(isNew));
+    if (uiSwitch) uiSwitch.classList.toggle("is-new", isNew);
+  };
+  uiToggle?.addEventListener("click", async () => {
+    const isNew = store.get("homeUI") !== "old";
+    store.set("homeUI", isNew ? "old" : "new");
+    syncHomeUI();
+    if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
+    window.location.reload();
+  });
+  syncHomeUI();
+
   let memberRequestInFlight = false, memberTimer = null;
   const counterIds = { online: "lunar-online-count", offline: "lunar-offline-count", members: "lunar-member-count" };
   const setCounterText = (data) => {
+    const allTime = document.getElementById("lunar-all-time-logins");
+    if (allTime) allTime.textContent = Number(data.allTimeLogins || 0).toLocaleString();
     for (const [key, id] of Object.entries(counterIds)) {
       const el = document.getElementById(id); if (!el) continue;
       el.textContent = Number(data[key] || 0).toLocaleString();
@@ -48,6 +69,17 @@
     const reset = document.getElementById("lunar-counter-reset"); if (reset) reset.hidden = true;
     document.getElementById("lunar-member-status")?.classList.remove("counter-editor");
   };
+  const recordVisit = async () => {
+    try {
+      const response = await fetch("/api/site-visit", { method: "POST", credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      const allTime = document.getElementById("lunar-all-time-logins");
+      if (allTime) allTime.textContent = Number(data.allTimeLogins || 0).toLocaleString();
+    } catch {}
+  };
+  recordVisit();
+
   const updateMemberStatus = async () => {
     const status = document.getElementById("lunar-member-status"); if (!status || memberRequestInFlight) return;
     memberRequestInFlight = true;
