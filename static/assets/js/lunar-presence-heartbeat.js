@@ -2,7 +2,7 @@
   let inFlight = false;
 
   const touchPresence = async () => {
-    if (inFlight || document.hidden) return;
+    if (inFlight || document.hidden || document.visibilityState === "prerender") return;
     inFlight = true;
     try {
       await fetch("/api/presence/heartbeat", {
@@ -15,7 +15,7 @@
   };
 
   touchPresence();
-  setInterval(touchPresence, 30_000);
+  setInterval(touchPresence, 25_000);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) touchPresence();
   });
