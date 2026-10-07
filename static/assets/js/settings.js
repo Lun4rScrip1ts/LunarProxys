@@ -339,24 +339,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (animations) {
     animations.value = store.get("interfaceAnimations") || "on";
-    animations.addEventListener("change", () => {
+    animations.addEventListener("change", async () => {
       store.set("interfaceAnimations", animations.value);
       document.body.classList.toggle("reduce-interface-motion", animations.value !== "on");
       document.documentElement.style.setProperty("--interface-motion-scale", animations.value === "off" ? "0" : animations.value === "reduced" ? "0.45" : "1");
+      if (typeof store.flushAccountSettings === "function") {
+        await store.flushAccountSettings();
+      }
     });
     document.body.classList.toggle("reduce-interface-motion", animations.value !== "on");
     document.documentElement.style.setProperty("--interface-motion-scale", animations.value === "off" ? "0" : animations.value === "reduced" ? "0.45" : "1");
   }
 
   if (visualEffects) {
-    const forceFullVisualEffects = () => {
-      visualEffects.value = "full";
-      store.set("interfaceEffects", "full");
-      document.body.classList.remove("reduce-interface-effects", "disable-interface-effects");
-      document.documentElement.style.setProperty("--interface-effects-opacity", "1");
+    const applyVisualEffects = async () => {
+      const value = visualEffects.value || "full";
+      store.set("interfaceEffects", value);
+      document.body.classList.toggle("reduce-interface-effects", value === "reduced");
+      document.body.classList.toggle("disable-interface-effects", value === "off");
+      document.documentElement.style.setProperty(
+        "--interface-effects-opacity",
+        value === "off" ? "0" : value === "reduced" ? "0.42" : "1",
+      );
+      if (typeof store.flushAccountSettings === "function") {
+        await store.flushAccountSettings();
+      }
     };
-    visualEffects.addEventListener("change", forceFullVisualEffects);
-    forceFullVisualEffects();
+    visualEffects.value = store.get("interfaceEffects") || "full";
+    visualEffects.addEventListener("change", applyVisualEffects);
+    applyVisualEffects();
   }
 
   if (interfaceReset) {
