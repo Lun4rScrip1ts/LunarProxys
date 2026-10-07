@@ -2,17 +2,26 @@
   const path = window.location.pathname.replace(/\/$/, '') || '/';
   if (path === '/spotify' || path === '/spotify.html') return;
 
-  const useNewHomeUI = store.get("homeUI") !== "old";
-  if (!useNewHomeUI && path === '/') return;
-  const style = document.createElement('link');
-  style.rel = 'stylesheet';
-  style.href = '/assets/css/lunar-redesign.css?v=figma3';
-  document.head.appendChild(style);
+  const start = () => {
+    const useNewUI = store.get("homeUI") !== "old";
 
-  const fixesStyle = document.createElement('link');
-  fixesStyle.rel = 'stylesheet';
-  fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix5';
-  document.head.appendChild(fixesStyle);
+    // Old UI is intentionally the original site-wide interface. Do not inject
+    // any of the refined redesign CSS/navigation when Old UI is selected.
+    if (!useNewUI) {
+      document.body?.classList.add("lunar-site-old-ui");
+      return;
+    }
+    document.body?.classList.add("lunar-site-new-ui");
+
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = '/assets/css/lunar-redesign.css?v=figma4';
+    document.head.appendChild(style);
+
+    const fixesStyle = document.createElement('link');
+    fixesStyle.rel = 'stylesheet';
+    fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix5';
+    document.head.appendChild(fixesStyle);
 
   const loadPresenceHeartbeat = () => {
     if (document.querySelector('script[data-lunar-presence-heartbeat]')) return;
@@ -77,12 +86,20 @@
       }).catch(() => {});
   };
 
-  const start = () => {
     buildNav();
     loadPresenceHeartbeat();
     loadChatFixes();
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
-  else start();
+  const boot = async () => {
+    // Account settings are authoritative, so the Old/New mode remains
+    // consistent after switching accounts or opening the site elsewhere.
+    if (typeof store.loadAccountSettings === "function") {
+      try { await store.loadAccountSettings(); } catch {}
+    }
+    start();
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
 })();
