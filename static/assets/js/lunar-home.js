@@ -48,11 +48,26 @@
     if (uiSwitch) uiSwitch.classList.toggle("is-new", isNew);
   };
   uiToggle?.addEventListener("click", async () => {
+    if (uiToggle.dataset.reloading === "1") return;
+    uiToggle.dataset.reloading = "1";
+
     const isNew = store.get("homeUI") !== "old";
-    store.set("homeUI", isNew ? "old" : "new");
+    const nextMode = isNew ? "old" : "new";
+    store.set("homeUI", nextMode);
     syncHomeUI();
-    if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
-    window.location.reload();
+
+    // Let the thumb visibly slide, then reload the Home page so the
+    // actual navigation/layout is rebuilt for the selected UI mode.
+    const reload = () => window.location.reload();
+    const savePromise = typeof store.flushAccountSettings === "function"
+      ? store.flushAccountSettings()
+      : Promise.resolve(true);
+
+    await Promise.race([
+      savePromise,
+      new Promise(resolve => setTimeout(resolve, 900))
+    ]);
+    window.setTimeout(reload, 180);
   });
   syncHomeUI();
 
