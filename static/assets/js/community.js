@@ -239,7 +239,7 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
         <div class="chat-message-body">
           ${grouped ? "" : `<div class="chat-meta">
             <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
-            <span class="chat-username">@${escape(message.username)}</span>${roleBadges(message.roles)}
+            ${roleBadges(message.roles)}
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
           </div>`}
           ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
