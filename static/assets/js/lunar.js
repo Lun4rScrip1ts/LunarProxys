@@ -15,13 +15,15 @@
     const glass = store.get("interfaceGlass") === "on";
     const strength = clamp(store.get("interfaceGlassStrength"), 0, 100, 65);
     const motion = store.get("interfaceAnimations") || "on";
-    const effects = store.get("interfaceEffects") || "full";
-    const effectOpacity = effects === "off" ? 0 : effects === "reduced" ? 0.42 : 1;
+    // Fail-safe: visual effects always remain enabled so a stale/broken
+    // saved preference can never hide the entire interface.
+    const effects = "full";
+    if (store.get("interfaceEffects") !== "full") store.set("interfaceEffects", "full");
+    const effectOpacity = 1;
 
     body.classList.toggle("interface-glass", glass);
     body.classList.toggle("reduce-interface-motion", motion !== "on");
-    body.classList.toggle("disable-interface-effects", effects === "off");
-    body.classList.toggle("reduce-interface-effects", effects === "reduced");
+    body.classList.remove("disable-interface-effects", "reduce-interface-effects");
 
     root.style.setProperty("--interface-glass-alpha", (0.18 + strength / 180).toFixed(2));
     root.style.setProperty("--interface-glass-blur", Math.round(6 + strength / 5) + "px");
