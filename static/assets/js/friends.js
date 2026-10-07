@@ -650,6 +650,15 @@ function showReactionUsers(m,anchor){
   }).join(""):"<div>No reactions yet.</div>");
   document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180);
 }
+document.addEventListener("click",async e=>{
+  const save=e.target.closest(".sticker-save-badge");
+  if(!save)return;
+  e.preventDefault();
+  e.stopPropagation();
+  const attachment=save.closest(".dm-sticker-attachment");
+  if(attachment)await toggleStickerSave(attachment);
+},true);
+
 $("dm-messages").addEventListener("click",async e=>{
   const inline=e.target.closest("[data-inline-edit]");
   if(inline){
@@ -671,9 +680,6 @@ $("dm-messages").addEventListener("click",async e=>{
     try{await api("/api/friends/dms/messages/"+messageArticle.dataset.mid,{method:"DELETE"});toast("Message deleted.");await loadMessages()}catch(x){toast(x.message)}
     return;
   }
-
-  const save=e.target.closest(".sticker-save-badge");
-  if(save){e.preventDefault();e.stopPropagation();const attachment=save.closest(".dm-sticker-attachment");if(attachment)await toggleStickerSave(attachment);return}
 
   const profile=e.target.closest("[data-profile-user]");
   if(profile){e.preventDefault();openUserProfile(profile.dataset.profileUser,profile);return}
