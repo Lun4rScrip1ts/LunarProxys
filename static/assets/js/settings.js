@@ -352,22 +352,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (visualEffects) {
-    const applyVisualEffects = async () => {
-      const value = visualEffects.value || "full";
-      store.set("interfaceEffects", value);
-      document.body.classList.toggle("reduce-interface-effects", value === "reduced");
-      document.body.classList.toggle("disable-interface-effects", value === "off");
-      document.documentElement.style.setProperty(
-        "--interface-effects-opacity",
-        value === "off" ? "0" : value === "reduced" ? "0.42" : "1",
-      );
-      if (typeof store.flushAccountSettings === "function") {
-        await store.flushAccountSettings();
-      }
-    };
-    visualEffects.value = store.get("interfaceEffects") || "full";
-    visualEffects.addEventListener("change", applyVisualEffects);
-    applyVisualEffects();
+    // Visual effects are locked to Full for all users because disabling them
+    // can hide required interface layers and cause a black screen.
+    visualEffects.value = "full";
+    visualEffects.disabled = true;
+    store.set("interfaceEffects", "full");
+    document.body.classList.remove("reduce-interface-effects", "disable-interface-effects");
+    document.documentElement.style.setProperty("--interface-effects-opacity", "1");
   }
 
   if (interfaceReset) {
