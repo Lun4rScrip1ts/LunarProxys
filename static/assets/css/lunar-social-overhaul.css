@@ -260,3 +260,82 @@ body.lunar-friends-page.lunar-site-new-ui .composer-icon{
     max-height:none!important;
   }
 }
+
+
+/* Navigation notifications */
+.lunar-friend-notification{
+  position:relative!important;
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-decoration:none!important;
+  color:rgba(255,255,255,.38)!important;
+  transition:color .2s ease,background .2s ease,box-shadow .2s ease,transform .2s ease!important;
+}
+.lunar-friend-notification .lunar-notification-dot,
+.lunar-chat-notification-dot{
+  position:absolute!important;
+  width:7px!important;
+  height:7px!important;
+  border-radius:50%!important;
+  background:#ff3f52!important;
+  box-shadow:0 0 0 2px rgba(8,11,18,.92),0 0 13px rgba(255,52,76,.9)!important;
+  opacity:0!important;
+  transform:scale(.5)!important;
+  transition:opacity .18s ease,transform .18s ease!important;
+  pointer-events:none!important;
+}
+.lunar-friend-notification.has-unread{
+  color:#fff!important;
+  background:rgba(255,45,65,.12)!important;
+  box-shadow:0 0 22px rgba(255,45,65,.22)!important;
+  animation:lunarNotifyPulse 1.8s ease-in-out infinite!important;
+}
+.lunar-friend-notification.has-unread .lunar-notification-dot,
+.lunar-chat-notification-dot.has-unread{
+  opacity:1!important;
+  transform:scale(1)!important;
+}
+@keyframes lunarNotifyPulse{
+  0%,100%{box-shadow:0 0 0 rgba(255,45,65,0),0 0 0 rgba(255,45,65,0)}
+  50%{box-shadow:0 0 24px rgba(255,45,65,.28),0 0 9px rgba(255,45,65,.12)}
+}
+
+/* New UI Friends shell: shorter so its bottom never clips off the viewport. */
+body.lunar-friends-page.lunar-site-new-ui .friends-app{
+  min-height:0!important;
+  height:min(610px,calc(100vh - 112px))!important;
+  max-height:calc(100vh - 112px)!important;
+}
+body.lunar-friends-page.lunar-site-old-ui .friends-app{
+  min-height:0!important;
+  height:min(610px,calc(100vh - 108px))!important;
+  max-height:calc(100vh - 108px)!important;
+}
+
+/* Notification button placement in the two navigation modes. */
+body.lunar-friends-page.lunar-site-new-ui .lunar-friend-notification.is-new-ui{
+  width:60px!important;
+  height:34px!important;
+  margin:-10px 0 8px!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.025)!important;
+}
+body.lunar-friends-page.lunar-site-new-ui .lunar-friend-notification.is-new-ui .lunar-notification-dot{
+  top:4px!important;
+  right:14px!important;
+}
+body.lunar-friends-page.lunar-site-old-ui .lunar-friend-notification.is-old-ui{
+  width:34px!important;
+  height:34px!important;
+  margin:0 3px 0 0!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.045)!important;
+}
+body.lunar-friends-page.lunar-site-old-ui .lunar-friend-notification.is-old-ui .lunar-notification-dot{
+  top:4px!important;
+  right:4px!important;
+}
