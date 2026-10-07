@@ -349,16 +349,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (visualEffects) {
-    visualEffects.value = store.get("interfaceEffects") || "full";
-    const applyEffects = () => {
-      const value = visualEffects.value;
-      store.set("interfaceEffects", value);
-      document.body.classList.toggle("reduce-interface-effects", value === "reduced");
-      document.body.classList.toggle("disable-interface-effects", value === "off");
-      document.documentElement.style.setProperty("--interface-effects-opacity", value === "off" ? "0" : value === "reduced" ? "0.42" : "1");
+    const forceFullVisualEffects = () => {
+      visualEffects.value = "full";
+      store.set("interfaceEffects", "full");
+      document.body.classList.remove("reduce-interface-effects", "disable-interface-effects");
+      document.documentElement.style.setProperty("--interface-effects-opacity", "1");
     };
-    visualEffects.addEventListener("change", applyEffects);
-    applyEffects();
+    visualEffects.addEventListener("change", forceFullVisualEffects);
+    forceFullVisualEffects();
   }
 
   if (interfaceReset) {
