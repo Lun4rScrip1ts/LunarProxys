@@ -474,3 +474,22 @@ body.interface-glass .settings-card.interface-settings-card label{
 .settings-card:has(.lunar-select.is-open){
   overflow:visible!important;
 }
+
+/* Saved custom background library */
+.background-saved-tools{position:relative;margin-top:10px}
+.background-saved-tools>.key-button{width:100%;margin-top:0}
+.background-saved-panel{display:none;margin-top:10px;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(8,12,18,.58);box-shadow:0 18px 45px rgba(0,0,0,.25);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.background-saved-panel.is-open{display:block}
+.background-saved-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.background-saved-header strong{display:block;color:var(--text)}
+.background-saved-header span{display:block;margin-top:3px;color:var(--text-muted);font-size:11px}
+.background-saved-close{width:30px;height:30px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-size:20px;line-height:1}
+.background-saved-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:360px;overflow:auto}
+.background-saved-card{min-width:0;padding:7px;border:1px solid rgba(255,255,255,.09);border-radius:13px;background:rgba(255,255,255,.035)}
+.background-saved-preview{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:9px;background-position:center;background-size:cover;background-repeat:no-repeat;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.background-saved-preview:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.background-saved-meta{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:7px}
+.background-saved-meta strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text)}
+.background-saved-use{width:auto!important;margin:0!important;padding:6px 9px!important;font-size:11px!important}
+.background-saved-empty{grid-column:1/-1;padding:18px 10px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.5}
+@media(max-width:520px){.background-saved-grid{grid-template-columns:1fr}}
