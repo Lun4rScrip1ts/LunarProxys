@@ -6,7 +6,7 @@
   if (!useNewHomeUI && path === '/') return;
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = '/assets/css/lunar-redesign.css?v=figma2';
+  style.href = '/assets/css/lunar-redesign.css?v=figma3';
   document.head.appendChild(style);
 
   const fixesStyle = document.createElement('link');
