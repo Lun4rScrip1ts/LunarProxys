@@ -6,6 +6,35 @@ const userRole=username=>{const name=String(username||"").toLowerCase();return n
 const roleBadge=username=>{const role=userRole(username);return role?'<span class="chat-role-badge '+(role==="Owner"?"owner":"co-owner")+'">'+esc(role)+'</span>':""};
 const initials=n=>(n||"?").slice(0,2).toUpperCase();
 let me=null,friends=[],incoming=[],outgoing=[],blocked=[],threads=[],threadByUser={},unread=[],active=null,messages=[],reply=null,editing=null,gifDraft=null,imageDraft=null,giphyKey="",giphyTab="trending",giphyItems=[],menuMessage=null,timer=null;
+function mountFriendsFiltersIntoNav(){
+  const tabs=$(".friends-tabs");
+  const nav=document.querySelector(".nav-bar");
+  if(!tabs||!nav)return false;
+  let host=nav.querySelector(".lunar-friends-filter-host");
+  if(!host){
+    host=document.createElement("div");
+    host.className="lunar-friends-filter-host";
+    host.setAttribute("aria-label","Friends filters");
+  }
+  if(tabs.parentElement!==host) host.appendChild(tabs);
+  if(host.parentElement!==nav){
+    const right=nav.querySelector(".nav-bar-right");
+    const topbar=nav.querySelector(".lunar-topbar");
+    if(topbar){
+      topbar.querySelector(".lunar-top-spacer")?.before(host);
+    }else if(right){
+      right.before(host);
+    }else{
+      nav.appendChild(host);
+    }
+  }
+  return true;
+}
+mountFriendsFiltersIntoNav();
+const friendsNavObserver=new MutationObserver(()=>mountFriendsFiltersIntoNav());
+const friendsNavTarget=document.querySelector(".nav-bar")||document.body;
+friendsNavObserver.observe(friendsNavTarget,{childList:true,subtree:true});
+window.setTimeout(()=>friendsNavObserver.disconnect(),5000);
 const toast=m=>{clearTimeout(timer);$("friends-toast").textContent=m;$("friends-toast").classList.add("show");timer=setTimeout(()=>$("friends-toast").classList.remove("show"),2200)};
 const avatar=u=>{
   const online=Boolean(u?.isOnline);
