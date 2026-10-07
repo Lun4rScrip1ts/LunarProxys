@@ -433,7 +433,7 @@ function renderMessages(){
       ? (m.attachment.kind==="image"
         ? '<img class="dm-image" src="'+esc(m.attachment.url)+'" alt="'+esc(m.attachment.name||"Image")+'" loading="lazy">'
         : m.attachment.kind==="sticker"
-        ? '<div class="dm-sticker-attachment" data-sticker-url="'+esc(m.attachment.url)+'" data-sticker-name="'+esc(m.attachment.name||"Sticker")+'"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"><button type="button" class="sticker-save-badge '+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"is-saved":"")+'" title="Sticker collection" aria-label="Sticker collection"><i class="fa-'+((me?.stickers||[]).some(st=>st.url===m.attachment.url)?"solid":"regular")+' fa-bookmark"></i></button></div>'
+        ? '<div class="dm-sticker-attachment"><img class="dm-sticker" src="'+esc(m.attachment.url)+'" alt="Sticker" loading="lazy"></div>'
         : '<img class="dm-gif" src="'+esc(m.attachment.url)+'" alt="GIF" loading="lazy">')
       : "");
     const pending=m.pending?'<span class="dm-pending">Sending...</span>':"";
@@ -451,61 +451,6 @@ function renderMessages(){
       '</div><div class="dm-message-actions"><div class="quick-reactions" aria-label="Quick reactions"><button type="button" data-quick-reaction="😀">😀</button><button type="button" data-quick-reaction="❤️">❤️</button><button type="button" data-quick-reaction="😂">😂</button><button type="button" data-quick-reaction="😮">😮</button><button type="button" data-quick-reaction="😢">😢</button><button type="button" data-quick-reaction="👍">👍</button></div><button data-action="copy"><i class="fa-regular fa-copy"></i></button><button data-action="forward"><i class="fa-solid fa-share"></i></button><button data-action="react">☺</button>'+(own&&!deleted&&!m.pending?'<button data-action="delete"><i class="fa-regular fa-trash-can"></i></button><button data-action="edit"><i class="fa-solid fa-pen"></i></button>':"")+'<button data-action="reply"><i class="fa-solid fa-reply"></i></button><button data-action="menu"><i class="fa-solid fa-ellipsis"></i></button></div></article>');
   }
   e.innerHTML=html.join("");
-}
-function syncStickerSaveBadges(){
-  const savedUrls=new Set((me?.stickers||[]).map(s=>s.url));
-  document.querySelectorAll(".dm-sticker-attachment[data-sticker-url]").forEach(attachment=>{
-    const badge=attachment.querySelector(".sticker-save-badge");
-    if(!badge)return;
-    const saved=savedUrls.has(attachment.dataset.stickerUrl);
-    badge.classList.toggle("is-saved",saved);
-    badge.title=saved?"Remove from collection":"Save to collection";
-    badge.setAttribute("aria-label",saved?"Remove from collection":"Save to collection");
-    badge.innerHTML='<i class="fa-'+(saved?"solid":"regular")+' fa-bookmark"></i>';
-  });
-}
-function saveSticker(url,name){
-  if(!me||!url)return Promise.resolve(null);
-  return api("/api/stickers/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url,name:name||"Saved sticker"})})
-    .then(d=>{
-      me.stickers=Array.isArray(d.stickers)?d.stickers:[];
-      renderFriendStickers(me.stickers);
-      syncStickerSaveBadges();
-      return me.stickers.find(s=>s.url===url)||null;
-    });
-}
-function removeSticker(url){
-  const saved=(me?.stickers||[]).find(s=>s.url===url);
-  if(!saved?.id)return Promise.resolve(false);
-  return api("/api/stickers/"+encodeURIComponent(saved.id),{method:"DELETE"})
-    .then(d=>{
-      me.stickers=Array.isArray(d.stickers)?d.stickers:[];
-      renderFriendStickers(me.stickers);
-      syncStickerSaveBadges();
-      return true;
-    });
-}
-async function toggleStickerSave(attachment){
-  if(!attachment?.dataset.stickerUrl)return;
-  const url=attachment.dataset.stickerUrl;
-  const name=attachment.dataset.stickerName||"Saved sticker";
-  const saved=(me?.stickers||[]).find(s=>s.url===url);
-  const badge=attachment.querySelector(".sticker-save-badge");
-  if(badge){badge.disabled=true;badge.classList.add("is-saving");}
-  try{
-    if(saved){
-      const removed=await removeSticker(url);
-      if(removed&&badge){badge.classList.remove("is-saved");badge.innerHTML='<i class="fa-regular fa-bookmark"></i>';}
-      if(removed)toast("Sticker removed from your collection.");
-    }else{
-      const added=await saveSticker(url,name);
-      if(added&&badge){badge.classList.add("is-saved");badge.innerHTML='<i class="fa-solid fa-bookmark"></i>';}
-      if(added)toast("Sticker saved to your collection.");
-    }
-  }catch(error){
-    toast(error?.message||"Could not update your sticker collection.");
-  }finally{if(badge){badge.disabled=false;badge.classList.remove("is-saving");}}
-
 }
 function positionFriendContextMenu(menu,x,y){
   menu.style.left="0px";menu.style.top="0px";menu.hidden=false;
@@ -650,14 +595,6 @@ function showReactionUsers(m,anchor){
   }).join(""):"<div>No reactions yet.</div>");
   document.body.appendChild(p);positionPopup(p,anchor.getBoundingClientRect(),245,180);
 }
-document.addEventListener("click",async e=>{
-  const save=e.target.closest(".sticker-save-badge");
-  if(!save)return;
-  e.preventDefault();
-  e.stopPropagation();
-  const attachment=save.closest(".dm-sticker-attachment");
-  if(attachment)await toggleStickerSave(attachment);
-},true);
 
 $("dm-messages").addEventListener("click",async e=>{
   const inline=e.target.closest("[data-inline-edit]");
