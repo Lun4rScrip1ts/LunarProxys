@@ -15,7 +15,7 @@
 
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = '/assets/css/lunar-redesign.css?v=figma4';
+    style.href = '/assets/css/lunar-redesign.css?v=figma5';
     document.head.appendChild(style);
 
     const fixesStyle = document.createElement('link');
@@ -52,13 +52,7 @@
         <div class="lunar-side-spacer"></div>
         <a class="lunar-side-link lunar-account-mini navbar-link lunar-account-nav" href="/account"><span>A</span></a>
       </aside>
-      <header class="lunar-topbar">
-        <div class="lunar-top-brand"><strong>LUNARPROXYS</strong><span>Secure • Social • Fast</span></div>
-        <div class="lunar-top-spacer"></div>
-        <span class="lunar-top-search" aria-hidden="true">⌕</span>
-        <span class="lunar-online"><i class="fa-solid fa-circle"></i><span>Online</span></span>
-        <a class="lunar-account-nav navbar-link" href="/account"><span>Account</span></a>
-      </header>`;
+`;
 
     nav.querySelectorAll('.navbar-link').forEach(link => {
       const href = normalize(new URL(link.href, window.location.origin).pathname);
