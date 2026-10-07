@@ -140,6 +140,22 @@
   const generateDisplayName=()=>{
     document.getElementById("auth-display-name").value=(displayAdjectives[randomIndex(displayAdjectives.length)]+" "+displayNouns[randomIndex(displayNouns.length)]).slice(0,20);
   };
+  const passwordToggle=document.getElementById("auth-password-toggle");
+  const passwordInput=document.getElementById("auth-password");
+  const syncPasswordToggle=()=>{
+    if(!passwordToggle||!passwordInput)return;
+    const visible=passwordInput.type==="text";
+    passwordToggle.setAttribute("aria-label",visible?"Hide password":"Show password");
+    passwordToggle.setAttribute("aria-pressed",String(visible));
+    passwordToggle.innerHTML='<i class="fa-solid '+(visible?"fa-eye-slash":"fa-eye")+'"></i><span>'+(visible?"Hide":"Show")+'</span>';
+  };
+  passwordToggle?.addEventListener("click",()=>{
+    if(!passwordInput)return;
+    passwordInput.type=passwordInput.type==="password"?"text":"password";
+    syncPasswordToggle();
+    passwordInput.focus();
+  });
+  syncPasswordToggle();
   const generatePassword=()=>{
     const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-+=";
     const required=["ABCDEFGHJKLMNPQRSTUVWXYZ","abcdefghijkmnopqrstuvwxyz","23456789","!@#$%^&*_-+="];
