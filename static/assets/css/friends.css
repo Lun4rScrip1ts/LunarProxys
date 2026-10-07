@@ -1335,3 +1335,53 @@
 .profile-role-manager-add input:focus{border-color:rgba(145,117,255,.45);box-shadow:0 0 0 2px rgba(145,117,255,.08)}
 .profile-role-manager-add button{height:27px;padding:0 9px;border:1px solid rgba(145,117,255,.25);border-radius:7px;background:rgba(145,117,255,.12);color:#d9d0ff;font-size:9px;font-weight:900;cursor:pointer}
 .profile-role-manager-add button:hover{background:rgba(145,117,255,.2);color:#fff}
+
+
+/* Compact Friends DM layout — keeps the entire chat comfortably inside the viewport. */
+.lunar-friends-page .friends-app{
+  top:58px!important;
+  width:min(920px,calc(100vw - 28px))!important;
+  height:min(570px,calc(100vh - 72px))!important;
+  max-height:calc(100vh - 72px)!important;
+  border-radius:12px!important;
+}
+.lunar-friends-page .friends-sidebar{
+  width:190px!important;
+  min-width:190px!important;
+}
+.lunar-friends-page .dm-panel{
+  min-width:0!important;
+}
+.lunar-friends-page .dm-messages{
+  padding:10px 12px 6px!important;
+}
+.lunar-friends-page .dm-message-content{
+  max-width:min(560px,82%)!important;
+}
+.lunar-friends-page .dm-gif{
+  max-width:220px!important;
+  max-height:170px!important;
+}
+.lunar-friends-page .dm-sticker-attachment{
+  max-width:190px!important;
+}
+.lunar-friends-page .dm-sticker{
+  max-width:150px!important;
+  max-height:150px!important;
+}
+.lunar-friends-page .dm-composer{
+  margin:4px 10px 8px!important;
+}
+.lunar-friends-page .dm-context,
+.lunar-friends-page .gif-preview{
+  margin-left:10px!important;
+  margin-right:10px!important;
+}
+@media(max-width:760px){
+  .lunar-friends-page .friends-app{
+    top:54px!important;
+    width:calc(100vw - 16px)!important;
+    height:calc(100vh - 64px)!important;
+    max-height:none!important;
+  }
+}
