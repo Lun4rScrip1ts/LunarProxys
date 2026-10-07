@@ -5,6 +5,7 @@ import express from "express";
 const router = express.Router();
 const DATA_DIR = process.env.LUNAR_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(process.cwd(), "data");
 const COMMUNITY_FILE = path.join(DATA_DIR, "community.json");
+const SITE_STATS_FILE = path.join(DATA_DIR, "site-stats.json");
 
 async function readJson(file, fallback) {
   try {
@@ -13,6 +14,10 @@ async function readJson(file, fallback) {
   } catch {
     return fallback;
   }
+}
+
+async function readSiteStats() {
+  return readJson(SITE_STATS_FILE, { allTimeLogins: 0 });
 }
 
 async function actualCounts() {
@@ -42,7 +47,8 @@ async function actualCounts() {
   });
   const members = memberList.length;
   const online = onlineUsers.size;
-  return { online, offline: Math.max(0, members - online), members, memberList };
+  const stats = await readSiteStats();
+  return { online, offline: Math.max(0, members - online), members, allTimeLogins: Number(stats.allTimeLogins || 0), memberList };
 }
 
 // The Friends API updates lastSeen in its in-memory state, but the member counter
@@ -65,6 +71,20 @@ router.get("/presence/heartbeat", async (req, res) => {
   } catch (error) {
     console.warn("[Lunar Presence] Heartbeat failed:", error.message);
     res.status(500).json({ online: false });
+  }
+});
+
+router.post("/site-visit", async (_req, res) => {
+  try {
+    const stats = await readSiteStats();
+    stats.allTimeLogins = Number(stats.allTimeLogins || 0) + 1;
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(SITE_STATS_FILE, JSON.stringify(stats, null, 2), "utf8");
+    res.set("Cache-Control", "no-store");
+    res.json({ allTimeLogins: stats.allTimeLogins });
+  } catch (error) {
+    console.warn("[Lunar Stats] Visit counter failed:", error.message);
+    res.status(500).json({ allTimeLogins: 0 });
   }
 });
 
