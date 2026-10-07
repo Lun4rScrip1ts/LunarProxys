@@ -1450,6 +1450,6 @@ body.profile-image-editor-open{overflow:hidden!important}
 
 .password-field{position:relative;display:flex;align-items:stretch}
 .password-field>input{padding-right:88px!important}
-.password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;padding:0 9px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(255,255,255,.055);color:#aeb6c6;font:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:.16s ease}
-.password-toggle:hover{background:rgba(145,117,255,.12);border-color:rgba(183,157,255,.35);color:#fff}
+.password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%)!important;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;padding:0 9px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(255,255,255,.055);color:#aeb6c6;font:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:none!important}
+.password-toggle:hover{background:rgba(145,117,255,.12);border-color:rgba(183,157,255,.35);color:#fff;transform:translateY(-50%)!important}
 .password-toggle i{color:#b9a7ff}
