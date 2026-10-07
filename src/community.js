@@ -911,26 +911,7 @@ router.post("/stickers/create", requireUser, async (req, res) => {
   }
 });
 
-router.post("/stickers/save", requireUser, async (req, res) => {
-  const url = cleanText(req.body?.url, 1000);
-  const name = cleanText(req.body?.name, 50) || "Saved sticker";
-  if (!url.startsWith("/uploads/")) return res.status(400).json({ error: "Invalid sticker." });
-  if (!Array.isArray(req.user.stickers)) req.user.stickers = [];
-  const existing = req.user.stickers.find(sticker => sticker.url === url);
-  if (!existing) {
-    req.user.stickers.unshift({ id: randomUUID(), url, name, createdAt: new Date().toISOString() });
-    req.user.stickers = req.user.stickers.slice(0, MAX_STICKERS);
-    await persist();
-  }
-  res.json({ stickers: req.user.stickers });
-});
 
-router.delete("/stickers/:id", requireUser, async (req, res) => {
-  if (!Array.isArray(req.user.stickers)) req.user.stickers = [];
-  req.user.stickers = req.user.stickers.filter(sticker => sticker.id !== req.params.id);
-  await persist();
-  res.json({ stickers: req.user.stickers });
-});
 
 
 // Friends / direct-message helpers
