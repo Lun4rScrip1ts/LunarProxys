@@ -90,6 +90,22 @@ function reconstructSafeUrl(raw) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Shared presence/deployment services run on every page, including proxy/search/game contexts.
+  if (!document.querySelector('script[data-lunar-global-presence]')) {
+    const presence=document.createElement("script");
+    presence.src="/assets/js/lunar-presence-heartbeat.js?v=presence4";
+    presence.dataset.lunarGlobalPresence="true";
+    presence.defer=false;
+    document.body.appendChild(presence);
+  }
+  if (!document.querySelector('script[data-lunar-deployment-watch]')) {
+    const deploy=document.createElement("script");
+    deploy.src="/assets/js/lunar-deployment-watch.js?v=deploy2";
+    deploy.dataset.lunarDeploymentWatch="true";
+    deploy.defer=false;
+    document.body.appendChild(deploy);
+  }
+
   if (window.location.hostname === "gointerstellar.app" && !document.getElementById("frame-container")) {
     const ads = document.createElement("script");
     ads.async = true;
