@@ -223,15 +223,25 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
     if (signature === lastSignature) return;
     lastSignature = signature;
 
-    messagesEl.innerHTML = messagesList.map(message => `
-      <article class="chat-message ${message.deletedAt ? "is-deleted" : ""}" data-message-id="${message.id}" data-own-message="${message.userId === currentUser?.id ? "true" : "false"}">
-        <div class="chat-avatar"><button type="button" class="chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${avatar(message.userId === currentUser?.id ? {...message, avatarUrl: currentUser?.avatarUrl || message.avatarUrl, displayName: currentUser?.displayName || message.displayName} : message)}</button></div>
+    let previousSender = "";
+    let previousTime = 0;
+    messagesEl.innerHTML = messagesList.map(message => {
+      const currentTime = Date.parse(message.createdAt) || 0;
+      const grouped = previousSender === message.userId &&
+        currentTime - previousTime <= 5 * 60 * 1000 &&
+        !message.replyTo;
+      previousSender = message.userId;
+      previousTime = currentTime;
+
+      return `
+      <article class="chat-message ${message.deletedAt ? "is-deleted" : ""} ${grouped ? "is-grouped" : ""}" data-message-id="${message.id}" data-own-message="${message.userId === currentUser?.id ? "true" : "false"}">
+        <div class="chat-avatar">${grouped ? "" : `<button type="button" class="chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${avatar(message.userId === currentUser?.id ? {...message, avatarUrl: currentUser?.avatarUrl || message.avatarUrl, displayName: currentUser?.displayName || message.displayName} : message)}</button>`}</div>
         <div class="chat-message-body">
-          <div class="chat-meta">
+          ${grouped ? "" : `<div class="chat-meta">
             <button type="button" class="chat-name chat-profile-trigger" data-profile-user="${escapeAttr(message.username)}">${escape(message.displayName)}</button>
             <span class="chat-username">@${escape(message.username)}</span>${roleBadges(message.roles)}
             <time class="chat-time" datetime="${escapeAttr(message.createdAt)}">${escape(time(message.createdAt))}</time>
-          </div>
+          </div>`}
           ${message.forwarded ? `<div class="chat-edited">Forwarded</div>` : ""}
           ${message.replyTo ? `<button type="button" class="chat-reply-preview" data-jump-to="${escapeAttr(message.replyTo.id)}"><i class="fa-solid fa-reply"></i><span>Replying to <b>@${escape(message.replyTo.username)}</b>: ${escape((message.replyTo.message || "[attachment]").slice(0, 90))}</span></button>` : ""}
           ${message.deletedAt ? `<div class="chat-deleted"><i class="fa-solid fa-ban"></i><span>Message deleted</span></div>` : `<div class="chat-text">${escape(message.message)}</div>
@@ -250,8 +260,8 @@ const escapeAttr = value => escape(value).replace(/"/g, "&quot;");
           ${message.userId === currentUser?.id && !message.deletedAt ? `<button type="button" data-action="edit" title="Edit"><i class="fa-solid fa-pen"></i></button><button type="button" data-action="delete" title="Delete"><i class="fa-regular fa-trash-can"></i></button>` : ""}
           <button type="button" data-action="menu" title="More"><i class="fa-solid fa-ellipsis"></i></button>
         </div>
-      </article>
-    `).join("");
+      </article>`;
+    }).join("");
 
     if (nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
   }
