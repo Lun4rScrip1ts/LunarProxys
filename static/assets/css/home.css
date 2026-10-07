@@ -170,43 +170,98 @@ input:focus {
 }
 
 
-/* Home UI switch */
+/* Home UI switch — polished Old UI / New UI slider */
 .lunar-ui-switch{
-  display:flex;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:9px;
-  margin:14px auto 0;
+  gap:11px;
+  margin:18px auto 0;
+  padding:7px 10px 7px 12px;
   color:var(--text-faint);
   font:600 11px Inter,sans-serif;
   user-select:none;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  background:rgba(10,14,24,.34);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  backdrop-filter:blur(14px) saturate(140%);
+  box-shadow:0 8px 28px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.07);
 }
-.lunar-ui-switch-label{opacity:.65;transition:opacity .2s ease,color .2s ease}
-.lunar-ui-switch.is-new .lunar-ui-switch-label:last-child,
-.lunar-ui-switch:not(.is-new) .lunar-ui-switch-label:first-child{opacity:1;color:var(--text)}
+.lunar-ui-switch-label{
+  opacity:.48;
+  transition:opacity .2s ease,color .2s ease,transform .2s ease;
+  white-space:nowrap;
+}
+.lunar-ui-switch:not(.is-new) .lunar-ui-switch-label:first-child,
+.lunar-ui-switch.is-new .lunar-ui-switch-label:last-child{
+  opacity:1;
+  color:var(--text);
+}
+.lunar-ui-switch:not(.is-new) .lunar-ui-switch-label:first-child{transform:translateX(1px);}
+.lunar-ui-switch.is-new .lunar-ui-switch-label:last-child{transform:translateX(-1px);}
 .lunar-ui-switch button{
   position:relative;
-  width:46px;
-  height:24px;
-  padding:0;
-  border:1px solid var(--border);
+  flex:0 0 auto;
+  width:54px;
+  height:30px;
+  padding:3px;
+  border:1px solid rgba(255,255,255,.16);
   border-radius:999px;
-  background:var(--surface);
+  outline:none;
   cursor:pointer;
+  background:rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.28),0 3px 12px rgba(0,0,0,.12);
+  transition:background .22s ease,border-color .22s ease,box-shadow .22s ease,transform .15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.lunar-ui-switch button:hover{
+  border-color:rgba(170,160,255,.48);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.28),0 5px 18px rgba(100,90,255,.18);
+}
+.lunar-ui-switch button:active{transform:scale(.96);}
+.lunar-ui-switch button:focus-visible{
+  box-shadow:0 0 0 3px rgba(130,115,255,.2),inset 0 1px 3px rgba(0,0,0,.28);
 }
 .lunar-ui-switch button span{
   position:absolute;
-  top:3px;
-  left:3px;
-  width:16px;
-  height:16px;
+  top:4px;
+  left:4px;
+  width:20px;
+  height:20px;
   border-radius:50%;
-  background:var(--text);
-  transition:transform .2s ease;
-  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  background:linear-gradient(145deg,#fff,#d9dded);
+  box-shadow:0 2px 8px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.3);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease;
+  will-change:transform;
 }
-.lunar-ui-switch.is-new button{background:rgba(120,105,255,.28);border-color:rgba(140,122,255,.5)}
-.lunar-ui-switch.is-new button span{transform:translateX(22px)}
+.lunar-ui-switch.is-new button{
+  background:linear-gradient(135deg,rgba(128,112,255,.72),rgba(87,77,210,.62));
+  border-color:rgba(166,153,255,.58);
+  box-shadow:inset 0 1px 3px rgba(20,15,70,.25),0 5px 18px rgba(100,90,255,.2);
+}
+.lunar-ui-switch.is-new button span{
+  transform:translateX(24px);
+  box-shadow:0 2px 9px rgba(0,0,0,.3),0 0 12px rgba(188,180,255,.28);
+}
+.lunar-ui-switch::after{
+  content:"";
+  position:absolute;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:rgba(255,255,255,.42);
+  box-shadow:0 0 10px rgba(255,255,255,.2);
+  opacity:0;
+  pointer-events:none;
+}
+.lunar-home-old-ui .lunar-ui-switch{
+  position:fixed;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:30;
+}
 .lunar-home-old-ui .main{
   width:100%!important;
   min-height:100vh!important;
@@ -262,13 +317,6 @@ input:focus {
   right:20px!important;
   margin:0!important;
   z-index:20!important;
-}
-.lunar-home-old-ui .lunar-ui-switch{
-  position:fixed;
-  top:18px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:30;
 }
 .lunar-home-old-ui .lunar-url-warning{display:block!important;max-width:700px;margin:8px auto!important}
 .lunar-home-new-ui .lunar-ui-switch{margin-top:18px}
