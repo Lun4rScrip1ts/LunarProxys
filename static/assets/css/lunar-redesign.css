@@ -36,3 +36,13 @@ body:has(#tab-container),body:has(#frame-container){background:linear-gradient(1
 @media(max-width:760px){.nav-bar{width:68px!important}.lunar-sidebar-brand{width:68px}.lunar-side-link{width:52px;height:52px}.lunar-side-link span{display:none}.lunar-topbar{left:68px}.main,.friends-app,.community-shell,.account-shell,.movies-shell,.donate-page,.settings-container{margin-left:68px!important}.main{width:calc(100% - 68px)!important}.apps,.pinned{grid-template-columns:repeat(2,minmax(0,1fr))!important}.friends-app{grid-template-columns:1fr!important}.friends-sidebar{display:none}.dm-panel{grid-column:1}.lunar-home .lunar-member-status{display:none}}
 @media(max-width:520px){.lunar-home .main{padding:110px 18px 40px!important}.apps,.pinned{grid-template-columns:1fr!important}.input-c{margin-left:18px!important;width:calc(100% - 36px)!important}.lunar-topbar{padding:0 14px}.lunar-top-brand strong{font-size:13px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Shared unread notification controls */
+.lunar-friend-notification{position:relative;display:inline-flex!important;align-items:center;justify-content:center;text-decoration:none!important;color:rgba(255,255,255,.48)!important;transition:.2s ease!important;z-index:3}
+.lunar-friend-notification .lunar-notification-dot,.lunar-chat-notification-dot{position:absolute;width:7px;height:7px;border-radius:50%;background:#ff3f52;box-shadow:0 0 0 2px rgba(8,11,18,.92),0 0 13px rgba(255,52,76,.9);opacity:0;transform:scale(.5);transition:.18s ease;pointer-events:none}
+.lunar-friend-notification.has-unread{color:#fff!important;background:rgba(255,45,65,.12)!important;box-shadow:0 0 22px rgba(255,45,65,.22)!important;animation:lunarNotifyPulse 1.8s ease-in-out infinite}
+.lunar-friend-notification.has-unread .lunar-notification-dot,.lunar-chat-notification-dot.has-unread{opacity:1;transform:scale(1)}
+.lunar-chat-notification-dot{top:4px;right:4px}
+.lunar-nav-chat{position:relative!important}
+.lunar-nav-chat .lunar-chat-notification-dot{top:6px;right:6px}
+@keyframes lunarNotifyPulse{0%,100%{box-shadow:0 0 0 rgba(255,45,65,0)}50%{box-shadow:0 0 24px rgba(255,45,65,.28)}}
