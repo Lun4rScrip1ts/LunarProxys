@@ -270,13 +270,16 @@ function renderAppCard(app, appIndex, isCustom = false) {
   }
 
   if (app.error) {
-    paragraph.style.color = "red";
+    paragraph.classList.add("launcher-status-error");
+    paragraph.style.setProperty("color", "red", "important");
     app.say = app.say || "This app is currently not working.";
   } else if (app.load) {
-    paragraph.style.color = "yellow";
+    paragraph.classList.add("launcher-status-warning");
+    paragraph.style.setProperty("color", "yellow", "important");
     app.say = app.say || "This app may experience excessive loading times.";
   } else if (app.partial) {
-    paragraph.style.color = "yellow";
+    paragraph.classList.add("launcher-status-warning");
+    paragraph.style.setProperty("color", "yellow", "important");
     app.say = app.say || "This app is currently experiencing some issues, it may not work for you.";
   }
 
