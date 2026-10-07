@@ -674,7 +674,9 @@ body:not(#no)::after{
   background:
     radial-gradient(800px 500px at 15% 10%,rgba(91,124,255,.18),transparent 65%),
     radial-gradient(700px 500px at 88% 75%,rgba(67,211,180,.10),transparent 68%),
-    linear-gradient(145deg,rgba(7,10,16,.25),rgba(10,15,24,.42))!important;
+    linear-gradient(145deg,rgba(7,10,16,.12),rgba(10,15,24,.20))!important;
+  z-index:0!important;
+  pointer-events:none!important;
 }
 .lunar-home .title,
 .lunar-home .title:hover{
