@@ -101,6 +101,16 @@
   const savedAccountsList=document.getElementById("saved-accounts-list");
   const switchError=document.getElementById("account-switch-error");
   const api=async(url,options)=>{const res=await fetch(url,{credentials:"same-origin",...options});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||"Something went wrong.");return data;};
+  const saveBrowserCredential=async(identifier,password)=>{
+    if(!identifier||!password)return;
+    try{
+      if(window.PasswordCredential && navigator.credentials?.store){
+        const credential=new PasswordCredential({id:String(identifier).trim(),password:String(password)});
+        await navigator.credentials.store(credential);
+      }
+    }catch{}
+  };
+
   const showResetStep=step=>{if(!resetCard)return;[resetEmailForm,resetCodeForm,resetPasswordForm].forEach((form,index)=>{if(form)form.hidden=index+1!==step;});document.querySelectorAll("#reset-progress span").forEach(el=>el.classList.toggle("active",Number(el.dataset.step)<=step));document.getElementById("reset-title").textContent=step===1?"Reset your password":step===2?"Check your email":"Choose a new password";document.getElementById("reset-subtitle").textContent=step===1?"Enter the email connected to your Lunar account.":step===2?"Enter the 6-digit code we sent to your email.":"Set a new password for your Lunar account.";};
   const openReset=()=>{authCard.hidden=true;profileCard.hidden=true;resetCard.hidden=false;resetEmail=document.getElementById("auth-identifier").value.trim();document.getElementById("reset-email").value=resetEmail;document.getElementById("reset-email-error").textContent="";document.getElementById("reset-code-error").textContent="";document.getElementById("reset-password-error").textContent="";showResetStep(1);document.getElementById("reset-email").focus();};
   const closeReset=()=>{resetCard.hidden=true;authCard.hidden=false;profileCard.hidden=true;setMode("login");document.getElementById("auth-identifier").focus();};
@@ -252,7 +262,12 @@
       username:document.getElementById("auth-username").value,email:document.getElementById("auth-email").value,
       displayName:document.getElementById("auth-display-name").value,password:document.getElementById("auth-password").value}:{
       identifier:document.getElementById("auth-identifier").value,password:document.getElementById("auth-password").value})});
-      if (mode === "login") localStorage.setItem("ls_login_identifier", document.getElementById("auth-identifier").value.trim());
+      const credentialIdentifier=mode==="register"
+        ? document.getElementById("auth-username").value.trim()
+        : document.getElementById("auth-identifier").value.trim();
+      const credentialPassword=document.getElementById("auth-password").value;
+      if (mode === "login") localStorage.setItem("ls_login_identifier", credentialIdentifier);
+      await saveBrowserCredential(credentialIdentifier,credentialPassword);
       user=data.user;
       if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();
       setProfile(); setTimeout(() => { location.href = returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/"; }, 120);}
