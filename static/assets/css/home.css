@@ -329,3 +329,114 @@ input:focus {
   .lunar-home-old-ui .lunar-ui-switch{top:62px}
   .lunar-home-old-ui .lunar-member-status{top:14px;right:10px;font-size:10px}
 }
+
+
+/* Final Home alignment shared by the Old UI. */
+.lunar-home-old-ui .main{
+  position:relative!important;
+  top:auto!important;
+  width:100%!important;
+  min-height:100vh!important;
+  padding:112px 24px 60px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:0!important;
+}
+.lunar-home-old-ui .lunar-member-status{
+  position:relative!important;
+  top:auto!important;
+  right:auto!important;
+  order:0!important;
+  margin:0 auto 12px!important;
+  z-index:20!important;
+}
+.lunar-home-old-ui .lunar-url-warning{
+  order:1!important;
+  width:min(720px,calc(100% - 20px))!important;
+  max-width:none!important;
+  margin:0 auto 22px!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+}
+.lunar-home-old-ui .title{
+  order:2!important;
+  margin:8px 0 10px!important;
+  max-width:min(1100px,94vw)!important;
+  font-size:clamp(52px,7vw,86px)!important;
+  line-height:.98!important;
+  letter-spacing:-2px!important;
+  overflow:visible!important;
+  text-align:center!important;
+  transform:none!important;
+  text-shadow:0 8px 28px rgba(0,0,0,.18)!important;
+}
+.lunar-home-old-ui .title:hover,
+.lunar-home-old-ui .title:focus,
+.lunar-home-old-ui .title:active{
+  transform:none!important;
+  filter:brightness(1.04)!important;
+  text-shadow:0 10px 34px rgba(120,135,255,.22)!important;
+}
+.lunar-home-old-ui #splash{
+  order:3!important;
+  margin:0 0 20px!important;
+  max-width:min(900px,90vw)!important;
+  text-align:center!important;
+  line-height:1.5!important;
+}
+.lunar-home-old-ui .search-container{
+  order:4!important;
+  width:min(720px,90vw)!important;
+  height:auto!important;
+  min-height:60px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+}
+.lunar-home-old-ui .search-container form{
+  width:100%!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.lunar-home-old-ui .search-container input.truncate{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:52px!important;
+  box-sizing:border-box!important;
+  padding:0 18px!important;
+}
+.lunar-home-old-ui .search-container .lunar-home-go{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:58px!important;
+  height:44px!important;
+  padding:0 18px!important;
+  margin:0!important;
+  border:1px solid var(--border-strong)!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.10)!important;
+  color:var(--text)!important;
+  font:600 13px Inter,sans-serif!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.16)!important;
+}
+.lunar-home-old-ui .search-container .lunar-home-go:hover{
+  transform:translateY(-1px)!important;
+  background:var(--surface-hover)!important;
+}
+.lunar-home-old-ui .lunar-quick{order:5!important;margin-top:22px!important;}
+.lunar-home-old-ui .lunar-ui-switch{order:6!important;}
+
+@media(max-width:700px){
+  .lunar-home-old-ui .main{padding:92px 14px 40px!important;}
+  .lunar-home-old-ui .lunar-member-status{font-size:10px!important;}
+  .lunar-home-old-ui .lunar-url-warning{font-size:10px!important;}
+  .lunar-home-old-ui .title{font-size:clamp(42px,10vw,64px)!important;letter-spacing:-1px!important;}
+  .lunar-home-old-ui .search-container{width:92vw!important;}
+}
