@@ -46,3 +46,6 @@ body:has(#tab-container),body:has(#frame-container){background:linear-gradient(1
 .lunar-nav-chat{position:relative!important}
 .lunar-nav-chat .lunar-chat-notification-dot{top:6px;right:6px}
 @keyframes lunarNotifyPulse{0%,100%{box-shadow:0 0 0 rgba(255,45,65,0)}50%{box-shadow:0 0 24px rgba(255,45,65,.28)}}
+
+/* New UI: removed the legacy top branding strip. */
+.lunar-topbar{display:none!important}
