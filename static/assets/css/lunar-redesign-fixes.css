@@ -33,14 +33,14 @@
   will-change:transform!important;
 }
 .lunar-home .title:hover{
-  transform:scale(1.045)!important;
+  transform:none!important;
   filter:brightness(1.04)!important;
   text-shadow:0 8px 28px rgba(140,122,255,.18)!important;
 }
 .lunar-home .title:focus,
 .lunar-home .title:active{
-  transform:scale(1.045)!important;
-  transition:transform .18s cubic-bezier(.22,1,.36,1),filter .18s ease,text-shadow .18s ease!important;
+  transform:none!important;
+  transition:filter .18s ease,text-shadow .18s ease!important;
 }
 .lunar-home .title .lunar-title-letter{
   display:inline-block!important;
@@ -102,4 +102,61 @@
 
 @media(prefers-reduced-motion:reduce){
   .lunar-home .title,.lunar-home .title .lunar-title-letter{transition:none!important;}
+}
+
+
+/* Home consistency: the New UI keeps the same status -> warning -> title flow. */
+.lunar-home .main{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+}
+.lunar-home .lunar-member-status{
+  position:relative!important;
+  inset:auto!important;
+  order:0!important;
+  margin:0 auto 12px!important;
+  z-index:20!important;
+}
+.lunar-home .lunar-url-warning{
+  display:block!important;
+  order:1!important;
+  width:min(720px,calc(100% - 40px))!important;
+  max-width:none!important;
+  margin:0 auto 24px!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+}
+.lunar-home .title{
+  order:2!important;
+  transform:none!important;
+  max-width:min(1100px,94vw)!important;
+  overflow:visible!important;
+}
+.lunar-home #splash{order:3!important;}
+.lunar-home .search-container{
+  order:4!important;
+}
+.lunar-home .search-container form{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.lunar-home .search-container input{
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+.lunar-home .lunar-home-go{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:58px!important;
+  margin:0!important;
+}
+.lunar-home .lunar-quick{order:5!important;}
+.lunar-home .lunar-changelog{order:6!important;}
+.lunar-home .lunar-ui-switch{order:7!important;}
+
+@media(max-width:900px){
+  .lunar-home .lunar-url-warning{width:min(720px,calc(100% - 28px))!important;}
 }
