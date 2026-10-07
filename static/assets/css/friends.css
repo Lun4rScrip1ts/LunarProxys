@@ -1385,3 +1385,15 @@
     max-height:none!important;
   }
 }
+
+.lunar-friends-page .sticker-save-badge.is-saved{
+  opacity:1!important;
+  background:rgba(255,196,55,.16)!important;
+  border:1px solid rgba(255,196,55,.55)!important;
+  color:#ffd34f!important;
+  box-shadow:0 0 0 1px rgba(255,196,55,.08),0 4px 14px rgba(0,0,0,.25)!important;
+}
+.lunar-friends-page .sticker-save-badge.is-saved:hover{
+  background:rgba(255,196,55,.24)!important;
+  color:#ffe07a!important;
+}
