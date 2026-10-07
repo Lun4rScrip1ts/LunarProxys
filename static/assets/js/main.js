@@ -105,6 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
     deploy.defer=false;
     document.body.appendChild(deploy);
   }
+  if (!document.querySelector('script[data-lunar-notifications]')) {
+    const notifications=document.createElement("script");
+    notifications.src="/assets/js/lunar-notifications.js?v=notify1";
+    notifications.dataset.lunarNotifications="true";
+    notifications.defer=false;
+    document.body.appendChild(notifications);
+  }
 
   if (window.location.hostname === "gointerstellar.app" && !document.getElementById("frame-container")) {
     const ads = document.createElement("script");
