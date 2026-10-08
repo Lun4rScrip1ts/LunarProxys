@@ -200,29 +200,42 @@
   const button=document.getElementById("lunar-report-button");
   const modal=document.getElementById("lunar-report-modal");
   const status=document.getElementById("lunar-report-status");
+  const form=document.getElementById("lunar-report-form");
+  const message=document.getElementById("lunar-report-message");
+  const gameLabel=document.getElementById("lunar-report-game-label");
+  const gameInput=document.getElementById("lunar-report-game");
+  const submit=document.getElementById("lunar-report-submit");
   if(!button||!modal)return;
+  let selectedType="";
   const close=()=>{modal.hidden=true;document.body.classList.remove("lunar-report-open");};
   button.addEventListener("click",()=>{modal.hidden=false;document.body.classList.add("lunar-report-open");});
   modal.querySelectorAll("[data-report-close]").forEach(el=>el.addEventListener("click",close));
   modal.querySelectorAll("[data-report-type]").forEach(option=>{
     option.addEventListener("click",()=>{
-      const type=option.dataset.reportType;
-      let subject="",body="";
-      if(type==="bug"){
-        subject="Lunar Bug Report";
-        body="Bug description:\n\nPage/feature:\n\nWhat happened:\n\nWhat I expected:\n";
-      }else if(type==="game"){
-        const name=window.prompt("What game or app are you reporting?");
-        if(!name)return;
-        subject="Lunar Game/App Report: "+name;
-        body="Game/App: "+name+"\n\nWhat is wrong or missing:\n\nPage/URL (if relevant):\n";
-      }else{
-        subject="Lunar Feature Recommendation";
-        body="Feature idea:\n\nWhy it would be useful:\n";
-      }
-      if(status)status.textContent="Opening your email app…";
-      window.location.href="mailto:support.lunarstudios@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
-      window.setTimeout(close,500);
+      selectedType=option.dataset.reportType||"bug";
+      form.hidden=false;
+      gameLabel.hidden=selectedType!=="game";
+      if(status)status.textContent="";
+      if(selectedType==="game") gameInput?.focus(); else message?.focus();
     });
+  });
+  submit?.addEventListener("click",async()=>{
+    const text=(message?.value||"").trim();
+    const gameApp=(gameInput?.value||"").trim();
+    if(!text){if(status)status.textContent="Please enter a message.";return;}
+    if(selectedType==="game"&&!gameApp){if(status)status.textContent="Please enter the game or app name.";return;}
+    submit.disabled=true;
+    try{
+      const response=await fetch("/api/reports",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        type:selectedType||"bug",message:text,gameApp,page:location.pathname+location.search,viewport:window.innerWidth+"x"+window.innerHeight
+      })});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.error||"Could not send the report.");
+      if(status)status.textContent="Report sent to the Lunar team.";
+      message.value="";
+      if(gameInput)gameInput.value="";
+      setTimeout(close,700);
+    }catch(error){if(status)status.textContent=error.message}
+    finally{submit.disabled=false}
   });
 })();
