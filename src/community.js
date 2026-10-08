@@ -357,6 +357,85 @@ router.delete("/movies/:id", requireUser, async (req, res) => {
   for (const url of [movie.videoUrl, movie.posterUrl]) if (url?.startsWith("/uploads/")) { try { await fs.unlink(path.join(UPLOAD_DIR, path.basename(url))); } catch {} }
   await persist(); res.json({ ok: true });
 });
+function canViewReports(user) {
+  return Boolean(user && ROLE_MANAGERS.has(String(user.username || "").toLowerCase()));
+}
+
+function publicReport(report) {
+  const reporter = state.users[report.reporterId];
+  return {
+    id: report.id,
+    type: report.type,
+    subject: report.subject || "",
+    message: report.message || "",
+    gameApp: report.gameApp || "",
+    page: report.page || "",
+    viewport: report.viewport || "",
+    createdAt: report.createdAt,
+    status: report.status || "new",
+    reporter: reporter ? publicUser(reporter, false) : {
+      id: report.reporterId,
+      username: report.reporterUsername || "Unknown",
+      displayName: report.reporterDisplayName || report.reporterUsername || "Unknown",
+      avatarUrl: report.reporterAvatarUrl || "",
+      isOnline: false,
+      roles: []
+    }
+  };
+}
+
+router.post("/reports", requireUser, async (req, res) => {
+  const type = ["bug", "game", "feature"].includes(req.body?.type) ? req.body.type : "bug";
+  const message = cleanText(req.body?.message, 3000);
+  const gameApp = cleanText(req.body?.gameApp, 120);
+  const page = cleanText(req.body?.page, 300);
+  const viewport = cleanText(req.body?.viewport, 40);
+  if (!message) return res.status(400).json({ error: "Please describe the report or recommendation." });
+  if (type === "game" && !gameApp) return res.status(400).json({ error: "Enter the game or app name." });
+
+  const report = {
+    id: randomUUID(),
+    reporterId: req.user.id,
+    reporterUsername: req.user.username,
+    reporterDisplayName: req.user.displayName,
+    reporterAvatarUrl: req.user.avatarUrl || "",
+    type,
+    subject: type === "bug" ? "Bug Report" : type === "game" ? "Game/App Report" : "Feature Recommendation",
+    message,
+    gameApp,
+    page,
+    viewport,
+    createdAt: new Date().toISOString(),
+    status: "new",
+  };
+  state.reports.push(report);
+  if (state.reports.length > 2000) state.reports = state.reports.slice(-2000);
+  await persist();
+  res.status(201).json({ report: publicReport(report) });
+});
+
+router.get("/reports", requireUser, (req, res) => {
+  if (!canViewReports(req.user)) return res.status(403).json({ error: "Reports are restricted to Lunar managers." });
+  const reports = state.reports.slice().reverse().map(publicReport);
+  const unread = reports.filter(report => report.status === "new").length;
+  const byType = reports.reduce((counts, report) => {
+    counts[report.type] = (counts[report.type] || 0) + 1;
+    return counts;
+  }, {});
+  res.set("Cache-Control", "no-store");
+  res.json({ reports, stats: { total: reports.length, unread, byType } });
+});
+
+router.patch("/reports/:id", requireUser, async (req, res) => {
+  if (!canViewReports(req.user)) return res.status(403).json({ error: "Reports are restricted to Lunar managers." });
+  const report = state.reports.find(item => item.id === req.params.id);
+  if (!report) return res.status(404).json({ error: "Report not found." });
+  const status = ["new", "read", "resolved"].includes(req.body?.status) ? req.body.status : report.status || "new";
+  report.status = status;
+  await persist();
+  res.json({ report: publicReport(report) });
+});
+
 router.get("/auth/me", (req, res) => {
   const user = getSessionUser(req);
   res.json({ user: user ? publicUser(user, true) : null });
