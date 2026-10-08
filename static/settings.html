@@ -11,7 +11,7 @@
   <link rel="stylesheet" id="global" href="/assets/css/global.css" />
   <link rel="stylesheet" href="/assets/css/container.css" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=lunar14" />
-  <link rel="stylesheet" href="/assets/css/settings.css?v=lunar13" />
+  <link rel="stylesheet" href="/assets/css/settings.css?v=lunar14" />
   <script src="/assets/js/storage.js?v=lunar8"></script>
   <script src="/assets/js/main.js?v=lunar17"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -195,6 +195,21 @@
           </div>
           <div class="background-upload-status" id="background-upload-status">PNG, JPG, WEBP or GIF · up to 8 MB</div>
         </div>
+        <div class="background-saved-tools">
+          <button class="key-button" id="background-saved-button" type="button">
+            <i class="fa-solid fa-images"></i> View Saved Backgrounds
+          </button>
+          <div id="background-saved-panel" class="background-saved-panel" aria-hidden="true">
+            <div class="background-saved-header">
+              <div>
+                <strong>Your custom backgrounds</strong>
+                <span id="background-saved-status">Only custom backgrounds are saved. Built-in backgrounds are excluded.</span>
+              </div>
+              <button class="background-saved-close" id="background-saved-close" type="button" aria-label="Close saved backgrounds">×</button>
+            </div>
+            <div id="background-saved-grid" class="background-saved-grid"></div>
+          </div>
+        </div>
         <div id="background-image-controls" class="background-image-controls" style="display:none;">
           <label>Image Opacity <span id="background-opacity-value">100%</span></label>
           <input id="background-opacity-range" type="range" min="10" max="100" value="100" class="interface-range" />
@@ -308,7 +323,7 @@
       </div>
     </div>
   </div>
-  <script src="/assets/js/settings.js?v=lunar17"></script>
+  <script src="/assets/js/settings.js?v=lunar18"></script>
   <script src="/assets/js/lunar-settings.js?v=lunar10"></script>
   <!-- DO NOT REMOVE-->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WKJQ5QHQTJ"></script>
