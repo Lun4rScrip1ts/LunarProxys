@@ -329,3 +329,38 @@
   const initialMode = new URLSearchParams(location.search).get("mode");
   api("/api/auth/me").then(async d=>{user=d.user;if(user){if(window.store?.loadAccountSettings) await window.store.loadAccountSettings();setProfile();}else setMode(initialMode==="register"?"register":"login");}).catch(()=>setMode(initialMode==="register"?"register":"login"));
 })();
+
+
+(() => {
+  document.querySelectorAll("[data-password-target]").forEach(button => {
+    button.addEventListener("click", () => {
+      const input = document.getElementById(button.dataset.passwordTarget);
+      if (!input) return;
+      const visible = input.type === "text";
+      input.type = visible ? "password" : "text";
+      button.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+      button.innerHTML = '<i class="fa-solid ' + (visible ? "fa-eye" : "fa-eye-slash") + '"></i><span>' + (visible ? "Show" : "Hide") + '</span>';
+      input.focus();
+    });
+  });
+
+  const button = document.getElementById("change-profile-password");
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    const current = document.getElementById("profile-current-password");
+    const next = document.getElementById("profile-new-password");
+    const success = document.getElementById("profile-password-success");
+    const error = document.getElementById("profile-password-error");
+    success.textContent = ""; error.textContent = "";
+    if (!current.value || !next.value) { error.textContent = "Enter your current password and a new password."; return; }
+    if (next.value.length < 8 || next.value.length > 128) { error.textContent = "The new password must be 8–128 characters."; return; }
+    button.disabled = true; button.textContent = "Changing...";
+    try {
+      const response = await fetch("/api/profile/password", {credentials:"same-origin",method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({currentPassword:current.value,newPassword:next.value})});
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Could not change password.");
+      current.value = ""; next.value = ""; success.textContent = "Password changed successfully.";
+    } catch (e) { error.textContent = e.message; }
+    finally { button.disabled = false; button.textContent = "Change Password"; }
+  });
+})();
