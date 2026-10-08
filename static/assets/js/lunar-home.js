@@ -215,3 +215,34 @@
   };
   loadChangelog();
 })();
+
+(() => {
+  const button=document.getElementById("lunar-report-button");
+  const modal=document.getElementById("lunar-report-modal");
+  const status=document.getElementById("lunar-report-status");
+  if(!button||!modal)return;
+  const close=()=>{modal.hidden=true;document.body.classList.remove("lunar-report-open");};
+  button.addEventListener("click",()=>{modal.hidden=false;document.body.classList.add("lunar-report-open");});
+  modal.querySelectorAll("[data-report-close]").forEach(el=>el.addEventListener("click",close));
+  modal.querySelectorAll("[data-report-type]").forEach(option=>{
+    option.addEventListener("click",()=>{
+      const type=option.dataset.reportType;
+      let subject="",body="";
+      if(type==="bug"){
+        subject="Lunar Bug Report";
+        body="Bug description:\n\nPage/feature:\n\nWhat happened:\n\nWhat I expected:\n";
+      }else if(type==="game"){
+        const name=window.prompt("What game or app are you reporting?");
+        if(!name)return;
+        subject="Lunar Game/App Report: "+name;
+        body="Game/App: "+name+"\n\nWhat is wrong or missing:\n\nPage/URL (if relevant):\n";
+      }else{
+        subject="Lunar Feature Recommendation";
+        body="Feature idea:\n\nWhy it would be useful:\n";
+      }
+      if(status)status.textContent="Opening your email app…";
+      window.location.href="mailto:support.lunarstudios@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+      window.setTimeout(close,500);
+    });
+  });
+})();
