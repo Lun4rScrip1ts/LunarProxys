@@ -1453,3 +1453,5 @@ body.profile-image-editor-open{overflow:hidden!important}
 .password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%)!important;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;padding:0 9px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(255,255,255,.055);color:#aeb6c6;font:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:none!important}
 .password-toggle:hover{background:rgba(145,117,255,.12);border-color:rgba(183,157,255,.35);color:#fff;transform:translateY(-50%)!important}
 .password-toggle i{color:#b9a7ff}
+
+.password-warning{display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px 14px;border:1px solid rgba(255,190,70,.24);border-radius:12px;background:rgba(255,180,50,.07);color:rgba(255,255,255,.78);font-size:12px;line-height:1.5;box-sizing:border-box}.password-warning i{margin-top:2px;color:#ffd166;flex:0 0 auto}.password-warning strong{color:#fff}
