@@ -749,6 +749,27 @@ router.patch("/profile", requireUser, async (req, res) => {
   res.json({ user: publicUser(req.user, true) });
 });
 
+router.post("/profile/password", requireUser, async (req, res) => {
+  const currentPassword = req.body?.currentPassword;
+  const newPassword = req.body?.newPassword;
+  if (!validPassword(currentPassword) || !validPassword(newPassword)) {
+    return res.status(400).json({ error: "Passwords must be 8–128 characters." });
+  }
+  if (!(await verifyPassword(currentPassword, req.user))) {
+    return res.status(401).json({ error: "Current password is incorrect." });
+  }
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ error: "Choose a different new password." });
+  }
+
+  const credentials = await hashPassword(newPassword);
+  req.user.salt = credentials.salt;
+  req.user.hash = credentials.hash;
+  await persist();
+  res.json({ ok: true });
+});
+
+
 router.patch("/users/:username/roles", requireUser, async (req, res) => {
   if (!canManageProfileRoles(req.user)) {
     return res.status(403).json({ error: "Only @lunar and @lunarstudios can manage profile roles." });
