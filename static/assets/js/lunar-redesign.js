@@ -20,7 +20,7 @@
 
     const fixesStyle = document.createElement('link');
     fixesStyle.rel = 'stylesheet';
-    fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix5';
+    fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix6';
     document.head.appendChild(fixesStyle);
 
   const loadChatFixes = () => {
