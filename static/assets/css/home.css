@@ -580,3 +580,34 @@ input:focus {
 .lunar-home-new-ui .title:after{
   display:none!important;
 }
+
+/* New UI title: full-size at rest with a subtle, smooth hover animation. */
+.lunar-home-new-ui .title{
+  display:inline-block!important;
+  margin:8px 0 10px!important;
+  max-width:min(1100px,94vw)!important;
+  font-size:clamp(56px,7vw,86px)!important;
+  line-height:.98!important;
+  letter-spacing:-2px!important;
+  overflow:visible!important;
+  text-align:center!important;
+  transform:translateY(0) scale(1)!important;
+  transform-origin:center center!important;
+  text-shadow:0 8px 28px rgba(0,0,0,.18)!important;
+  filter:none!important;
+  transition:transform .38s cubic-bezier(.22,1,.36,1),filter .38s ease,text-shadow .38s ease!important;
+  will-change:transform,filter!important;
+}
+.lunar-home-new-ui .title:hover{
+  transform:translateY(-3px) scale(1.025)!important;
+  filter:brightness(1.04)!important;
+  text-shadow:0 10px 34px rgba(120,135,255,.22),0 0 24px rgba(120,135,255,.12)!important;
+}
+.lunar-home-new-ui .title:focus,
+.lunar-home-new-ui .title:active{
+  transform:translateY(-2px) scale(1.015)!important;
+  filter:brightness(1.03)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .lunar-home-new-ui .title{transition:none!important}
+}
