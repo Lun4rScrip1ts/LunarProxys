@@ -195,3 +195,36 @@
 @media(prefers-reduced-motion:reduce){
   .lunar-home-new-ui .title{transition:none!important}
 }
+
+/* New UI: Old UI-style light sweep on the Lunar Proxy title. */
+.lunar-home-new-ui .title{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+.lunar-home-new-ui .title:before{
+  content:""!important;
+  position:absolute!important;
+  z-index:2!important;
+  top:-25%!important;
+  bottom:-25%!important;
+  left:-38%!important;
+  width:16%!important;
+  display:block!important;
+  transform:skewX(-20deg) translateX(0)!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),rgba(145,160,255,.3),transparent)!important;
+  filter:blur(2px)!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.lunar-home-new-ui .title:hover:before{
+  opacity:1!important;
+  animation:lunarNewTitleShine 1s cubic-bezier(.2,.7,.2,1) forwards!important;
+}
+@keyframes lunarNewTitleShine{
+  0%{left:-38%}
+  100%{left:125%}
+}
+@media(prefers-reduced-motion:reduce){
+  .lunar-home-new-ui .title:hover:before{animation:none!important}
+}
