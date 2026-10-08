@@ -185,6 +185,10 @@ function getSessionUser(req) {
     return null;
   }
   const user = state.users[session.userId] || null;
+  if (user?.kickedAt) {
+    delete state.sessions[token];
+    return null;
+  }
   if (user) session.lastSeen = Date.now();
   return user;
 }
@@ -472,6 +476,26 @@ router.post("/auth/register", async (req, res) => {
   };
 
   state.users[user.id] = user;
+
+  // Every new account is automatically friends with @lunar.
+  // This is a direct accepted friendship, so the new user does not need
+  // to send or accept a friend request.
+  const lunarUser = Object.values(state.users).find(item =>
+    item.id !== user.id && String(item.username || "").toLowerCase() === "lunar"
+  );
+  if (lunarUser) {
+    state.friendships = normalizeFriendshipEntries(
+      [...state.friendships, friendshipKey(user.id, lunarUser.id)],
+      state.friendRequests
+    );
+    state.friendRequests = state.friendRequests.filter(request =>
+      !(
+        (request.fromUserId === user.id && request.toUserId === lunarUser.id) ||
+        (request.fromUserId === lunarUser.id && request.toUserId === user.id)
+      )
+    );
+  }
+
   setSession(res, user.id);
   await persist();
   res.status(201).json({ user: publicUser(user, true) });
@@ -628,6 +652,9 @@ router.post("/auth/login", async (req, res) => {
   if (!user || !(await verifyPassword(password, user))) {
     return res.status(401).json({ error: "Incorrect username/email or password." });
   }
+  if (user.kickedAt) {
+    return res.status(403).json({ error: "This account has been kicked from LunarProxys." });
+  }
 
   if (!Array.isArray(user.stickers)) user.stickers = [];
   if (!Array.isArray(user.gifFavorites)) user.gifFavorites = [];
@@ -745,6 +772,40 @@ router.patch("/users/:username/roles", requireUser, async (req, res) => {
   target.roles = roles;
   await persist();
   res.json({ user: publicUser(target, false) });
+});
+
+router.post("/users/:username/kick", requireUser, async (req, res) => {
+  if (!ROLE_MANAGERS.has(String(req.user.username || "").toLowerCase())) {
+    return res.status(403).json({ error: "Only @lunar and @lunarstudios can kick members." });
+  }
+
+  const username = cleanText(req.params.username, USERNAME_MAX).toLowerCase();
+  const target = Object.values(state.users).find(item => String(item.username || "").toLowerCase() === username);
+  if (!target) return res.status(404).json({ error: "Profile not found." });
+  if (target.id === req.user.id) return res.status(400).json({ error: "You cannot kick yourself." });
+  if (ROLE_MANAGERS.has(String(target.username || "").toLowerCase())) {
+    return res.status(403).json({ error: "Managers cannot kick @lunar or @lunarstudios." });
+  }
+
+  target.kickedAt = new Date().toISOString();
+  target.kickedBy = req.user.username;
+
+  for (const [token, session] of Object.entries(state.sessions)) {
+    if (session?.userId === target.id) delete state.sessions[token];
+  }
+
+  state.friendships = state.friendships.filter(key => !key.split(":").includes(target.id));
+  state.friendRequests = state.friendRequests.filter(request =>
+    request.fromUserId !== target.id && request.toUserId !== target.id
+  );
+  for (const user of Object.values(state.users)) {
+    if (Array.isArray(user.blockedUsers)) {
+      user.blockedUsers = user.blockedUsers.filter(id => id !== target.id);
+    }
+  }
+
+  await persist();
+  res.json({ ok: true, username: target.username });
 });
 
 router.get("/users/:username", (req, res) => {
