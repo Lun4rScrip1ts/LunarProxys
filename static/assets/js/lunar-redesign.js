@@ -128,8 +128,38 @@
           list.innerHTML='<div class="lunar-report-empty">Unable to load reports.</div>';
         }
       };
-      bell.addEventListener("click",async()=>{panel.hidden=false;document.body.classList.add("lunar-report-center-open");await loadReports();});
-      panel.querySelectorAll("[data-report-center-close]").forEach(el=>el.addEventListener("click",()=>{panel.hidden=true;profile.hidden=true;document.body.classList.remove("lunar-report-center-open");}));
+      const openReportCenter = async () => {
+        panel.hidden = false;
+        panel.removeAttribute("hidden");
+        panel.setAttribute("aria-hidden", "false");
+        panel.style.display = "grid";
+        document.body.classList.add("lunar-report-center-open");
+        await loadReports();
+      };
+      const closeReportCenter = () => {
+        panel.hidden = true;
+        panel.setAttribute("aria-hidden", "true");
+        panel.style.display = "none";
+        profile.hidden = true;
+        document.body.classList.remove("lunar-report-center-open");
+      };
+      bell.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openReportCenter();
+      });
+      panel.querySelectorAll("[data-report-center-close]").forEach(el => el.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        closeReportCenter();
+      }));
+      document.addEventListener("click", event => {
+        const reportButton = event.target.closest?.(".lunar-report-notifications");
+        if (!reportButton || !document.body.contains(reportButton)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openReportCenter();
+      }, true);
       list.addEventListener("click",async e=>{
         const statusButton=e.target.closest("[data-report-status]");
         if(!statusButton)return;
