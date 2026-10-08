@@ -493,3 +493,7 @@ body.interface-glass .settings-card.interface-settings-card label{
 .background-saved-use{width:auto!important;margin:0!important;padding:6px 9px!important;font-size:11px!important}
 .background-saved-empty{grid-column:1/-1;padding:18px 10px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.5}
 @media(max-width:520px){.background-saved-grid{grid-template-columns:1fr}}
+
+.background-saved-actions{display:flex;align-items:center;gap:5px}
+.background-saved-delete{width:30px!important;min-width:30px!important;margin:0!important;padding:6px!important;color:#ff9b9b!important}
+.background-saved-delete:hover{background:rgba(255,70,70,.12)!important;border-color:rgba(255,100,100,.3)!important;color:#ffb1b1!important}
