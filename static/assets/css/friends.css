@@ -1559,3 +1559,17 @@
 .lunar-friends-page .dm-panel{min-width:0!important}
 @media(max-width:900px){.lunar-friends-page .friends-app{width:calc(100vw - 24px)!important;height:calc(100vh - 72px)!important;top:54px!important}.lunar-friends-page .friends-sidebar{flex-basis:260px!important;width:260px!important;min-width:260px!important}}
 @media(max-width:760px){.lunar-friends-page .friends-app{width:100vw!important;height:calc(100vh - 52px)!important;top:52px!important}.lunar-friends-page .friends-sidebar{width:100%!important;min-width:0!important}}
+
+
+/* Manager-only profile kick action. Visibility is also enforced by the server. */
+.kick-action{
+  border:1px solid rgba(255,82,104,.28)!important;
+  background:rgba(255,55,78,.10)!important;
+  color:#ff9aa8!important;
+}
+.kick-action:hover:not(:disabled){
+  border-color:rgba(255,82,104,.55)!important;
+  background:rgba(255,55,78,.18)!important;
+  color:#fff!important;
+}
+.kick-action:disabled{opacity:.55!important;cursor:wait!important;}
