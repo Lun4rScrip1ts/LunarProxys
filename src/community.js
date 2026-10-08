@@ -234,7 +234,7 @@ function getRememberedAccounts(req) {
     const userId = name.slice("lunar_account_".length);
     const session = state.sessions[token];
     const user = state.users[userId];
-    if (!session || session.kind !== "remembered" || !user || session.userId !== userId || Date.now() > session.expiresAt) continue;
+    if (!session || session.kind !== "remembered" || !user || user.kickedAt || session.userId !== userId || Date.now() > session.expiresAt) continue;
     result.push({ id: user.id, username: user.username, displayName: user.displayName, avatarUrl: user.avatarUrl || "" });
   }
   return result;
@@ -682,7 +682,7 @@ router.post("/auth/switch", (req, res) => {
   const token = req.cookies?.["lunar_account_" + userId];
   const session = state.sessions[token];
   const user = state.users[userId];
-  if (!token || !session || !user || session.userId !== userId || Date.now() > session.expiresAt) {
+  if (!token || !session || !user || user.kickedAt || session.userId !== userId || Date.now() > session.expiresAt) {
     return res.status(401).json({ error: "That saved account needs you to log in again." });
   }
   setSession(res, userId);
