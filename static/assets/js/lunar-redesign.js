@@ -142,7 +142,7 @@
 
     buildNav();
     const currentUserPromise = fetch('/api/auth/me', { credentials:'same-origin', cache:'no-store' }).then(r=>r.ok?r.json():null).catch(()=>null);
-    currentUserPromise.then(data=>setupReportNotifications(nav, data?.user));
+    currentUserPromise.then(data=>setupReportNotifications(document.querySelector('.nav-bar'), data?.user));
     loadChatFixes();
   };
 
