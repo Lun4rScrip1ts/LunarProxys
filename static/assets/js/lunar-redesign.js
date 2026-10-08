@@ -20,7 +20,7 @@
 
     const fixesStyle = document.createElement('link');
     fixesStyle.rel = 'stylesheet';
-    fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix6';
+    fixesStyle.href = '/assets/css/lunar-redesign-fixes.css?v=fix7';
     document.head.appendChild(fixesStyle);
 
   const loadChatFixes = () => {
@@ -71,7 +71,78 @@
       }).catch(() => {});
   };
 
+    const setupReportNotifications = (nav, user) => {
+      if (!nav || !user || !["lunar","lunarstudios"].includes(String(user.username || "").toLowerCase())) return;
+      const bell=document.createElement("button");
+      bell.type="button";
+      bell.className="lunar-side-link lunar-report-notifications";
+      bell.setAttribute("aria-label","Lunar reports");
+      bell.innerHTML='<i class="fa-solid fa-bell"></i><span>Reports</span><b class="lunar-report-count" hidden>0</b>';
+      const brand=nav.querySelector(".lunar-sidebar-brand");
+      brand?.after(bell);
+
+      const panel=document.createElement("div");
+      panel.className="lunar-report-center";
+      panel.hidden=true;
+      panel.innerHTML='<div class="lunar-report-center-backdrop" data-report-center-close></div><section class="lunar-report-center-panel" role="dialog" aria-modal="true" aria-labelledby="lunar-report-center-title"><header><div><span>LUNAR MODERATION</span><h2 id="lunar-report-center-title">Reports</h2><p id="lunar-report-stats">Loading reports…</p></div><button type="button" data-report-center-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button></header><div class="lunar-report-center-list" id="lunar-report-center-list"></div><div class="lunar-mini-profile" id="lunar-mini-profile" hidden></div></section>';
+      document.body.appendChild(panel);
+      const list=panel.querySelector("#lunar-report-center-list");
+      const stats=panel.querySelector("#lunar-report-stats");
+      const count=bell.querySelector(".lunar-report-count");
+      const profile=panel.querySelector("#lunar-mini-profile");
+
+      const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+      const avatar=userData=>userData?.avatarUrl?'<img src="'+escapeHtml(userData.avatarUrl)+'" alt="">':'<span>'+escapeHtml((userData?.displayName||userData?.username||"?").slice(0,1).toUpperCase())+'</span>';
+
+      const openMiniProfile=async(username)=>{
+        try{
+          const response=await fetch("/api/users/"+encodeURIComponent(username),{credentials:"same-origin",cache:"no-store"});
+          const data=await response.json();
+          if(!response.ok||!data.user)throw new Error("Profile unavailable.");
+          const u=data.user;
+          profile.hidden=false;
+          profile.innerHTML='<button class="lunar-mini-profile-close" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button><div class="lunar-mini-profile-avatar">'+avatar(u)+'</div><strong>'+escapeHtml(u.displayName||u.username)+'</strong><span class="lunar-mini-profile-username">@'+escapeHtml(u.username)+'</span><span class="lunar-mini-profile-status">'+(u.isOnline?"Online":escapeHtml(u.status||"Offline"))+'</span><p>'+escapeHtml(u.bio||"No bio yet.")+'</p><small>'+(u.createdAt?"Member since "+new Date(u.createdAt).toLocaleDateString([],{month:"short",year:"numeric"}):"")+'</small><div class="lunar-mini-profile-roles">'+(u.roles||[]).map(role=>"<span>"+escapeHtml(role)+"</span>").join("")+'</div>';
+          profile.querySelector(".lunar-mini-profile-close").onclick=()=>{profile.hidden=true};
+        }catch(error){profile.hidden=true}
+      };
+
+      const loadReports=async()=>{
+        try{
+          const response=await fetch("/api/reports",{credentials:"same-origin",cache:"no-store"});
+          const data=await response.json();
+          if(!response.ok)throw new Error(data.error||"Unable to load reports.");
+          const reports=Array.isArray(data.reports)?data.reports:[];
+          const unread=Number(data.stats?.unread||0);
+          count.textContent=String(unread);
+          count.hidden=unread===0;
+          bell.classList.toggle("has-unread",unread>0);
+          stats.textContent=(data.stats?.total||reports.length)+" total · "+unread+" new · "+(data.stats?.byType?.bug||0)+" bugs · "+(data.stats?.byType?.game||0)+" game/app · "+(data.stats?.byType?.feature||0)+" features";
+          list.innerHTML=reports.length?reports.map(report=>{
+            const r=report.reporter||{};
+            const date=report.createdAt?new Date(report.createdAt):null;
+            return '<article class="lunar-report-item '+escapeHtml(report.status||"new")+'" data-report-id="'+escapeHtml(report.id)+'"><div class="lunar-report-item-head"><button type="button" class="lunar-report-person" data-lunar-profile="'+escapeHtml(r.username||"")+'"><span class="lunar-report-avatar">'+avatar(r)+'</span><span><strong>'+escapeHtml(r.displayName||r.username||"Unknown")+'</strong><small>@'+escapeHtml(r.username||"unknown")+'</small></span></button><time>'+escapeHtml(date?date.toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"")+'</time></div><div class="lunar-report-type"><i class="fa-solid '+(report.type==="bug"?"fa-bug":report.type==="game"?"fa-gamepad":"fa-lightbulb")+'"></i><strong>'+escapeHtml(report.subject)+'</strong>'+(report.gameApp?'<span> · '+escapeHtml(report.gameApp)+'</span>':"")+'</div><p>'+escapeHtml(report.message)+'</p><div class="lunar-report-meta"><span>'+escapeHtml(report.page||"Unknown page")+'</span><span>'+escapeHtml(report.viewport||"")+'</span><button type="button" data-report-status="'+escapeHtml(report.id)+'" data-status="'+(report.status==="resolved"?"new":"resolved")+'">'+(report.status==="resolved"?"Reopen":"Resolve")+'</button></div></article>';
+          }).join(""):'<div class="lunar-report-empty"><i class="fa-regular fa-flag"></i><strong>No reports yet</strong><span>New reports will appear here.</span></div>';
+          list.querySelectorAll("[data-lunar-profile]").forEach(el=>el.addEventListener("click",async e=>{e.stopPropagation();await openMiniProfile(el.dataset.lunarProfile);}));
+        }catch(error){
+          stats.textContent=error.message;
+          list.innerHTML='<div class="lunar-report-empty">Unable to load reports.</div>';
+        }
+      };
+      bell.addEventListener("click",async()=>{panel.hidden=false;document.body.classList.add("lunar-report-center-open");await loadReports();});
+      panel.querySelectorAll("[data-report-center-close]").forEach(el=>el.addEventListener("click",()=>{panel.hidden=true;profile.hidden=true;document.body.classList.remove("lunar-report-center-open");}));
+      list.addEventListener("click",async e=>{
+        const statusButton=e.target.closest("[data-report-status]");
+        if(!statusButton)return;
+        await fetch("/api/reports/"+encodeURIComponent(statusButton.dataset.reportStatus),{method:"PATCH",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:statusButton.dataset.status})});
+        await loadReports();
+      });
+      loadReports();
+      window.setInterval(loadReports,15000);
+    };
+
     buildNav();
+    const currentUserPromise = fetch('/api/auth/me', { credentials:'same-origin', cache:'no-store' }).then(r=>r.ok?r.json():null).catch(()=>null);
+    currentUserPromise.then(data=>setupReportNotifications(nav, data?.user));
     loadChatFixes();
   };
 
