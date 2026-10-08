@@ -554,3 +554,29 @@ input:focus {
 .lunar-home .lunar-ui-switch{
   order:6!important;
 }
+
+/* New UI Home title now uses the same clean title treatment as Old UI. */
+.lunar-home-new-ui .title{
+  margin:8px 0 10px!important;
+  max-width:min(1100px,94vw)!important;
+  font-size:clamp(52px,7vw,86px)!important;
+  line-height:.98!important;
+  letter-spacing:-2px!important;
+  overflow:visible!important;
+  text-align:center!important;
+  transform:none!important;
+  text-shadow:0 8px 28px rgba(0,0,0,.18)!important;
+  filter:none!important;
+}
+.lunar-home-new-ui .title:hover,
+.lunar-home-new-ui .title:focus,
+.lunar-home-new-ui .title:active{
+  transform:none!important;
+  letter-spacing:-2px!important;
+  filter:brightness(1.04)!important;
+  text-shadow:0 10px 34px rgba(120,135,255,.22)!important;
+}
+.lunar-home-new-ui .title:before,
+.lunar-home-new-ui .title:after{
+  display:none!important;
+}
