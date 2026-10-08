@@ -160,3 +160,38 @@
 @media(max-width:900px){
   .lunar-home .lunar-url-warning{width:min(720px,calc(100% - 28px))!important;}
 }
+
+/* Final New UI Lunar Proxy title animation. Keep it full-size at rest and animate gently on hover. */
+.lunar-home-new-ui .title{
+  display:inline-block!important;
+  width:auto!important;
+  max-width:min(1100px,94vw)!important;
+  margin:8px 0 10px!important;
+  font-size:clamp(56px,7vw,86px)!important;
+  line-height:.98!important;
+  letter-spacing:-2px!important;
+  transform:translate3d(0,0,0) scale(1)!important;
+  transform-origin:center center!important;
+  transition:transform .45s cubic-bezier(.22,1,.36,1),filter .45s ease,text-shadow .45s ease!important;
+  animation:none!important;
+  filter:none!important;
+  text-shadow:0 8px 28px rgba(0,0,0,.18)!important;
+  will-change:transform,filter,text-shadow!important;
+}
+.lunar-home-new-ui .title:hover{
+  transform:translate3d(0,-3px,0) scale(1.025)!important;
+  filter:brightness(1.04)!important;
+  text-shadow:0 10px 34px rgba(120,135,255,.22),0 0 22px rgba(120,135,255,.1)!important;
+}
+.lunar-home-new-ui .title:focus,
+.lunar-home-new-ui .title:active{
+  transform:translate3d(0,-2px,0) scale(1.015)!important;
+  filter:brightness(1.03)!important;
+}
+.lunar-home-new-ui .title:before,
+.lunar-home-new-ui .title:after{
+  display:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .lunar-home-new-ui .title{transition:none!important}
+}
