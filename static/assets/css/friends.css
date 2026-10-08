@@ -1552,3 +1552,10 @@
     height:calc(100vh - 52px)!important;
   }
 }
+
+/* Friends: use more of the viewport in both Old UI and New UI. */
+.lunar-friends-page .friends-app{width:min(calc(100vw - 40px),1380px)!important;height:min(calc(100vh - 82px),860px)!important;top:clamp(48px,5vh,64px)!important}
+.lunar-friends-page .friends-sidebar{flex-basis:clamp(280px,26vw,340px)!important;width:clamp(280px,26vw,340px)!important;min-width:280px!important}
+.lunar-friends-page .dm-panel{min-width:0!important}
+@media(max-width:900px){.lunar-friends-page .friends-app{width:calc(100vw - 24px)!important;height:calc(100vh - 72px)!important;top:54px!important}.lunar-friends-page .friends-sidebar{flex-basis:260px!important;width:260px!important;min-width:260px!important}}
+@media(max-width:760px){.lunar-friends-page .friends-app{width:100vw!important;height:calc(100vh - 52px)!important;top:52px!important}.lunar-friends-page .friends-sidebar{width:100%!important;min-width:0!important}}
