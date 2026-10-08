@@ -25,7 +25,7 @@
       modal.id = "friends-profile-modal";
       modal.className = "friends-profile-modal";
       modal.hidden = true;
-      modal.innerHTML = '<div class="friends-profile-card"><button id="friends-profile-close" class="friends-profile-close" type="button" aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button><div id="friends-profile-banner" class="friends-profile-banner"></div><div class="friends-profile-body"><div id="friends-profile-avatar" class="friends-profile-avatar"></div><div class="friends-profile-name"><h2 id="friends-profile-display"></h2><span id="friends-profile-owner" class="friends-profile-owner" hidden>Owner</span></div><div id="friends-profile-username" class="friends-profile-username"></div><div id="friends-profile-status" class="friends-profile-status"></div><div id="friends-profile-member" class="friends-profile-member"></div><p id="friends-profile-bio" class="friends-profile-bio"></p><div id="friends-profile-actions" class="profile-actions"><button id="friends-profile-message" type="button" class="message-action">Message</button><button id="friends-profile-friend" type="button" class="friend-action">Friend</button><button id="friends-profile-block" type="button" class="block-action">Block</button><button id="friends-profile-report" type="button" class="report-action">Report</button></div><div id="friends-profile-roles" class="friends-profile-roles"></div><div id="friends-profile-stickers" class="friends-profile-stickers"></div></div></div>';
+      modal.innerHTML = '<div class="friends-profile-card"><button id="friends-profile-close" class="friends-profile-close" type="button" aria-label="Close profile"><i class="fa-solid fa-xmark"></i></button><div id="friends-profile-banner" class="friends-profile-banner"></div><div class="friends-profile-body"><div id="friends-profile-avatar" class="friends-profile-avatar"></div><div class="friends-profile-name"><h2 id="friends-profile-display"></h2><span id="friends-profile-owner" class="friends-profile-owner" hidden>Owner</span></div><div id="friends-profile-username" class="friends-profile-username"></div><div id="friends-profile-status" class="friends-profile-status"></div><div id="friends-profile-member" class="friends-profile-member"></div><p id="friends-profile-bio" class="friends-profile-bio"></p><div id="friends-profile-actions" class="profile-actions"><button id="friends-profile-message" type="button" class="message-action">Message</button><button id="friends-profile-friend" type="button" class="friend-action">Friend</button><button id="friends-profile-block" type="button" class="block-action">Block</button><button id="friends-profile-report" type="button" class="report-action">Report</button><button id="friends-profile-kick" type="button" class="kick-action" hidden><i class="fa-solid fa-user-slash"></i> Kick</button></div><div id="friends-profile-roles" class="friends-profile-roles"></div><div id="friends-profile-stickers" class="friends-profile-stickers"></div></div></div>';
       wrapper.appendChild(modal);
       modal.addEventListener("click", e => { if (e.target === modal) closeProfile(); });
       document.getElementById("friends-profile-close").onclick = closeProfile;
@@ -91,7 +91,7 @@
       if (!mutualBox) { mutualBox = document.createElement("div"); mutualBox.id = "friends-profile-mutuals"; mutualBox.className = "friends-profile-mutuals"; actions.before(mutualBox); }
       mutualBox.innerHTML = mutuals.length ? '<strong>' + mutuals.length + ' Mutual Friend' + (mutuals.length === 1 ? "" : "s") + '</strong><div>' + mutuals.slice(0, 6).map(m => m.avatarUrl ? '<img src="' + escapeAttr(m.avatarUrl) + '" alt="@' + escapeAttr(m.username) + '" title="@' + escapeAttr(m.username) + '">' : '<span title="@' + escapeAttr(m.username) + '">' + escape(initials(m.displayName || m.username)) + '</span>').join("") + '</div>' : "<strong>No Mutual Friends</strong>";
       actions.hidden = !!u.isSelf;
-      const message = document.getElementById("friends-profile-message"), friend = document.getElementById("friends-profile-friend"), block = document.getElementById("friends-profile-block"), report = document.getElementById("friends-profile-report");
+      const message = document.getElementById("friends-profile-message"), friend = document.getElementById("friends-profile-friend"), block = document.getElementById("friends-profile-block"), report = document.getElementById("friends-profile-report"), kick = document.getElementById("friends-profile-kick");
       message.onclick = () => { location.href = "/friends?user=" + encodeURIComponent(u.username); };
       friend.textContent = u.isFriend ? "Added" : (u.friendRequestPending ? "Pending" : "Friend");
       friend.disabled = !!u.isFriend || !!u.friendRequestPending;
@@ -100,6 +100,25 @@
       block.disabled = !!u.isBlocked;
       block.onclick = async () => { if (!confirm("Block @" + u.username + "?")) return; try { await api("/api/friends/block/" + encodeURIComponent(u.id), {method:"POST"}); block.textContent = "Blocked"; block.disabled = true; showToast("User blocked."); closeProfile(); } catch(e) { showToast(e.message); } };
       report.onclick = async () => { try { await api("/api/friends/report/" + encodeURIComponent(u.id), {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reason:"Reported from Global Chat profile"})}); showToast("Report submitted."); } catch(e) { showToast(e.message); } };
+      if (kick) {
+        const manager = Boolean(currentUser && ["lunar","lunarstudios"].includes(String(currentUser.username || "").toLowerCase()));
+        const protectedTarget = ["lunar","lunarstudios"].includes(String(u.username || "").toLowerCase());
+        kick.hidden = !manager || Boolean(u.isSelf) || protectedTarget;
+        kick.disabled = false;
+        kick.onclick = async () => {
+          if (kick.disabled) return;
+          if (!confirm("Kick @" + u.username + " from LunarProxys? They will be signed out and will not be able to log in again.")) return;
+          kick.disabled = true;
+          try {
+            await api("/api/users/" + encodeURIComponent(u.username) + "/kick", {method:"POST"});
+            showToast("@" + u.username + " was kicked.");
+            closeProfile();
+          } catch(e) {
+            kick.disabled = false;
+            showToast(e.message);
+          }
+        };
+      }
       modal.hidden = false;
     } catch(e) { showToast(e.message); }
   }
