@@ -330,7 +330,7 @@ try{
   let mutualBox=document.getElementById("friends-profile-mutuals");
   if(!mutualBox){mutualBox=document.createElement("div");mutualBox.id="friends-profile-mutuals";mutualBox.className="friends-profile-mutuals";actions.before(mutualBox)}
   mutualBox.innerHTML=mutuals.length?`<strong>${mutuals.length} Mutual Friend${mutuals.length===1?"":"s"}</strong><div>${mutuals.slice(0,6).map(m=>m.avatarUrl?`<img src="${esc(m.avatarUrl)}" alt="@${esc(m.username)}" title="@${esc(m.username)}">`:`<span title="@${esc(m.username)}">${esc(initials(m.displayName||m.username))}</span>`).join("")}</div>`:"<strong>No Mutual Friends</strong>";
-  const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block"), report=$("friends-profile-report");
+  const message=$("friends-profile-message"), friend=$("friends-profile-friend"), block=$("friends-profile-block"), report=$("friends-profile-report"), kick=$("friends-profile-kick");
   actions.hidden=!!u.isSelf;
   message.onclick=()=>{closeUserProfile();const target=friends.find(x=>x.id===u.id)||{...u,isFriend:Boolean(u.isFriend),isBlocked:Boolean(u.isBlocked)};openDm(target);};
   friend.textContent=u.isFriend?"Added":(u.friendRequestPending?"Pending":"Friend");
@@ -357,6 +357,23 @@ try{
       toast("Report submitted.");
     }catch(e){toast(e.message)}
   };
+  if(kick){
+    const manager=Boolean(me && ["lunar","lunarstudios"].includes(String(me.username||"").toLowerCase()));
+    const protectedTarget=["lunar","lunarstudios"].includes(String(u.username||"").toLowerCase());
+    kick.hidden=!manager || Boolean(u.isSelf) || protectedTarget;
+    kick.disabled=false;
+    kick.onclick=async()=>{
+      if(kick.disabled)return;
+      if(!confirm("Kick @"+u.username+" from LunarProxys? They will be signed out and will not be able to log in again."))return;
+      kick.disabled=true;
+      try{
+        await api("/api/users/"+encodeURIComponent(u.username)+"/kick",{method:"POST"});
+        toast("@"+u.username+" was kicked.");
+        closeUserProfile();
+        await bootstrap();
+      }catch(e){kick.disabled=false;toast(e.message)}
+    };
+  }
   modal.hidden=false;
 }catch(e){toast(e.message)}
 }
