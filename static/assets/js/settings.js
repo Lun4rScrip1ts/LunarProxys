@@ -112,24 +112,63 @@ document.addEventListener("DOMContentLoaded", () => {
   const bgSavedGrid = document.getElementById("background-saved-grid");
   const bgSavedStatus = document.getElementById("background-saved-status");
 
+  const DEFAULT_BACKGROUND_URL = "https://cdn.discordapp.com/attachments/1552677976980590602/1554634440548950047/1536061.jpg?backend=b2&ex=6abd99a6&is=6abc4826&hm=9d440db406ac0f9344d92d072419f6b7a&";
+  const ORIGINAL_BACKGROUND_URL = "/assets/media/background/full-main.png";
+
   const readSavedBackgrounds = () => {
     try {
       const parsed = JSON.parse(store.get("savedBackgrounds") || "[]");
-      return Array.isArray(parsed) ? parsed.filter(item => item && item.url && item.url !== "none" && !item.isDefault) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter(item =>
+            item &&
+            item.url &&
+            item.url !== "none" &&
+            item.url !== DEFAULT_BACKGROUND_URL &&
+            item.url !== ORIGINAL_BACKGROUND_URL &&
+            !item.isDefault
+          )
+        : [];
     } catch {
       return [];
     }
   };
 
   const writeSavedBackgrounds = items => {
-    store.set("savedBackgrounds", JSON.stringify(items.filter(item => item && item.url && item.url !== "none" && !item.isDefault).slice(0, 12)));
+    store.set("savedBackgrounds", JSON.stringify(items.filter(item =>
+      item &&
+      item.url &&
+      item.url !== "none" &&
+      item.url !== DEFAULT_BACKGROUND_URL &&
+      item.url !== ORIGINAL_BACKGROUND_URL &&
+      !item.isDefault
+    )));
   };
 
   const rememberBackground = (url, name) => {
-    if (!url || url === "none") return;
+    if (!url || url === "none" || url === DEFAULT_BACKGROUND_URL || url === ORIGINAL_BACKGROUND_URL) return;
     const current = readSavedBackgrounds();
     if (current.some(item => item.url === url)) return;
-    writeSavedBackgrounds([{ id: Date.now().toString(36), name: name || "Saved background", url, isDefault: false }, ...current]);
+    writeSavedBackgrounds([
+      { id: Date.now().toString(36), name: name || "Saved background", url, isDefault: false },
+      ...current
+    ]);
+  };
+
+  const deleteSavedBackground = async item => {
+    if (!item?.url) return;
+    const next = readSavedBackgrounds().filter(saved => saved.id !== item.id && saved.url !== item.url);
+    writeSavedBackgrounds(next);
+    const currentUrl = store.get("backgroundImage");
+    if (currentUrl === item.url) {
+      store.set("backgroundImage", "none");
+      store.set("backgroundMode", "none");
+      if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
+      if (bgStatus) bgStatus.textContent = "Active background deleted.";
+      window.location.reload();
+      return;
+    }
+    if (typeof store.flushAccountSettings === "function") await store.flushAccountSettings();
+    renderSavedBackgrounds();
   };
 
   const applySavedBackground = async item => {
@@ -164,22 +203,39 @@ document.addEventListener("DOMContentLoaded", () => {
       meta.className = "background-saved-meta";
       const title = document.createElement("strong");
       title.textContent = item.name || "Saved background";
+      const actions = document.createElement("div");
+      actions.className = "background-saved-actions";
       const use = document.createElement("button");
       use.type = "button";
       use.className = "key-button background-saved-use";
       use.textContent = "Use";
       use.addEventListener("click", () => applySavedBackground(item));
-      meta.append(title, use);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "key-button background-saved-delete";
+      remove.setAttribute("aria-label", "Delete " + (item.name || "saved background"));
+      remove.title = "Delete";
+      remove.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+      remove.addEventListener("click", () => deleteSavedBackground(item));
+      actions.append(use, remove);
+      meta.append(title, actions);
       card.append(preview, meta);
       bgSavedGrid.appendChild(card);
     });
     if (bgSavedStatus) bgSavedStatus.textContent = items.length + " saved background" + (items.length === 1 ? "" : "s");
   };
 
+  const bgSavedClose = document.getElementById("background-saved-close");
+
   bgSavedButton && bgSavedButton.addEventListener("click", () => {
     const open = bgSavedPanel.classList.toggle("is-open");
     bgSavedPanel.setAttribute("aria-hidden", String(!open));
     if (open) renderSavedBackgrounds();
+  });
+
+  bgSavedClose && bgSavedClose.addEventListener("click", () => {
+    bgSavedPanel?.classList.remove("is-open");
+    bgSavedPanel?.setAttribute("aria-hidden", "true");
   });
 
 
