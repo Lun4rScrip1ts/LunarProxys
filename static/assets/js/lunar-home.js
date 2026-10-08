@@ -21,17 +21,24 @@
   const uiToggle = document.getElementById("lunar-ui-toggle");
   const uiSwitch = document.getElementById("lunar-ui-switch");
   const syncHomeUI = () => {
-    const mode = store.get("homeUI") || "new";
-    const normalized = mode === "old" ? "old" : "new";
-    document.body.classList.toggle("lunar-home-old-ui", normalized === "old");
-    document.body.classList.toggle("lunar-home-new-ui", normalized === "new");
-    if (uiToggle) uiToggle.value = normalized;
+    const isNew = store.get("homeUI") !== "old";
+    document.body.classList.toggle("lunar-home-old-ui", !isNew);
+    document.body.classList.toggle("lunar-home-new-ui", isNew);
+    if (uiToggle) uiToggle.setAttribute("aria-pressed", String(isNew));
+    if (uiSwitch) uiSwitch.classList.toggle("is-new", isNew);
   };
-  uiToggle?.addEventListener("change", async () => {
-    const nextMode = uiToggle.value === "old" ? "old" : "new";
+  uiToggle?.addEventListener("click", async () => {
+    if (uiToggle.dataset.reloading === "1") return;
+    uiToggle.dataset.reloading = "1";
+
+    const isNew = store.get("homeUI") !== "old";
+    const nextMode = isNew ? "old" : "new";
     store.set("homeUI", nextMode);
     syncHomeUI();
 
+    // Let the thumb visibly slide, then reload the Home page so the
+    // actual navigation/layout is rebuilt for the selected UI mode.
+    const reload = () => window.location.reload();
     const savePromise = typeof store.flushAccountSettings === "function"
       ? store.flushAccountSettings()
       : Promise.resolve(true);
@@ -40,7 +47,7 @@
       savePromise,
       new Promise(resolve => setTimeout(resolve, 900))
     ]);
-    window.location.reload();
+    window.setTimeout(reload, 180);
   });
   syncHomeUI();
 
